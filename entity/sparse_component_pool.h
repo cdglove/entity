@@ -1,4 +1,4 @@
-//! \file Entity/DenseComponentPool.h
+//! \file entity/dense_component_pool.h
 //
 // Represents a component pool where the number of components
 // approaches the number of entitys on those components.
@@ -8,18 +8,18 @@
 #ifndef _COMPONENT_SPARSECOMPONENT_POOL_H_INCLUDED_
 #define _COMPONENT_SPARSECOMPONENT_POOL_H_INCLUDED_
 
-#include "Entity/EntityPool.h"
-#include "Entity/EntityComponentIterator.h"
+#include "entity/entity_pool.h"
+#include "entity/entity_component_iterator.h"
 #include <boost/type_traits/aligned_storage.hpp>
 #include <cstddef>
 #include <boost/container/flat_map.hpp>
 
 // ----------------------------------------------------------------------------
 //
-namespace Entity 
+namespace entity 
 {
 	template<typename T>
-	class SparseComponentPool
+	class sparse_component_pool
 	{
 		struct iterator_impl
 			  : boost::iterator_facade<
@@ -28,7 +28,7 @@ namespace Entity
 			  , boost::forward_traversal_tag
 		  	>
 		{
-			Entity	get_entity() const
+			entity	get_entity() const
 			{
 				return m_Iterator->first;
 			}
@@ -39,9 +39,9 @@ namespace Entity
 		private:
 
 			friend class boost::iterator_core_access;
-			friend class SparseComponentPool;
+			friend class sparse_component_pool;
 			
-			typedef typename boost::container::flat_map<Entity, T>::iterator parent_iterator;
+			typedef typename boost::container::flat_map<entity, T>::iterator parent_iterator;
 
 
 
@@ -72,21 +72,21 @@ namespace Entity
 		typedef T type;
 		typedef iterator_impl iterator;
 
-		SparseComponentPool(EntityPool const& owner_pool)
+		sparse_component_pool(entity_pool const& owner_pool)
 			: m_EntityPool(owner_pool)
 		{}
 
-		T* create(Entity e)
+		T* create(entity e)
 		{
 			return &m_Entities[e];
 		}	
 
-		void destroy(Entity e)
+		void destroy(entity e)
 		{
 			m_Entities.erase(e);
 		}
 
-		T* get(Entity e)
+		T* get(entity e)
 		{
 			auto obj = m_Entities.find(e);
 			if(obj != m_Entities.end())
@@ -97,7 +97,7 @@ namespace Entity
 			return nullptr;
 		}
 
-		T const* get(Entity e) const
+		T const* get(entity e) const
 		{
 			auto obj = m_Entities.find(e);
 			if(obj != m_Entities.end())
@@ -120,8 +120,8 @@ namespace Entity
 
 	private:
 
-		boost::container::flat_map<Entity, T> m_Entities;
-		EntityPool const& 					   m_EntityPool;
+		boost::container::flat_map<entity, T> m_Entities;
+		entity_pool const& 					   m_EntityPool;
 	};
 }
 

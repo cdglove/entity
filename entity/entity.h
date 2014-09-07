@@ -1,4 +1,4 @@
-//! \file Entity/Entity.h
+//! \file entity/entity.h
 //
 // Represents an entity which is made up of components.
 // Essentially an ID but not incrementable, etc.
@@ -11,9 +11,9 @@
 
 // ----------------------------------------------------------------------------
 //
-namespace Entity
+namespace entity
 {
-	BOOST_STRONG_TYPEDEF(unsigned int, Entity);
+	BOOST_STRONG_TYPEDEF(unsigned int, entity);
 }
 
 #endif // _COMPONENT_ENTITY_H_INCLUDED_

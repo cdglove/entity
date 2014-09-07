@@ -1,15 +1,15 @@
-//! \file Entity/DenseComponentPool.h
+//! \file entity/dense_component_pool.h
 //
 // Represents a component pool where the number of components
 // approaches the number of entitys on those components.
 // Basically trades space for run time efficiency.
 // 
 #pragma once
-#ifndef _COMPONENT_DENSECOMPONENT_POOL_H_INCLUDED_
-#define _COMPONENT_DENSECOMPONENT_POOL_H_INCLUDED_
+#ifndef _COMPONENT_DENSECOMPONENTPOOL_H_INCLUDED_
+#define _COMPONENT_DENSECOMPONENTPOOL_H_INCLUDED_
 
-#include "Entity/EntityPool.h"
-#include "Entity/EntityComponentIterator.h"
+#include "entity/entity_pool.h"
+#include "entity/entity_component_iterator.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <cstddef>
@@ -18,10 +18,10 @@
 
 // ----------------------------------------------------------------------------
 //
-namespace Entity 
+namespace entity 
 {
 	template<typename T>
-	class DenseComponentPool
+	class dense_component_pool
 	{
 	private:
 
@@ -37,14 +37,14 @@ namespace Entity
 				, m_Index(-1)
 			{}
 
-			explicit iterator_impl(DenseComponentPool* parent)
+			explicit iterator_impl(dense_component_pool* parent)
 				: m_Parent(parent)
 				, m_Index(-1)
 			{
 				increment();
 			}	
 
-			Entity	get_entity() const
+			entity	get_entity() const
 			{
 				return m_Index;
 			}	
@@ -72,8 +72,8 @@ namespace Entity
 				return *m_Parent->get_component(m_Index);
 			}
 
-			Entity m_Index;
-			DenseComponentPool* m_Parent;
+			entity m_Index;
+			dense_component_pool* m_Parent;
 		};
 
 	public:
@@ -81,13 +81,13 @@ namespace Entity
 		typedef T type;
 		typedef iterator_impl iterator;
 		
-		DenseComponentPool(EntityPool const& owner_pool)
+		dense_component_pool(entity_pool const& owner_pool)
 			: m_Entitys(new element_t[owner_pool.size()])
 			, m_Available(owner_pool.size(), 1)
 			, m_EntityPool(owner_pool)
 		{}
 
-		T* create(Entity e)
+		T* create(entity e)
 		{
 			m_Available[e] = false;
 			T* ret_val = get_component(e);
@@ -95,7 +95,7 @@ namespace Entity
 			return ret_val;
 		}	
 
-		void destroy(Entity e)
+		void destroy(entity e)
 		{
 			std::size_t obj_index = e;
 
@@ -108,7 +108,7 @@ namespace Entity
 			m_Available[obj_index] = true;
 		}
 
-		T* get(Entity e)
+		T* get(entity e)
 		{
 			if(m_Available[e])
 			{
@@ -118,7 +118,7 @@ namespace Entity
 			return get_component(e);
 		}
 
-		T const* get(Entity e) const
+		T const* get(entity e) const
 		{
 			if(m_Available[e])
 			{
@@ -140,13 +140,13 @@ namespace Entity
 
 	private:
 
-		T* get_component(Entity e)
+		T* get_component(entity e)
 		{
 			std::size_t index = e;
 			return reinterpret_cast<T*>(&m_Entitys[index]);
 		}
 
-		T const* get_component(Entity e) const
+		T const* get_component(entity e) const
 		{
 			std::size_t index = e;
 			return reinterpret_cast<T*>(&m_Entitys[index]);
@@ -159,8 +159,8 @@ namespace Entity
 
 		std::unique_ptr<element_t[]>	m_Entitys;
 		std::vector<char> 				m_Available; // Avoid vector bool.
-		EntityPool const& 				m_EntityPool;
+		entity_pool const& 				m_EntityPool;
 	};
 }
 
-#endif // _COMPONENT_DENSECOMPONENT_POOL_H_INCLUDED_
+#endif // _COMPONENT_DENSECOMPONENTPOOL_H_INCLUDED_

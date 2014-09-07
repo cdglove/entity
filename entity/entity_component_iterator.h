@@ -1,4 +1,4 @@
-//! \file Entity/EntityComponentIterator.h
+//! \file entity/entity_component_iterator.h
 //
 // Represents an iterator that ties a component to an
 // entity pool.  Allows us to iterate through an
@@ -20,7 +20,7 @@
 
 // ----------------------------------------------------------------------------
 //
-namespace Entity 
+namespace entity 
 {
 	namespace detail
 	{
@@ -40,7 +40,7 @@ namespace Entity
 						ComponentTypes,
 						extract_component_ptr_type<boost::mpl::_1>
 					>::type,
-					Entity
+					entity
 				>::type
 			>::type type;
 		};
@@ -134,7 +134,7 @@ namespace Entity
 
 		struct fast_forward_component
 		{
-			fast_forward_component(Entity e)
+			fast_forward_component(entity e)
 				: m_Entity(e)
 			{}
 
@@ -147,7 +147,7 @@ namespace Entity
 				}
 		    }
 
-		    Entity m_Entity;
+		    entity m_Entity;
 		};
 
 		template<int Idx, int Len>
@@ -192,9 +192,9 @@ namespace Entity
 	// ------------------------------------------------------------------------
 	//
 	template<typename EntityList, typename ComponentPools>
-	class EntityComponentIterator 
+	class entity_component_iterator 
 		: public boost::iterator_facade<
-			EntityComponentIterator<EntityList, ComponentPools>
+			entity_component_iterator<EntityList, ComponentPools>
 		,	typename detail::generate_value_type<ComponentPools>::type
 		,	boost::forward_traversal_tag
 		,	typename detail::generate_value_type<ComponentPools>::type
@@ -204,7 +204,7 @@ namespace Entity
 
 		typedef typename EntityList::const_iterator entity_iterator; 
 
-		EntityComponentIterator(
+		entity_component_iterator(
 			entity_iterator ei,
 			typename detail::component_ranges<ComponentPools>::type&& components)
 			: m_EntityIter(std::move(ei))
@@ -214,7 +214,7 @@ namespace Entity
 	private:
 
 		typedef boost::iterator_facade<
-			EntityComponentIterator<EntityList, ComponentPools>
+			entity_component_iterator<EntityList, ComponentPools>
 		,	typename detail::generate_value_type<ComponentPools>::type
 		,	boost::forward_traversal_tag
 		,	typename detail::generate_value_type<ComponentPools>::type
@@ -231,7 +231,7 @@ namespace Entity
 			);
 		}
 
-		bool equal(EntityComponentIterator const& other) const
+		bool equal(entity_component_iterator const& other) const
 		{
 			return m_EntityIter == other.m_EntityIter;
 		}
@@ -257,35 +257,35 @@ namespace Entity
 	// ------------------------------------------------------------------------
 	//
 	template<typename EntityList, typename ComponentPool>
-	EntityComponentIterator<
+	entity_component_iterator<
 		EntityList, 
 		boost::mpl::vector<ComponentPool>
 	> begin(EntityList const& entities, ComponentPool& pool)
 	{
 		typedef boost::mpl::vector<ComponentPool> component_list;
 
-		return EntityComponentIterator<
+		return entity_component_iterator<
 			EntityList,
 			component_list
 		>(begin(entities), detail::make_component_begin_ranges(pool));
 	}
 
 	template<typename EntityList, typename ComponentPool>
-	EntityComponentIterator<
+	entity_component_iterator<
 		EntityList, 
 		boost::mpl::vector<ComponentPool>
 	> end(EntityList const& entities, ComponentPool& pool)
 	{
 		typedef boost::mpl::vector<ComponentPool> component_list;
 
-		return EntityComponentIterator<
+		return entity_component_iterator<
 			EntityList,
 			component_list
 		>(end(entities), detail::make_component_end_ranges(pool));
 	}
 
 	template<typename EntityList, typename ComponentPool,  typename ComponentPool1>
-	EntityComponentIterator<
+	entity_component_iterator<
 		EntityList, 
 		boost::mpl::vector<ComponentPool, ComponentPool1>
 	> begin(
@@ -295,21 +295,21 @@ namespace Entity
 	{
 		typedef boost::mpl::vector<ComponentPool, ComponentPool1> component_list;
 		
-		return EntityComponentIterator<
+		return entity_component_iterator<
 			EntityList,
 			component_list
 		>(begin(entities), detail::make_component_begin_ranges(pool, pool1));
 	}
 
 	template<typename EntityList, typename ComponentPool, typename ComponentPool1>
-	EntityComponentIterator<
+	entity_component_iterator<
 		EntityList, 
 		boost::mpl::vector<ComponentPool, ComponentPool1>
 	> end(EntityList const& entities, ComponentPool& pool, ComponentPool1& pool1)
 	{
 		typedef boost::mpl::vector<ComponentPool, ComponentPool1> component_list;
 
-		return EntityComponentIterator<
+		return entity_component_iterator<
 			EntityList,
 			component_list
 		>(end(entities), detail::make_component_end_ranges(pool, pool1));

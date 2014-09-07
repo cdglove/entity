@@ -1,4 +1,4 @@
-//! \file Entity/EntityPool.h
+//! \file entity/entity_pool.h
 //
 // Represents a pool of entity ids.
 // 
@@ -6,35 +6,35 @@
 #ifndef _COMPONENT_ENTITYPOOL_H_INCLUDED_
 #define _COMPONENT_ENTITYPOOL_H_INCLUDED_
 
-#include "Entity/Entity.h"
+#include "entity/entity.h"
 #include <boost/container/flat_set.hpp>
 #include <vector>
 #include <cassert>
 
 // ----------------------------------------------------------------------------
 //
-namespace Entity
+namespace entity
 {
-	class EntityPool
+	class entity_pool
 	{
 	public:
 
-		typedef boost::container::flat_set<Entity>::iterator iterator;
-		typedef boost::container::flat_set<Entity>::const_iterator const_iterator;
+		typedef boost::container::flat_set<entity>::iterator iterator;
+		typedef boost::container::flat_set<entity>::const_iterator const_iterator;
 
-		EntityPool(std::size_t max_entitys)
+		entity_pool(std::size_t max_entitys)
 			: m_FreeEntitys(max_entitys)
 			, m_Size(max_entitys)
 		{
 			for(std::size_t i = 0; i < max_entitys; ++i)
 			{
-				m_FreeEntitys.push_back(Entity(max_entitys-i-1));
+				m_FreeEntitys.push_back(entity(max_entitys-i-1));
 			}	
 
 			m_UsedEntitys.reserve(max_entitys);		
 		}
 
-		Entity create()
+		entity create()
 		{
 			auto ret_val = m_FreeEntitys.back();
 			m_FreeEntitys.pop_back();
@@ -42,7 +42,7 @@ namespace Entity
 			return ret_val;
 		}	
 
-		void destroy(Entity e)
+		void destroy(entity e)
 		{
 			assert(e < m_Size && "Trying to return an entity not from this pool");
 			m_UsedEntitys.erase(e);
@@ -86,40 +86,40 @@ namespace Entity
 
 	private:
 
-		EntityPool(EntityPool const&);
-		EntityPool operator=(EntityPool);
+		entity_pool(entity_pool const&);
+		entity_pool operator=(entity_pool);
 
-		std::vector<Entity>     			m_FreeEntitys;
-		boost::container::flat_set<Entity> m_UsedEntitys;
+		std::vector<entity>     			m_FreeEntitys;
+		boost::container::flat_set<entity> m_UsedEntitys;
 		std::size_t 						m_Size;
 	};
 
-	EntityPool::iterator begin(EntityPool& p)
+	entity_pool::iterator begin(entity_pool& p)
 	{
 		return p.begin();
 	}
 
-	EntityPool::const_iterator begin(EntityPool const& p)
+	entity_pool::const_iterator begin(entity_pool const& p)
 	{
 		return p.begin();
 	}
 
-	EntityPool::const_iterator cbegin(EntityPool const& p)
+	entity_pool::const_iterator cbegin(entity_pool const& p)
 	{
 		return p.cbegin();
 	}
 
-	EntityPool::iterator end(EntityPool& p)
+	entity_pool::iterator end(entity_pool& p)
 	{
 		return p.end();
 	}
 
-	EntityPool::const_iterator end(EntityPool const& p)
+	entity_pool::const_iterator end(entity_pool const& p)
 	{
 		return p.end();
 	}
 
-	EntityPool::const_iterator cend(EntityPool const& p)
+	entity_pool::const_iterator cend(entity_pool const& p)
 	{
 		return p.cend();
 	}

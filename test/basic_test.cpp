@@ -1,39 +1,39 @@
-#include "Entity/DenseComponentPool.h"
-#include "Entity/SparseComponentPool.h"
-#include "Entity/ForEach.h"
-#include "Entity/ForAll.h"
+#include "entity/dense_component_pool.h"
+#include "entity/sparse_component_pool.h"
+#include "entity/algorithm/for_each.h"
+#include "entity/algorithm/for_all.h"
 
 #include <iostream>
 
 int main()
 {
-	Entity::EntityPool ep(1024 * 1024);
-	Entity::Entity e = ep.create();
+	entity::entity_pool ep(1024 * 1024);
+	entity::entity e = ep.create();
 
-	Entity::SparseComponentPool<float> cp(ep);
+	entity::sparse_component_pool<float> cp(ep);
 	float& f = *cp.create(e);
 	f = 10.f;
 
-	Entity::DenseComponentPool<int> cp2(ep);
+	entity::dense_component_pool<int> cp2(ep);
 	int* i = cp2.create(e);
 	*i = 2;
 
-	Entity::for_each(ep, cp, [](float f)
+	entity::for_each(ep, cp, [](float f)
 	{
 		std::cout << f;
 	});
 
-	Entity::for_each(ep, cp, cp2, [](float f, int i)
+	entity::for_each(ep, cp, cp2, [](float f, int i)
 	{
 		std::cout << f * i;
 	});
 
-	Entity::for_all(ep, cp, [](float* f)
+	entity::for_all(ep, cp, [](float* f)
 	{
 		std::cout << *f;
 	});
 
-	Entity::for_all(ep, cp, cp2, [](float* f, int* i)
+	entity::for_all(ep, cp, cp2, [](float* f, int* i)
 	{
 		std::cout << *f * *i;
 	});	
