@@ -22,7 +22,7 @@ namespace entity
 		for(auto i = begin(entities, p), e = end(entities, p); i != e; ++i)
 		{
 			auto const& components = *i;
-			if(*at_c<1>(components))
+			if(at_c<1>(components))
 			{
 				f(*at_c<1>(components));
 			}
@@ -36,7 +36,7 @@ namespace entity
 		for(auto i = begin(entities, p1, p2), e = end(entities, p1, p2); i != e; ++i)
 		{
 			auto const& components = *i;
-			if(*at_c<1>(components) && *at_c<2>(components))
+			if(at_c<1>(components) && at_c<2>(components))
 			{
 				f(*at_c<1>(components), *at_c<2>(components));
 			}

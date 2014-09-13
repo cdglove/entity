@@ -11,8 +11,8 @@
 #include "entity/entity_pool.h"
 #include "entity/entity_component_iterator.h"
 #include <boost/type_traits/aligned_storage.hpp>
-#include <cstddef>
 #include <boost/container/flat_map.hpp>
+#include <cstddef>
 
 // ----------------------------------------------------------------------------
 //
@@ -42,7 +42,6 @@ namespace entity
 			friend class sparse_component_pool;
 			
 			typedef typename boost::container::flat_map<entity, T>::iterator parent_iterator;
-
 
 
 			explicit iterator_impl(parent_iterator convert_from)
@@ -121,7 +120,7 @@ namespace entity
 	private:
 
 		boost::container::flat_map<entity, T> m_Entities;
-		entity_pool const& 					   m_EntityPool;
+		entity_pool const& 					  m_EntityPool;
 	};
 }
 

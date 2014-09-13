@@ -90,7 +90,7 @@ namespace entity
 		entity_pool operator=(entity_pool);
 
 		std::vector<entity>     			m_FreeEntitys;
-		boost::container::flat_set<entity> m_UsedEntitys;
+		boost::container::flat_set<entity> 	m_UsedEntitys;
 		std::size_t 						m_Size;
 	};
 
