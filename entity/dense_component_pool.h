@@ -15,62 +15,22 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
+#include <cgutil/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //
 namespace entity 
 {
+	template<typename ComponentPool>
+	class component_pool_creation_queue;
+
+	template<typename ComponentPool>
+	class component_pool_destruction_queue;
+
 	template<typename T>
 	class dense_component_pool
 	{
 	private:
-
-		// struct iterator_impl
-		// 	  : boost::iterator_facade<
-		// 	    iterator_impl
-		// 	  , T&
-		// 	  , boost::forward_traversal_tag
-		//   	>
-		// {
-		// 	iterator_impl()
-		// 		: m_Parent(nullptr)
-		// 		, m_Index(0)
-		// 	{}
-
-		// 	entity get_entity() const
-		// 	{
-		// 		return entity(m_Index);
-		// 	}	
-
-		// private:
-
-		// 	friend class boost::iterator_core_access;
-		// 	friend class dense_component_pool;
-
-		// 	iterator_impl(dense_component_pool* parent, std::size_t index)
-		// 		: m_Parent(parent)
-		// 		, m_Index(index)
-		// 	{}	
-
-		// 	void increment()
-		// 	{
-		// 		while(++m_Index < m_Parent->m_EntityPool.size() && m_Parent->is_available(m_Index))
-		// 			;
-		// 	}
-
-		// 	bool equal(iterator_impl const& other) const
-		// 	{
-		// 		return m_Index == other.m_Index;
-		// 	}
-
-		// 	T& dereference() const
-		// 	{
-		// 		return *m_Parent->get_component(entity(m_Index));
-		// 	}
-
-		// 	std::size_t m_Index;
-		// 	dense_component_pool* m_Parent;
-		// };
 
 		struct iterator_impl
 			  : boost::iterator_facade<
@@ -81,27 +41,33 @@ namespace entity
 		{
 			entity get_entity() const
 			{
-				return *m_Iterator;
+				return entity(std::distance(m_Begin, m_Iterator));
 			}
 
 			iterator_impl()
 			{}
+
+			void advance(entity target)
+			{
+				m_Iterator = m_Begin + target;
+			}
 
 		private:
 
 			friend class boost::iterator_core_access;
 			friend class dense_component_pool;
 			
-			typedef typename std::vector<entity>::iterator parent_iterator;
+			typedef typename std::vector<char>::iterator parent_iterator;
 
-
-			explicit iterator_impl(dense_component_pool* parent, parent_iterator convert_from)
+			iterator_impl(dense_component_pool* parent, parent_iterator start, parent_iterator first)
 				: m_Parent(parent)
-				, m_Iterator(std::move(convert_from))
+				, m_Iterator(std::move(start))
+				, m_Begin(std::move(first))
 			{}
 
 			void increment()
 			{
+				AUTO_INSTRUMENT_NODE(dense_component_pool__iterator_impl__increment);
 				++m_Iterator;
 			}
 
@@ -112,11 +78,12 @@ namespace entity
 
 			T& dereference() const
 			{
-				return *m_Parent->get_component(*m_Iterator);
+				return *m_Parent->get_component(get_entity());
 			}
 
 			dense_component_pool* m_Parent;
 			parent_iterator m_Iterator;
+			parent_iterator m_Begin;
 		};
 
 	public:
@@ -128,20 +95,21 @@ namespace entity
 			: m_Components(new element_t[owner_pool.size()])
 			, m_Available(owner_pool.size(), 1)
 			, m_EntityPool(owner_pool)
-		{
-			m_Entitys.reserve(owner_pool.size());
-		}
+		{}
 
-		T* create(entity e)
+		template<typename... Args>
+		T* create(entity e, Args&&... args)
 		{
+			AUTO_INSTRUMENT_NODE(dense_component_pool__create);
 			set_available(e, false);
 			T* ret_val = get_component(e);
-			new(ret_val) T();
+			new(ret_val) T(std::forward<Args>(args)...);
 			return ret_val;
 		}	
 
 		void destroy(entity e)
 		{
+			AUTO_INSTRUMENT_NODE(dense_component_pool__destroy);
 			std::size_t obj_index = e;
 
 			assert(obj_index < m_EntityPool.size() && "Trying to destroy component not owned by this pool");
@@ -155,6 +123,7 @@ namespace entity
 
 		T* get(entity e)
 		{
+			AUTO_INSTRUMENT_NODE(dense_component_pool__get);
 			if(is_available(e))
 			{
 				return nullptr;
@@ -165,6 +134,7 @@ namespace entity
 
 		T const* get(entity e) const
 		{
+			AUTO_INSTRUMENT_NODE(dense_component_pool__get);
 			if(is_available(e))
 			{
 				return nullptr;
@@ -175,15 +145,18 @@ namespace entity
 
 		iterator begin()
 		{
-			return iterator(this, m_Entitys.begin());
+			return iterator(this, m_Available.begin(), m_Available.begin());
 		}
 
 		iterator end()
 		{
-			return iterator(this, m_Entitys.end());
+			return iterator(this, m_Available.end(), m_Available.begin());
 		}
 
 	private:
+
+		friend class component_pool_creation_queue<dense_component_pool<type>>;
+		friend class component_pool_destruction_queue<dense_component_pool<type>>;
 
 		T* get_component(entity e)
 		{
@@ -204,16 +177,28 @@ namespace entity
 
 		void set_available(std::size_t e, bool available)
 		{
-			auto position = std::lower_bound(m_Entitys.begin(), m_Entitys.end(), entity(e));
-			if(available)
+            m_Available[e] = available;
+		}
+
+		template<typename Iter>
+		void create_range(Iter first, Iter last)
+		{
+			while(first != last)
 			{
-				m_Entitys.erase(position);
+				m_Available[first->first] = false;
+				new(get_component(first->first)) T(first->second);
+				++first;
 			}
-			else
+		}
+
+		template<typename Iter>
+		void destroy_range(Iter first, Iter last)
+		{
+			while(first != last)
 			{
-				m_Entitys.insert(position, entity(e));
+				destroy(*first);
+				++first;
 			}
-			m_Available[e] = available;
 		}
 
 		typedef boost::aligned_storage<
@@ -222,7 +207,6 @@ namespace entity
 		> element_t;
 
 		std::unique_ptr<element_t[]>	m_Components;
-		std::vector<entity> 			m_Entitys;
 		std::vector<char>				m_Available;
 		entity_pool const& 				m_EntityPool;
 	};

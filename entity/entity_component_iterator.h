@@ -17,6 +17,7 @@
 #include <boost/mpl/push_front.hpp>
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector.hpp>
+#include <cgutil/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //
@@ -132,19 +133,16 @@ namespace entity
 			return ret_val;
 		}
 
-		struct fast_forward_component
+		struct advance_component_iterator
 		{
-			fast_forward_component(entity e)
+			advance_component_iterator(entity e)
 				: m_Entity(e)
 			{}
 
 		    template<typename T>
 		    void operator()(T& t) const
 		    {
-				while(t.current != t.end && t.current.get_entity() <= m_Entity)
-				{
-					++t.current;
-				}
+				t.current.advance(m_Entity);
 		    }
 
 		    entity m_Entity;
@@ -224,10 +222,11 @@ namespace entity
 
 		void increment()
 		{
+			AUTO_INSTRUMENT_NODE(entity_component_iterator__increment);
 			++m_EntityIter;
 			boost::fusion::for_each(
 				m_Components,
-				detail::fast_forward_component(*m_EntityIter)
+				detail::advance_component_iterator(*m_EntityIter)
 			);
 		}
 

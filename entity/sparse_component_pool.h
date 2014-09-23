@@ -13,11 +13,18 @@
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/container/flat_map.hpp>
 #include <cstddef>
+#include <cgutil/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //
 namespace entity 
 {
+	template<typename ComponentPool>
+	class component_pool_creation_queue;
+
+	template<typename ComponentPool>
+	class component_pool_destruction_queue;
+
 	template<typename T>
 	class sparse_component_pool
 	{
@@ -36,6 +43,14 @@ namespace entity
 			iterator_impl()
 			{}
 
+			void advance(entity target)
+			{
+				while(get_entity() < target)
+				{
+					++m_Iterator;
+				}
+			}
+
 		private:
 
 			friend class boost::iterator_core_access;
@@ -50,6 +65,7 @@ namespace entity
 
 			void increment()
 			{
+				AUTO_INSTRUMENT_NODE(sparse_component_pool__iterator_impl__increment);
 				++m_Iterator;
 			}
 
@@ -71,22 +87,31 @@ namespace entity
 		typedef T type;
 		typedef iterator_impl iterator;
 
+		friend class component_pool_creation_queue<sparse_component_pool<type>>;
+		friend class component_pool_destruction_queue<sparse_component_pool<type>>;
+
 		sparse_component_pool(entity_pool const& owner_pool)
 			: m_EntityPool(owner_pool)
 		{}
 
-		T* create(entity e)
+		template<typename... Args>
+		T* create(entity e, Args&&... args)
 		{
-			return &m_Entities[e];
+			AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
+			auto c = &m_Entities[e];
+			c->~T();
+			new(c) T(std::forward<Args>(args)...);
 		}	
 
 		void destroy(entity e)
 		{
+			AUTO_INSTRUMENT_NODE(sparse_component_pool__destroy);
 			m_Entities.erase(e);
 		}
 
 		T* get(entity e)
 		{
+			AUTO_INSTRUMENT_NODE(sparse_component_pool__get);
 			auto obj = m_Entities.find(e);
 			if(obj != m_Entities.end())
 			{
@@ -98,6 +123,7 @@ namespace entity
 
 		T const* get(entity e) const
 		{
+			AUTO_INSTRUMENT_NODE(sparse_component_pool__get);
 			auto obj = m_Entities.find(e);
 			if(obj != m_Entities.end())
 			{
@@ -118,6 +144,22 @@ namespace entity
 		}
 
 	private:
+
+		template<typename Iter>
+		void create_range(Iter first, Iter last)
+		{
+			m_Entities.insert(boost::container::ordered_unique_range_t(), first, last);
+		}
+
+		template<typename Iter>
+		void destroy_range(Iter first, Iter last)
+		{
+			while(first != last)
+			{
+				destroy(*first);
+				++first;
+			}
+		}
 
 		boost::container::flat_map<entity, T> m_Entities;
 		entity_pool const& 					  m_EntityPool;
