@@ -31,7 +31,7 @@ namespace entity
 			friend class boost::iterator_core_access;
 			friend class entity_pool;
 			
-			typedef typename std::vector<char>::const_iterator parent_iterator;
+			typedef std::vector<char>::const_iterator parent_iterator;
 
 			iterator_impl(parent_iterator first, parent_iterator convert_from)
 				: m_Begin(std::move(first))
@@ -65,8 +65,11 @@ namespace entity
 		typedef iterator_impl const_iterator;
 
 		entity_pool(std::size_t max_entitys)
-			: m_Available(max_entitys, 1)
+			// Installa dummy node at the end of the max_entities
+			// to make iteration more performant.
+			: m_Available(max_entitys + 1, 1)
 		{
+			m_Available[max_entitys] = 0;
 			m_FreeList.reserve(max_entitys);
 			for(std::size_t i = 0; i < max_entitys; ++i)
 			{
@@ -90,7 +93,7 @@ namespace entity
 
 		std::size_t size() const
 		{
-			return m_Available.size();
+			return m_Available.size() - 1;
 		}
 
 		iterator begin() const
@@ -98,30 +101,11 @@ namespace entity
 			return iterator_impl(m_Available.begin(), m_Available.begin());
 		}
 
-		// const_iterator begin() const
-		// {
-		// 	return m_UsedEntitys.begin();
-		// }
-		
-		// const_iterator cbegin() const
-		// {
-		// 	return m_UsedEntitys.cbegin();
-		// }
-
 		iterator end() const
 		{
-			return iterator_impl(m_Available.begin(), m_Available.end());
+			// End is actually end -1 because we install a dummy node at the end.
+			return iterator_impl(m_Available.begin(), m_Available.end() - 1);
 		}
-
-		// const_iterator end() const
-		// {
-		// 	return m_UsedEntitys.end();
-		// }
-
-		// const_iterator cend() const
-		// {
-		// 	return m_UsedEntitys.cend();
-		// }
 
 	private:
 

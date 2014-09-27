@@ -25,12 +25,16 @@ else()
 		daily
 		GIT_REPOSITORY "https://github.com/cdglove/daily.git"
 		GIT_TAG "master"
+		PREFIX "${PROJECT_SOURCE_DIR}/contrib/daily"
 		UPDATE_COMMAND ""
 		INSTALL_COMMAND "" 
 	)
-	ExternalProject_Get_Property(daily install_dir)
-	set( daily_INCLUDE_DIR ${install_dir}/src/daily )
+	set( daily_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/daily/src/daily" )
 endif()
+
+file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
+file(GLOB_RECURSE PROJECT_HEADERS entity/*.h)
+add_library( ${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS} ) 
 
 add_subdirectory(test)
 

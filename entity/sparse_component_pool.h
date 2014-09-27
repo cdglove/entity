@@ -91,16 +91,17 @@ namespace entity
 		friend class component_pool_destruction_queue<sparse_component_pool<type>>;
 
 		sparse_component_pool(entity_pool const& owner_pool)
-			: m_EntityPool(owner_pool)
-		{}
+		{
+			// Inserta dummy node to make iteration simpler.
+			m_Entities[entity(owner_pool.size())] = T();
+		}
 
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
-			auto c = &m_Entities[e];
-			c->~T();
-			new(c) T(std::forward<Args>(args)...);
+			auto r = m_Entities.emplace(e, std::forward<Args>(args)...);
+			return &(r.first->second);
 		}	
 
 		void destroy(entity e)
@@ -140,7 +141,7 @@ namespace entity
 
 		iterator end()
 		{
-			return iterator(m_Entities.end());
+			return iterator(m_Entities.end()-1);
 		}
 
 	private:
@@ -162,7 +163,6 @@ namespace entity
 		}
 
 		boost::container::flat_map<entity, T> m_Entities;
-		entity_pool const& 					  m_EntityPool;
 	};
 }
 

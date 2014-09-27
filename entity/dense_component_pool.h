@@ -172,12 +172,12 @@ namespace entity
 
 		bool is_available(std::size_t e)
 		{
-			return m_Available[e];
+			return m_Available[e] != 0;
 		}
 
 		void set_available(std::size_t e, bool available)
 		{
-            m_Available[e] = available;
+            m_Available[e] = available == true;
 		}
 
 		template<typename Iter>
