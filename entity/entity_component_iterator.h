@@ -17,7 +17,7 @@
 #include <boost/mpl/push_front.hpp>
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector.hpp>
-#include <cgutil/timer/instrument.h>
+#include <daily/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //
@@ -222,7 +222,7 @@ namespace entity
 
 		void increment()
 		{
-			AUTO_INSTRUMENT_NODE(entity_component_iterator__increment);
+			DAILY_AUTO_INSTRUMENT_NODE(entity_component_iterator__increment);
 			++m_EntityIter;
 			boost::fusion::for_each(
 				m_Components,

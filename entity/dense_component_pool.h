@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
-#include <cgutil/timer/instrument.h>
+#include <daily/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //
@@ -67,7 +67,7 @@ namespace entity
 
 			void increment()
 			{
-				AUTO_INSTRUMENT_NODE(dense_component_pool__iterator_impl__increment);
+				DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__iterator_impl__increment);
 				++m_Iterator;
 			}
 
@@ -100,7 +100,7 @@ namespace entity
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
-			AUTO_INSTRUMENT_NODE(dense_component_pool__create);
+			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__create);
 			set_available(e, false);
 			T* ret_val = get_component(e);
 			new(ret_val) T(std::forward<Args>(args)...);
@@ -109,7 +109,7 @@ namespace entity
 
 		void destroy(entity e)
 		{
-			AUTO_INSTRUMENT_NODE(dense_component_pool__destroy);
+			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__destroy);
 			std::size_t obj_index = e;
 
 			assert(obj_index < m_EntityPool.size() && "Trying to destroy component not owned by this pool");
@@ -123,7 +123,7 @@ namespace entity
 
 		T* get(entity e)
 		{
-			AUTO_INSTRUMENT_NODE(dense_component_pool__get);
+			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__get);
 			if(is_available(e))
 			{
 				return nullptr;
@@ -134,7 +134,7 @@ namespace entity
 
 		T const* get(entity e) const
 		{
-			AUTO_INSTRUMENT_NODE(dense_component_pool__get);
+			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__get);
 			if(is_available(e))
 			{
 				return nullptr;

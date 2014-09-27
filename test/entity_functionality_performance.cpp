@@ -8,57 +8,71 @@
 #include <random>
 #include <iostream>
 
-#include <cgutil/timer/instrument.h>
+#include <daily/timer/instrument.h>
 
 static const int kNumEntities = 1024 * 2048;
-static const float kTestLength = 1.0f;
+static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
 static const bool kUseCreationQueue = true;
 static const bool kUseDestructionQueue = true;
 
 int main()
 {
-	DECLARE_INSTRUMENT_NODE(Instantiation);
-	START_INSTRUMENT_NODE(Instantiation);
+	DAILY_DECLARE_INSTRUMENT_NODE(Instantiation);
+	DAILY_START_INSTRUMENT_NODE(Instantiation);
 
 	entity::entity_pool entities(kNumEntities);
 
-	typedef entity::sparse_component_pool<float> pool_type;
+#if TEST_DENSE_POOLS
+	typedef entity::dense_component_pool<float> position_pool_type;
+	typedef entity::dense_component_pool<float> velocity_pool_type;
+	typedef entity::dense_component_pool<float> accel_pool_type;
+#elif TEST_SPARSE_POOLS
+	typedef entity::sparse_component_pool<float> position_pool_type;
+	typedef entity::sparse_component_pool<float> velocity_pool_type;
+	typedef entity::sparse_component_pool<float> accel_pool_type;
+#elif TEST_MIXED_POOLS
+	typedef entity::sparse_component_pool<float> position_pool_type;
+	typedef entity::dense_component_pool<float> velocity_pool_type;
+	typedef entity::sparse_component_pool<float> accel_pool_type;
+#endif
 
-	pool_type position_pool(entities);
-	pool_type velocity_pool(entities);
-	pool_type accel_pool(entities);
+	position_pool_type position_pool(entities);
+	velocity_pool_type velocity_pool(entities);
+	accel_pool_type accel_pool(entities);
 
 	entity::component_pool_creation_queue<
-		pool_type
+		position_pool_type
 	> position_creation_queue(position_pool);
 
 	entity::component_pool_creation_queue<
-		pool_type
+		velocity_pool_type
 	> velocity_creation_queue(velocity_pool);
 
 	entity::component_pool_creation_queue<
-		pool_type
+		accel_pool_type
 	> accel_creation_queue(accel_pool);
 
 	entity::component_pool_destruction_queue<
-		pool_type
+		position_pool_type
 	> position_destruction_queue(position_pool);
 
 	entity::component_pool_destruction_queue<
-		pool_type
+		velocity_pool_type
 	> velocity_destruction_queue(velocity_pool);
 
 	entity::component_pool_destruction_queue<
-		pool_type
+		accel_pool_type
 	> accel_destruction_queue(accel_pool);
 
-	STOP_INSTRUMENT_NODE(Instantiation);
+	std::clog << "Created Pools\n";
+
+	DAILY_STOP_INSTRUMENT_NODE(Instantiation);
 
 	// Mix things up to make it more realistic
 	if(true)
 	{
-		AUTO_INSTRUMENT_NODE(Instantiation);
+		DAILY_AUTO_INSTRUMENT_NODE(Instantiation);
 
 		std::vector<entity::entity> shuffled_entitys;
 		for(int i = 0; i < kNumEntities; ++i)
@@ -79,9 +93,11 @@ int main()
     	}
 	}
 
+	std::clog << "Shuffled Entities\n";
+
 	// Create entities and components.
 	{
-		AUTO_INSTRUMENT_NODE(CreateEntities);
+		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
 
 		std::vector<entity::entity> shuffled_entitys;
 		shuffled_entitys.reserve(entities.size());
@@ -92,7 +108,7 @@ int main()
 
 		if(kUseCreationQueue)
 		{
-			AUTO_INSTRUMENT_NODE(QueueCreation);
+			DAILY_AUTO_INSTRUMENT_NODE(QueueCreation);
 
 			for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
 			{
@@ -103,7 +119,7 @@ int main()
 			}
 
 
-			{ AUTO_INSTRUMENT_NODE(FlushCreation);
+			{ DAILY_AUTO_INSTRUMENT_NODE(FlushCreation);
 			
 				position_creation_queue.flush();
 				velocity_creation_queue.flush();
@@ -113,7 +129,7 @@ int main()
 		}
 		else
 		{
-			AUTO_INSTRUMENT_NODE(ComponentCreation);
+			DAILY_AUTO_INSTRUMENT_NODE(ComponentCreation);
 
 			for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
 			{
@@ -125,9 +141,11 @@ int main()
 		}
 	}
 
+	std::clog << "Created Components, simulating...";
+
 	// Simulate over some seconds using a fixed step.
 	{
-		AUTO_INSTRUMENT_NODE(Simulation);
+		DAILY_AUTO_INSTRUMENT_NODE(Simulation);
 
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)
@@ -148,17 +166,18 @@ int main()
 		}
 	}
 
+	std::clog << "done.\n";
 
-    std::cout << "Positions: " << *position_pool.get(entity::entity(0)) << std::endl;
-    std::cout << "Velocities: " << *velocity_pool.get(entity::entity(0)) << std::endl;
+    std::clog << "Positions: " << *position_pool.get(entity::entity(0)) << std::endl;
+    std::clog << "Velocities: " << *velocity_pool.get(entity::entity(0)) << std::endl;
 
-	cgutil::timer_map::get_default().report(std::cout);
-	cgutil::timer_map::get_default().reset_all();
+	daily::timer_map::get_default().report(std::cout);
+	daily::timer_map::get_default().reset_all();
 	std::cout << std::endl;
 
 	if(true)
 	{
-		AUTO_INSTRUMENT_NODE(Cleanup);
+		DAILY_AUTO_INSTRUMENT_NODE(Cleanup);
 
 		std::vector<entity::entity> entitys_list;
 		entitys_list.reserve(kNumEntities);
@@ -210,7 +229,7 @@ int main()
 	    }
     }
 
-    cgutil::timer_map::get_default().report(std::cout);
+    daily::timer_map::get_default().report(std::cout);
 
 	return 0;
 }

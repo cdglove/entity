@@ -27,7 +27,6 @@ namespace entity
 			flush();
 		}
 
-		template<typename... Args>
 		void push(entity e)
 		{
 			m_Destroyed.push_back(e);

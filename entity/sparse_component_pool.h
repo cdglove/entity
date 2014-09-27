@@ -13,7 +13,7 @@
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/container/flat_map.hpp>
 #include <cstddef>
-#include <cgutil/timer/instrument.h>
+#include <daily/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //
@@ -65,7 +65,7 @@ namespace entity
 
 			void increment()
 			{
-				AUTO_INSTRUMENT_NODE(sparse_component_pool__iterator_impl__increment);
+				DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__iterator_impl__increment);
 				++m_Iterator;
 			}
 
@@ -97,7 +97,7 @@ namespace entity
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
-			AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
+			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
 			auto c = &m_Entities[e];
 			c->~T();
 			new(c) T(std::forward<Args>(args)...);
@@ -105,13 +105,13 @@ namespace entity
 
 		void destroy(entity e)
 		{
-			AUTO_INSTRUMENT_NODE(sparse_component_pool__destroy);
+			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__destroy);
 			m_Entities.erase(e);
 		}
 
 		T* get(entity e)
 		{
-			AUTO_INSTRUMENT_NODE(sparse_component_pool__get);
+			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__get);
 			auto obj = m_Entities.find(e);
 			if(obj != m_Entities.end())
 			{
@@ -123,7 +123,7 @@ namespace entity
 
 		T const* get(entity e) const
 		{
-			AUTO_INSTRUMENT_NODE(sparse_component_pool__get);
+			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__get);
 			auto obj = m_Entities.find(e);
 			if(obj != m_Entities.end())
 			{
