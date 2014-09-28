@@ -2,6 +2,7 @@
 #include "entity/sparse_component_pool.h"
 #include "entity/algorithm/for_each.h"
 #include "entity/algorithm/for_all.h"
+#include "entity/algorithm/simd/sse/for_each.h"
 #include "entity/component_pool_creation_queue.h"
 #include "entity/component_pool_destruction_queue.h"
 
@@ -10,7 +11,7 @@
 
 #include <daily/timer/instrument.h>
 
-static const int kNumEntities = 1024 * 2048;
+static const int kNumEntities = 1024 * 32;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
 static const bool kUseCreationQueue = true;
@@ -150,10 +151,39 @@ int main()
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)
 		{
+		#if USE_SSE
+			entity::simd::sse::for_each(entities, accel_pool, [](__m128& a)
+			{
+				// Add a little to accel each frame.
+				__m128 increment = _mm_set1_ps(0.001f);
+				a += increment;
+			});
+
+			entity::simd::sse::for_each(entities, accel_pool, velocity_pool, [](__m128 a, __m128& v)
+			{
+				// Compute new velocity.
+				__m128 divisor = _mm_set1_ps(2.f);
+				__m128 frame_time_sq = _mm_set1_ps(kFrameTime * kFrameTime);
+				v += (a/divisor) * frame_time_sq;
+			});
+
+			entity::simd::sse::for_each(entities, velocity_pool, position_pool, [](__m128 v, __m128& p)
+			{
+				// Compute new position.
+				__m128 frame_time = _mm_set1_ps(kFrameTime);
+				p += v * frame_time;
+			});
+		#else
+			entity::for_each(entities, accel_pool, [](float& a)
+			{
+				// Add a little to accel each frame.
+				a += 0.001f;
+			});
+
 			entity::for_each(entities, accel_pool, velocity_pool, [](float a, float& v)
 			{
 				// Compute new velocity.
-				v += (a/2.f) * (kTestLength * kTestLength);
+				v += (a/2.f) * (kFrameTime * kFrameTime);
 			});
 
 			entity::for_each(entities, velocity_pool, position_pool, [](float v, float& p)
@@ -161,6 +191,7 @@ int main()
 				// Compute new position.
 				p += v * kFrameTime;
 			});
+		#endif
 
 			time_remaining -= kFrameTime;
 		}

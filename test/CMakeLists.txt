@@ -21,7 +21,11 @@ endfunction(create_test)
 
 create_test(test_sparse_performance entity_functionality_performance.cpp "TEST_SPARSE_POOLS=1")
 create_test(test_dense_performance entity_functionality_performance.cpp "TEST_DENSE_POOLS=1")
+create_test(test_dense_performance_sse entity_functionality_performance.cpp "TEST_DENSE_POOLS=1")
 create_test(test_mixed_functionality entity_functionality_performance.cpp "TEST_MIXED_POOLS=1")
+create_test(test_non_entity_performance_0 non_entity_performance.cpp "EXTRA_PADDING=0")
+create_test(test_non_entity_performance_4 non_entity_performance.cpp "EXTRA_PADDING=4")
+#create_test(test_non_entity_performance_16 non_entity_performance.cpp "EXTRA_PADDING=16")
+#create_test(test_non_entity_performance_64 non_entity_performance.cpp "EXTRA_PADDING=64")
 
-
-
+set_property(TARGET test_dense_performance_sse APPEND PROPERTY COMPILE_DEFINITIONS "USE_SSE=1")
