@@ -1,16 +1,13 @@
-#include "entity/dense_component_pool.h"
-#include "entity/sparse_component_pool.h"
-#include "entity/algorithm/for_each.h"
-#include "entity/algorithm/for_all.h"
-#include "entity/component_pool_creation_queue.h"
-#include "entity/component_pool_destruction_queue.h"
-
-#include <random>
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
-#include <daily/timer/instrument.h>
+#if SIZE_OF_TEST
+	static const int kNumEntities = SIZE_OF_TEST;
+#else
+	static const int kNumEntities = 1024 * 2048;
+#endif 
 
-static const int kNumEntities = 1024 * 2048;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
 
