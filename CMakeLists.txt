@@ -25,11 +25,11 @@ else()
 		daily
 		GIT_REPOSITORY "https://github.com/cdglove/daily.git"
 		GIT_TAG "master"
-		PREFIX "${PROJECT_SOURCE_DIR}/contrib/daily"
+		SOURCE_DIR "${PROJECT_SOURCE_DIR}/contrib/daily"
 		UPDATE_COMMAND ""
 		INSTALL_COMMAND "" 
 	)
-	set( daily_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/daily/src/daily" )
+	set( daily_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/daily" )
 endif()
 
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
