@@ -12,6 +12,8 @@
 #include <immintrin.h>
 #include "entity/entity_component_iterator.h"
 
+#if ENTITY_SUPPORT_AVX
+
 // ----------------------------------------------------------------------------
 //
 namespace entity { namespace simd { namespace avx
@@ -47,5 +49,7 @@ namespace entity { namespace simd { namespace avx
 		}
 	}
 }}} // namespace entity { namespace simd { namespace sse { 
+
+#endif // ENTITY_SUPPORT_AVX
 
 #endif // _COMPONENT_SIMD_AVX_FOREACH_H_INCLUDED_

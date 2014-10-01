@@ -14,7 +14,13 @@ if(COMPILER_SUPPORTS_CXX11)
 elseif(COMPILER_SUPPORTS_CXX0X)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 else()
-	message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has may not support Please use a different C++ compiler if building fails.")
+	if(MSVC EQUAL FALSE)
+		message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has may not support Please use a different C++ compiler if building fails.")
+	endif()
+endif()
+
+if(MSVC EQUAL FALSE)
+	
 endif()
 
 if(DEFINED ENV{_DAILY_ROOT})

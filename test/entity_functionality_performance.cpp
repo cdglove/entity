@@ -159,27 +159,35 @@ int main()
 		{
 		#if USE_SSE
 			__m128 increment = _mm_set1_ps(0.001f);
-			entity::simd::sse::for_each(entities, accel_pool, [increment](__m128& a)
+			entity::simd::sse::for_each(entities, accel_pool, [&increment](__m128& a)
 			{
 				// Add a little to accel each frame.
-				a += increment;
+				a = _mm_add_ps(increment, a);
 			});
 
 			// Compute new velocity.
 			__m128 divisor = _mm_set1_ps(2.f);
 			__m128 frame_time_sq = _mm_set1_ps(kFrameTime * kFrameTime);
-			entity::simd::sse::for_each(entities, accel_pool, velocity_pool, [divisor,frame_time_sq](__m128 a, __m128& v)
+			entity::simd::sse::for_each(entities, accel_pool, velocity_pool, [&divisor,&frame_time_sq](__m128 const& a, __m128& v)
 			{
-				v += (a/divisor) * frame_time_sq;
+				v = _mm_add_ps(
+						_mm_mul_ps(
+							_mm_div_ps(
+								a, divisor
+							),
+						    frame_time_sq
+						),
+						v
+					);
 			});
 
 			__m128 frame_time = _mm_set1_ps(kFrameTime);
-			entity::simd::sse::for_each(entities, velocity_pool, position_pool, [frame_time](__m128 v, __m128& p)
+			entity::simd::sse::for_each(entities, velocity_pool, position_pool, [&frame_time](__m128 const& v, __m128& p)
 			{
 				// Compute new position.
-				p += v * frame_time;
+				p = _mm_add_ps(_mm_mul_ps(v, frame_time), p);
 			});
-		#elif USE_AVX
+		#elif USE_AVX && ENTITY_SUPPORT_AVX
 			entity::simd::avx::for_each(entities, accel_pool, [](__m256& a)
 			{
 				// Add a little to accel each frame.
