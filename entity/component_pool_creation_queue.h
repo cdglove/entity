@@ -4,6 +4,7 @@
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
 // 
 
+#include "entity/config.h"
 #include <vector>
 #include <utility>
 

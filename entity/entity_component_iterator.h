@@ -8,6 +8,7 @@
 #ifndef _COMPONENT_ENTITYCOMPONENTITERATOR_H_INCLUDED_
 #define _COMPONENT_ENTITYCOMPONENTITERATOR_H_INCLUDED_
 
+#include "entity/config.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/fusion/container/vector.hpp>
 #include <boost/fusion/include/at_c.hpp>

@@ -7,6 +7,7 @@
 #ifndef _COMPONENT_ENTITY_H_INCLUDED_
 #define _COMPONENT_ENTITY_H_INCLUDED_
 
+#include "entity/config.h"
 #include <boost/strong_typedef.hpp>
 
 // ----------------------------------------------------------------------------

@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 2.8)
 project (entity)
- 
+
+set (entity_VERSION_MAJOR 0)
+set (entity_VERSION_MINOR 1)
+
+configure_file (
+  "${PROJECT_SOURCE_DIR}/config/config.h.in"
+  "${PROJECT_BINARY_DIR}/entity/config.h"
+  )
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(PROJECT_INCLUDE_DIR ".")
+set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
 
 enable_testing()
 

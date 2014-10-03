@@ -8,8 +8,9 @@
 #ifndef _COMPONENT_FORALL_H_INCLUDED_
 #define _COMPONENT_FORALL_H_INCLUDED_
 
-#include <algorithm>
+#include "entity/config.h"
 #include "entity/entity_component_iterator.h"
+#include <algorithm>
 
 // ----------------------------------------------------------------------------
 //

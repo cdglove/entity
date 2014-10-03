@@ -8,6 +8,7 @@
 #ifndef _COMPONENT_SPARSECOMPONENT_POOL_H_INCLUDED_
 #define _COMPONENT_SPARSECOMPONENT_POOL_H_INCLUDED_
 
+#include "entity/config.h"
 #include "entity/entity_pool.h"
 #include "entity/entity_component_iterator.h"
 #include <boost/type_traits/aligned_storage.hpp>

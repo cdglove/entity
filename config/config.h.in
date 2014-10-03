@@ -1,0 +1,21 @@
+#ifndef ENTITY_CONFIG_H
+#define ENTITY_CONFIG_H
+
+#include <boost/config.hpp>
+
+namespace entity {
+
+const int VersionMajor = @entity_VERSION_MAJOR@;
+const int VersionMinor = @entity_VERSION_MINOR@;
+
+}
+
+#ifndef ENTITY_SUPPORT_VARIADICS
+#  ifndef BOOST_NO_CXX11_VARIADICS
+#    define ENTITY_SUPPORT_VARIADICS 1
+#  else
+#    define ENTITY_SUPPORT_VARIADICS 0
+#  endif
+#endif
+
+#endif // ENTITY_CONFIG_H

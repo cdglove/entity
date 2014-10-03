@@ -8,6 +8,7 @@
 #ifndef _COMPONENT_DENSECOMPONENTPOOL_H_INCLUDED_
 #define _COMPONENT_DENSECOMPONENTPOOL_H_INCLUDED_
 
+#include "entity/config.h"
 #include "entity/entity_pool.h"
 #include "entity/entity_component_iterator.h"
 #include <boost/iterator/iterator_facade.hpp>
