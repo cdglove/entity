@@ -29,7 +29,7 @@ namespace entity
 		template<typename T>
 		struct extract_component_ptr_type
 		{
-			typedef typename T::type* type;
+			typedef typename std::decay<T>::type::type* type;
 		};
 
 		template<typename ComponentTypes>
@@ -58,7 +58,7 @@ namespace entity
 		struct extract_iterator_pair
 		{
 			typedef	iterator_pair<
-				typename T::iterator
+				typename std::decay<T>::type::iterator
 			> type;
 		};
 
@@ -259,10 +259,10 @@ namespace entity
 	template<typename EntityList, typename ComponentPool>
 	entity_component_iterator<
 		EntityList, 
-		boost::mpl::vector<ComponentPool>
+		boost::mpl::vector<ComponentPool&>
 	> begin(EntityList const& entities, ComponentPool& pool)
 	{
-		typedef boost::mpl::vector<ComponentPool> component_list;
+		typedef boost::mpl::vector<ComponentPool&> component_list;
 
 		return entity_component_iterator<
 			EntityList,
@@ -273,10 +273,10 @@ namespace entity
 	template<typename EntityList, typename ComponentPool>
 	entity_component_iterator<
 		EntityList, 
-		boost::mpl::vector<ComponentPool>
+		boost::mpl::vector<ComponentPool&>
 	> end(EntityList const& entities, ComponentPool& pool)
 	{
-		typedef boost::mpl::vector<ComponentPool> component_list;
+		typedef boost::mpl::vector<ComponentPool&> component_list;
 
 		return entity_component_iterator<
 			EntityList,
@@ -287,13 +287,10 @@ namespace entity
 	template<typename EntityList, typename ComponentPool,  typename ComponentPool1>
 	entity_component_iterator<
 		EntityList, 
-		boost::mpl::vector<ComponentPool, ComponentPool1>
-	> begin(
-		EntityList const& entities, 
-		ComponentPool& pool,
-		ComponentPool1& pool1)
+		boost::mpl::vector<ComponentPool&, ComponentPool1&>
+	> begin(EntityList const& entities,	ComponentPool& pool, ComponentPool1& pool1)
 	{
-		typedef boost::mpl::vector<ComponentPool, ComponentPool1> component_list;
+		typedef boost::mpl::vector<ComponentPool&, ComponentPool1&> component_list;
 		
 		return entity_component_iterator<
 			EntityList,
@@ -304,10 +301,10 @@ namespace entity
 	template<typename EntityList, typename ComponentPool, typename ComponentPool1>
 	entity_component_iterator<
 		EntityList, 
-		boost::mpl::vector<ComponentPool, ComponentPool1>
+		boost::mpl::vector<ComponentPool&, ComponentPool1&>
 	> end(EntityList const& entities, ComponentPool& pool, ComponentPool1& pool1)
 	{
-		typedef boost::mpl::vector<ComponentPool, ComponentPool1> component_list;
+		typedef boost::mpl::vector<ComponentPool&, ComponentPool1&> component_list;
 
 		return entity_component_iterator<
 			EntityList,
