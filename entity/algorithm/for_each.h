@@ -11,13 +11,50 @@
 #include "entity/config.h"
 #include "entity/entity_component_iterator.h"
 #include <algorithm>
+#include <tuple>
+
+#if 0 //ENTITY_SUPPORT_VARIADICS == 0
+#  include <boost/proprocessor.hpp>
+#endif
 
 // ----------------------------------------------------------------------------
 //
 namespace entity
 {
-	template<typename EntityList, typename ComponentPool, typename Fn>
-	void for_each(EntityList const& entities, ComponentPool& p, Fn f)
+#if ENTITY_SUPPORT_VARIADICS
+	template<typename... ComponentPools>
+	class entity_component_pool_package
+	{
+	public:
+
+		entity_component_pool_package(ComponentPools... pools)
+			: components_(std::forward<ComponentPools>(pools)...)
+		{}
+
+	private:
+
+		std::tuple<ComponentPools...> components_;
+	};
+	// ------------------------------------------------------------------------
+	//
+	template<typename EntityList, typename... ComponentPools>
+	void for_each(EntityList const& entities, ComponentPools&&... pools)
+	{
+		// using boost::fusion::at_c;
+		// for(auto i = begin(entities, pools...), e = end(entities, pools...); i != e; ++i)
+		// {
+		// 	auto const& components = *i;
+		// 	// if(at_c<1>(components))
+		// 	// {
+		// 	// 	f(*at_c<1>(components));
+		// 	// }
+		// }
+	}
+#else
+	// ------------------------------------------------------------------------
+	//
+	template<typename EntityList, typename ComponentPool>
+	void for_each(EntityList const& entities, ComponentPool& p, void(f)(typename ComponentPool::type&))
 	{
 		using boost::fusion::at_c;
 		for(auto i = begin(entities, p), e = end(entities, p); i != e; ++i)
@@ -43,6 +80,7 @@ namespace entity
 			}
 		}
 	}
+#endif
 }
 
 #endif // _COMPONENT_FOREACH_H_INCLUDED_

@@ -28,11 +28,18 @@ namespace entity
 			flush();
 		}
 
+	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		void push(entity e, Args&&... args)
 		{
 			m_Created.push_back(std::make_pair(e, type(std::forward<Args>(args)...)));
 		}
+	#else
+		void push(entity e, type&& original)
+		{
+			m_Created.push_back(std::make_pair(e, std::move(original)));
+		}
+	#endif
 
 		void flush()
 		{

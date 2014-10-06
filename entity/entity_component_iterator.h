@@ -13,8 +13,10 @@
 #include <boost/fusion/container/vector.hpp>
 #include <boost/fusion/include/at_c.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
+#include <boost/fusion/adapted/std_tuple.hpp>
 #include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
+#include <boost/fusion/algorithm/transformation/transform.hpp>
 #include <boost/mpl/push_front.hpp>
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector.hpp>
@@ -29,17 +31,17 @@ namespace entity
 		template<typename T>
 		struct extract_component_ptr_type
 		{
-			typedef typename T::type* type;
+			typedef typename std::decay<T>::type::type* type;
 		};
 
-		template<typename ComponentTypes>
+		template<typename ComponentPoolTuple>
 		struct generate_value_type
 		{
 			typedef
 			typename boost::fusion::result_of::as_vector<
 				typename boost::mpl::push_front<
 					typename boost::mpl::transform<
-						ComponentTypes,
+						ComponentPoolTuple,
 						extract_component_ptr_type<boost::mpl::_1>
 					>::type,
 					entity
@@ -47,93 +49,155 @@ namespace entity
 			>::type type;
 		};
 
-		template<typename T>
-		struct iterator_pair
+		// template<typename T>
+		// struct iterator_pair
+		// {
+		// 	T current;
+		// 	T end;
+		// };
+
+		// template<typename T>
+		// struct extract_iterator_pair
+		// {
+		// 	typedef	iterator_pair<
+		// 		typename T::iterator
+		// 	> type;
+		// };
+
+		// template<typename ComponentTypes>
+		// struct component_ranges
+		// {
+		// 	typedef 
+		// 	typename boost::fusion::result_of::as_vector<
+		// 		typename boost::mpl::transform<
+		// 			ComponentTypes,
+		// 			extract_iterator_pair<boost::mpl::_1>
+		// 		>::type
+		// 	>::type type;
+		// };
+
+		// template<typename ComponentPool>
+		// typename component_ranges<boost::mpl::vector<ComponentPool>>::type
+		// make_component_begin_ranges(ComponentPool& pool)
+		// {
+		//  	typename component_ranges<
+		// 		boost::mpl::vector<ComponentPool>
+		// 	>::type ret_val;
+
+		// 	using boost::fusion::at_c;
+		// 	at_c<0>(ret_val).current = pool.begin();
+		// 	at_c<0>(ret_val).end = pool.end();
+		// 	return ret_val;
+		// }
+
+		// template<typename ComponentPool, typename ComponentPool1>
+		// typename component_ranges<boost::mpl::vector<ComponentPool, ComponentPool1>>::type
+		// make_component_begin_ranges(ComponentPool& pool, ComponentPool1& pool1)
+		// {
+		//  	typename component_ranges<
+		// 		boost::mpl::vector<ComponentPool, ComponentPool1>
+		// 	>::type ret_val;
+
+		// 	using boost::fusion::at_c;
+		// 	at_c<0>(ret_val).current = pool.begin();
+		// 	at_c<0>(ret_val).end = pool.end();
+		// 	at_c<1>(ret_val).current = pool1.begin();
+		// 	at_c<1>(ret_val).end = pool1.end();
+		// 	return ret_val;
+		// }
+
+		// template<typename ComponentPool>
+		// typename component_ranges<boost::mpl::vector<ComponentPool>>::type
+		// make_component_end_ranges(ComponentPool& pool)
+		// {
+		//  	typename component_ranges<
+		// 		boost::mpl::vector<ComponentPool>
+		// 	>::type ret_val;
+
+		// 	using boost::fusion::at_c;
+		// 	at_c<0>(ret_val).current = pool.end();
+		// 	at_c<0>(ret_val).end = pool.end();
+		// 	return ret_val;
+		// }
+
+		// template<typename ComponentPool, typename ComponentPool1>
+		// typename component_ranges<boost::mpl::vector<ComponentPool, ComponentPool1>>::type
+		// make_component_end_ranges(ComponentPool& pool, ComponentPool1& pool1)
+		// {
+		//  	typename component_ranges<
+		// 		boost::mpl::vector<ComponentPool, ComponentPool1>
+		// 	>::type ret_val;
+
+		// 	using boost::fusion::at_c;
+		// 	at_c<0>(ret_val).current = pool.end();
+		// 	at_c<0>(ret_val).end = pool.end();
+		// 	at_c<1>(ret_val).current = pool1.end();
+		// 	at_c<1>(ret_val).end = pool1.end();
+		// 	return ret_val;
+		// }
+
+		template<typename ComponentPoolsTuple>
+		struct component_iterators
 		{
-			T current;
-			T end;
+			typedef typename boost::mpl::result_of::transform<
+						ComponentPoolsTuple const, begin_pool
+					>::type type;
 		};
 
-		template<typename T>
-		struct extract_iterator_pair
+		// --------------------------------------------------------------------
+		//
+		struct begin_pool
 		{
-			typedef	iterator_pair<
-				typename T::iterator
-			> type;
+			template<typename Pool>
+			typename Pool::iterator operator()(Pool& p)
+			{
+				return p.begin();
+			}
 		};
 
-		template<typename ComponentTypes>
-		struct component_ranges
+		template<typename ComponentPoolsTuple>
+		struct component_begin_iterators
 		{
-			typedef 
-			typename boost::fusion::result_of::as_vector<
-				typename boost::mpl::transform<
-					ComponentTypes,
-					extract_iterator_pair<boost::mpl::_1>
-				>::type
-			>::type type;
+			typedef typename boost::fusion::result_of::transform<
+						ComponentPoolsTuple const, begin_pool
+					>::type type;
 		};
 
-		template<typename ComponentPool>
-		typename component_ranges<boost::mpl::vector<ComponentPool>>::type
-		make_component_begin_ranges(ComponentPool& pool)
+		struct end_pool
 		{
-		 	typename component_ranges<
-				boost::mpl::vector<ComponentPool>
-			>::type ret_val;
+			template<typename Pool>
+			typename Pool::iterator operator()(Pool& p)
+			{
+				return p.end();
+			}
+		};
 
-			using boost::fusion::at_c;
-			at_c<0>(ret_val).current = pool.begin();
-			at_c<0>(ret_val).end = pool.end();
-			return ret_val;
+		template<typename ComponentPoolsTuple>
+		struct component_end_iterators
+		{
+			typedef typename boost::fusion::result_of::transform<
+						ComponentPoolsTuple const, end_pool
+					>::type type;
+		};
+
+		template<typename ComponentPools>
+		typename component_begin_iterators<
+			ComponentPools
+		>::type	make_component_begins(ComponentPools const& pools)
+		{
+			return boost::fusion::transform(pools, begin_pool());
 		}
 
-		template<typename ComponentPool, typename ComponentPool1>
-		typename component_ranges<boost::mpl::vector<ComponentPool, ComponentPool1>>::type
-		make_component_begin_ranges(ComponentPool& pool, ComponentPool1& pool1)
+		template<typename ComponentPools>
+		typename component_end_iterators<
+			ComponentPools
+		>::type	make_component_ends(ComponentPools const& pools)
 		{
-		 	typename component_ranges<
-				boost::mpl::vector<ComponentPool, ComponentPool1>
-			>::type ret_val;
-
-			using boost::fusion::at_c;
-			at_c<0>(ret_val).current = pool.begin();
-			at_c<0>(ret_val).end = pool.end();
-			at_c<1>(ret_val).current = pool1.begin();
-			at_c<1>(ret_val).end = pool1.end();
-			return ret_val;
+			return boost::fusion::transform(pools, end_pool());
 		}
-
-		template<typename ComponentPool>
-		typename component_ranges<boost::mpl::vector<ComponentPool>>::type
-		make_component_end_ranges(ComponentPool& pool)
-		{
-		 	typename component_ranges<
-				boost::mpl::vector<ComponentPool>
-			>::type ret_val;
-
-			using boost::fusion::at_c;
-			at_c<0>(ret_val).current = pool.end();
-			at_c<0>(ret_val).end = pool.end();
-			return ret_val;
-		}
-
-		template<typename ComponentPool, typename ComponentPool1>
-		typename component_ranges<boost::mpl::vector<ComponentPool, ComponentPool1>>::type
-		make_component_end_ranges(ComponentPool& pool, ComponentPool1& pool1)
-		{
-		 	typename component_ranges<
-				boost::mpl::vector<ComponentPool, ComponentPool1>
-			>::type ret_val;
-
-			using boost::fusion::at_c;
-			at_c<0>(ret_val).current = pool.end();
-			at_c<0>(ret_val).end = pool.end();
-			at_c<1>(ret_val).current = pool1.end();
-			at_c<1>(ret_val).end = pool1.end();
-			return ret_val;
-		}
-
+		
+		// --------------------------------------------------------------------
+		//
 		struct advance_component_iterator
 		{
 			advance_component_iterator(entity e)
@@ -143,60 +207,85 @@ namespace entity
 		    template<typename T>
 		    void operator()(T& t) const
 		    {
-				t.current.advance(m_Entity);
+				t.advance(m_Entity);
 		    }
 
 		    entity m_Entity;
 		};
 
-		template<int Idx, int Len>
-		struct extract_component_ptrs;
-
-		template<int Len>
-		struct extract_component_ptrs<0, Len>
+		// --------------------------------------------------------------------
+		//
+		struct extract_value_ptr
 		{
-			template<typename I, typename R>
-			void apply(I const& iter, R& r) const
-			{
-				using boost::fusion::at_c;
-				auto& i = at_c<Len-1>(iter);
-				if(i.current.get_entity() == at_c<0>(r))
-				{
-					// Dont need to subtract one because index
-					// 0 stored the entity.
-					at_c<Len>(r) = &*i.current;
-				}
-			}
-		};
+			extract_value_ptr(entity e)
+				: m_Entity(e)
+			{}
 
-		template<int Idx, int Len>
-		struct extract_component_ptrs
-		{
-			template<typename I, typename R>
-			void apply(I const& iter, R& r) const
+			template<typename Iterator>
+			typename Iterator::value_type* operator()(Iterator& iterator)
 			{
-				using boost::fusion::at_c;
-				auto& i = at_c<Len-Idx-1>(iter);
-				if(i.current.get_entity() == at_c<0>(r))
+				if(iterator.get_entity() == m_Entity)
 				{
-					// Dont need to subtract one because index
-					// 0 stored the entity.
-					at_c<Len-Idx>(r) = &*i.current;
-					extract_component_ptrs<Idx-1, Len>().apply(iter, r);
+					return &*iterator;
 				}
+
+				return nullptr;
 			}
+
+			entity m_Entity;
 		};
+		// template<int Idx, int Len>
+		// struct extract_component_ptrs;
+
+		// template<int Len>
+		// struct extract_component_ptrs<0, Len>
+		// {
+		// 	template<typename I, typename R>
+		// 	void apply(I const& iter, R& r) const
+		// 	{
+		// 		using boost::fusion::at_c;
+		// 		auto& i = at_c<Len-1>(iter);
+		// 		if(i.current.get_entity() == at_c<0>(r))
+		// 		{
+		// 			// Dont need to subtract one because index
+		// 			// 0 stored the entity.
+		// 			at_c<Len>(r) = &*i.current;
+		// 		}
+		// 	}
+		// };
+
+		// template<int Idx, int Len>
+		// struct extract_component_ptrs
+		// {
+		// 	template<typename I, typename R>
+		// 	void apply(I const& iter, R& r) const
+		// 	{
+		// 		using boost::fusion::at_c;
+		// 		auto& i = at_c<Len-Idx-1>(iter);
+		// 		if(i.current.get_entity() == at_c<0>(r))
+		// 		{
+		// 			// Dont need to subtract one because index
+		// 			// 0 stored the entity.
+		// 			at_c<Len-Idx>(r) = &*i.current;
+		// 			extract_component_ptrs<Idx-1, Len>().apply(iter, r);
+		// 		}
+		// 	}
+		// };
 	}
 
 	// ------------------------------------------------------------------------
 	//
-	template<typename EntityList, typename ComponentPools>
+	template<
+			typename EntityList
+		, 	typename ComponentPoolsTuple
+		, 	typename ComponentPoolIterators
+		>
 	class entity_component_iterator 
 		: public boost::iterator_facade<
-			entity_component_iterator<EntityList, ComponentPools>
-		,	typename detail::generate_value_type<ComponentPools>::type
+			entity_component_iterator<EntityList, ComponentPoolsTuple, ComponentPoolIterators>
+		,	typename detail::generate_value_type<ComponentPoolsTuple>::type
 		,	boost::forward_traversal_tag
-		,	typename detail::generate_value_type<ComponentPools>::type
+		,	typename detail::generate_value_type<ComponentPoolsTuple>::type
 		>
 	{
 	public:	
@@ -205,18 +294,18 @@ namespace entity
 
 		entity_component_iterator(
 			entity_iterator ei,
-			typename detail::component_ranges<ComponentPools>::type&& components)
+			ComponentPoolIterators&& iterator_tuple)
 			: m_EntityIter(std::move(ei))
-			, m_Components(std::move(components))
+			, m_PoolIterators(std::move(iterator_tuple))
 		{}
 
 	private:
 
 		typedef boost::iterator_facade<
-			entity_component_iterator<EntityList, ComponentPools>
-		,	typename detail::generate_value_type<ComponentPools>::type
+			entity_component_iterator<EntityList, ComponentPoolsTuple, ComponentPoolIterators>
+		,	typename detail::generate_value_type<ComponentPoolsTuple>::type
 		,	boost::forward_traversal_tag
-		,	typename detail::generate_value_type<ComponentPools>::type
+		,	typename detail::generate_value_type<ComponentPoolsTuple>::type
 		> base;
 
 		friend class boost::iterator_core_access;
@@ -226,7 +315,7 @@ namespace entity
 			DAILY_AUTO_INSTRUMENT_NODE(entity_component_iterator__increment);
 			++m_EntityIter;
 			boost::fusion::for_each(
-				m_Components,
+				m_PoolIterators,
 				detail::advance_component_iterator(*m_EntityIter)
 			);
 		}
@@ -238,82 +327,131 @@ namespace entity
 
 		typename base::reference dereference() const
 		{
-			typename base::reference ret_val;
+			//typename base::reference ret_val;
 
-			using boost::fusion::at_c;
-			at_c<0>(ret_val) = *m_EntityIter;
-			detail::extract_component_ptrs<
-				boost::mpl::size<ComponentPools>::value-1, 
-				boost::mpl::size<ComponentPools>::value
-			>().apply(m_Components, ret_val);
+			//using boost::fusion::at_c;
+			//at_c<0>(ret_val) = *m_EntityIter;
 
-			return ret_val;
+			return boost::fusion::transform(
+				m_PoolIterators,
+				detail::extract_value_ptr(*m_EntityIter)
+			);
+
+			
+			// detail::extract_component_ptrs<
+			// 	boost::mpl::size<ComponentPoolIterators>::value-1, 
+			// 	boost::mpl::size<ComponentPoolIterators>::value
+			// >().apply(m_Components, ret_val);
+
+			// return ret_val;
 		}
 		
 		entity_iterator m_EntityIter;
-		typename detail::component_ranges<ComponentPools>::type   m_Components;
+		ComponentPoolIterators m_PoolIterators;
 	};
 
 	// ------------------------------------------------------------------------
 	//
-	template<typename EntityList, typename ComponentPool>
+	template<typename EntityList, typename ComponentPoolsTuple>
 	entity_component_iterator<
 		EntityList, 
-		boost::mpl::vector<ComponentPool>
-	> begin(EntityList const& entities, ComponentPool& pool)
+		ComponentPoolsTuple,
+		typename detail::component_begin_iterators<ComponentPoolsTuple>::type
+	> begin(EntityList const& entities, ComponentPoolsTuple const& pools)
 	{
-		typedef boost::mpl::vector<ComponentPool> component_list;
-
 		return entity_component_iterator<
 			EntityList,
-			component_list
-		>(begin(entities), detail::make_component_begin_ranges(pool));
+			ComponentPoolsTuple, 
+			typename detail::component_begin_iterators<ComponentPoolsTuple>::type
+		>(begin(entities), detail::make_component_begins(pools));
 	}
 
-	template<typename EntityList, typename ComponentPool>
+	template<typename EntityList, typename ComponentPoolsTuple>
 	entity_component_iterator<
 		EntityList, 
-		boost::mpl::vector<ComponentPool>
-	> end(EntityList const& entities, ComponentPool& pool)
+		ComponentPoolsTuple, 
+		typename detail::component_end_iterators<ComponentPoolsTuple>::type
+	> end(EntityList const& entities, ComponentPoolsTuple const& pools)
 	{
-		typedef boost::mpl::vector<ComponentPool> component_list;
-
 		return entity_component_iterator<
 			EntityList,
-			component_list
-		>(end(entities), detail::make_component_end_ranges(pool));
+			ComponentPoolsTuple, 
+			typename detail::component_end_iterators<ComponentPoolsTuple>::type
+		>(end(entities), detail::make_component_ends(pools));
 	}
 
-	template<typename EntityList, typename ComponentPool,  typename ComponentPool1>
-	entity_component_iterator<
-		EntityList, 
-		boost::mpl::vector<ComponentPool, ComponentPool1>
-	> begin(
-		EntityList const& entities, 
-		ComponentPool& pool,
-		ComponentPool1& pool1)
+	template<typename Pool>
+	boost::fusion::vector<Pool&> tie(Pool& pool)
 	{
-		typedef boost::mpl::vector<ComponentPool, ComponentPool1> component_list;
+		return boost::fusion::vector<Pool&>(pool);
+	}
+
+	template<typename Pool1, typename Pool2>
+	boost::fusion::vector<Pool1&, Pool2&> tie(Pool1& pool_1, Pool2& pool_2)
+	{
+		return boost::fusion::vector<Pool1&, Pool2&>(pool_1, pool_2);
+	}
+
+	template<typename Pool1, typename Pool2, typename Pool3>
+	boost::fusion::vector<Pool1&, Pool2&, Pool3&> tie(Pool1& pool_1, Pool2& pool_2, Pool3& pool_3)
+	{
+		return boost::fusion::vector<Pool1&, Pool2&, Pool3&>(pool_1, pool_2, pool_3);
+	}
+
+	// template<typename EntityList, typename... ComponentPools>
+	// entity_component_iterator<
+	// 	EntityList, 
+	// 	typename detail::component_begin_iterators<ComponentPoolsTuple>::type
+	// > begin(EntityList const& entities, ComponentPools...&& pools)
+	// {
+	// 	return entity_component_iterator<
+	// 		EntityList,
+	// 		typename detail::component_begin_iterators<ComponentPoolsTuple>::type
+	// 	>(begin(entities), detail::make_component_begins(pools));
+	// }
+
+	// template<typename EntityList, typename... ComponentPools>
+	// entity_component_iterator<
+	// 	EntityList, 
+	// 	typename detail::component_end_iterators<ComponentPoolsTuple>::type
+	// > end(EntityList const& entities, ComponentPoolsTuple const& pools)
+	// {
+	// 	return entity_component_iterator<
+	// 		EntityList,
+	// 		typename detail::component_end_iterators<ComponentPoolsTuple>::type
+	// 	>(end(entities), detail::make_component_ends(pools));
+	// }
+
+	// template<typename EntityList, typename ComponentPool,  typename ComponentPool1>
+	// entity_component_iterator<
+	// 	EntityList, 
+	// 	boost::mpl::vector<ComponentPool, ComponentPool1>
+	// > begin(
+	// 	EntityList const& entities, 
+	// 	ComponentPool& pool,
+	// 	ComponentPool1& pool1)
+	// {
+	// 	typedef boost::mpl::vector<ComponentPool, ComponentPool1> component_list;
 		
-		return entity_component_iterator<
-			EntityList,
-			component_list
-		>(begin(entities), detail::make_component_begin_ranges(pool, pool1));
-	}
+	// 	return entity_component_iterator<
+	// 		EntityList,
+	// 		component_list
+	// 	>(begin(entities), detail::make_component_begin_ranges(pool, pool1));
+	// }
 
-	template<typename EntityList, typename ComponentPool, typename ComponentPool1>
-	entity_component_iterator<
-		EntityList, 
-		boost::mpl::vector<ComponentPool, ComponentPool1>
-	> end(EntityList const& entities, ComponentPool& pool, ComponentPool1& pool1)
-	{
-		typedef boost::mpl::vector<ComponentPool, ComponentPool1> component_list;
+	// template<typename EntityList, typename ComponentPool, typename ComponentPool1>
+	// entity_component_iterator<
+	// 	EntityList, 
+	// 	boost::mpl::vector<ComponentPool, ComponentPool1>
+	// > end(EntityList const& entities, ComponentPool& pool, ComponentPool1& pool1)
+	// {
+	// 	typedef boost::mpl::vector<ComponentPool, ComponentPool1> component_list;
 
-		return entity_component_iterator<
-			EntityList,
-			component_list
-		>(end(entities), detail::make_component_end_ranges(pool, pool1));
-	}
+	// 	return entity_component_iterator<
+	// 		EntityList,
+	// 		component_list
+	// 	>(end(entities), detail::make_component_end_ranges(pool, pool1));
+	// }
 }
 
 #endif // _COMPONENT_ENTITYCOMPONENTITERATOR_H_INCLUDED_

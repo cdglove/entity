@@ -97,13 +97,22 @@ namespace entity
 			m_Entities[entity(owner_pool.size())] = T();
 		}
 
+	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
 			auto r = m_Entities.emplace(e, std::forward<Args>(args)...);
 			return &(r.first->second);
-		}	
+		}
+	#else
+		T* create(entity e, type&& original)
+		{
+			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
+			auto r = m_Entities.emplace(e, std::move(original));
+			return &(r.first->second);
+		}
+	#endif
 
 		void destroy(entity e)
 		{

@@ -98,6 +98,7 @@ namespace entity
 			, m_EntityPool(owner_pool)
 		{}
 
+	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
@@ -107,6 +108,16 @@ namespace entity
 			new(ret_val) T(std::forward<Args>(args)...);
 			return ret_val;
 		}	
+	#else
+		T* create(entity e, type&& original)
+		{
+			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__create);
+			set_available(e, false);
+			T* ret_val = get_component(e);
+			new(ret_val) T(std::move(original));
+			return ret_val;
+		}	
+	#endif
 
 		void destroy(entity e)
 		{
