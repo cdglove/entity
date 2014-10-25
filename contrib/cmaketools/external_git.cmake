@@ -27,13 +27,13 @@ function(add_external_git_repo URL TAG TARGET_DIR)
       COMMAND "${GIT_EXECUTABLE}" pull
       WORKING_DIRECTORY ${TARGET_DIR})
     if(error_code)
-      message(WARNING "Failed to update ${URL}")
+      message(STATUS "Failed to update ${URL}")
     endif()
     execute_process(
       COMMAND "${GIT_EXECUTABLE}" checkout ${TAG} 
       WORKING_DIRECTORY ${TARGET_DIR})
     if(error_code)
-      message(WARNING "Failed to chechout ${TAG} on ${URL}")
+      message(STATUS "Failed to chechout ${TAG} on ${URL}")
     endif()
   endif()
 endfunction(add_external_git_repo)
