@@ -1,56 +1,65 @@
 cmake_minimum_required(VERSION 2.8)
 project (entity)
 
-set (entity_VERSION_MAJOR 0)
-set (entity_VERSION_MINOR 1)
+set(ENTITY_VERSION_MAJOR 1)
+set(ENTITY_VERSION_MINOR 0)
+set(ENTITY_VERSION_PATCH 0)
+set(ENTITY_VERSION_STRING ${ENTITY_VERSION_MAJOR}.${ENTITY_VERSION_MINOR}.${ENTITY_VERSION_PATCH})
+
+option( DAILY_BUILD_TESTS "Build the daily project tests." ON)
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/config/config.h.in"
-  "${PROJECT_BINARY_DIR}/entity/config.h"
-  )
+  "${PROJECT_BINARY_DIR}/entity/config.h")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
 
-enable_testing()
-
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 else()
-	if(MSVC EQUAL FALSE)
+	if(NOT MSVC)
 		message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has may not support Please use a different C++ compiler if building fails.")
 	endif()
 endif()
 
-if(MSVC EQUAL FALSE)
-	
-endif()
+###############################################################################
+#
+# Configure packages
+#
+###############################################################################
+include(contrib/cmaketools/external_git.cmake)
+set(DAILY_BUILD_TESTS OFF)
 
-if(DEFINED ENV{_DAILY_ROOT})
-	set( daily_INCLUDE_DIR $ENV{DAILY_ROOT} )
-else()
-	include(ExternalProject)
-	ExternalProject_Add(
-		daily
-		GIT_REPOSITORY "https://github.com/cdglove/daily.git"
-		GIT_TAG "master"
-		SOURCE_DIR "${PROJECT_SOURCE_DIR}/contrib/daily"
-		UPDATE_COMMAND ""
-		INSTALL_COMMAND "" 
-	)
-	set( daily_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/daily" )
-endif()
+###############################################################################
+#
+# Find daily
+#
+###############################################################################
+add_external_git_repo(
+  "https://github.com/cdglove/daily.git"
+  "master"
+  "${PROJECT_SOURCE_DIR}/contrib/daily")
+add_subdirectory("${PROJECT_SOURCE_DIR}/contrib/daily")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${PROJECT_BINARY_DIR}/contrib/daily" )
+find_package(daily)
 
+###############################################################################
+#
+# Add entity library
+#
+###############################################################################
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
 file(GLOB_RECURSE PROJECT_HEADERS entity/*.h)
 add_library( ${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS} ) 
 
-add_subdirectory(test)
+enable_testing()
+
+if(ENTITY_BUILD_TESTS)
+	add_subdirectory(test)
+endif()
 
 
 
