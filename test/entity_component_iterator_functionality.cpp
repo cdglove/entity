@@ -35,10 +35,11 @@ int main()
 	auto b = entity::begin(entities, entity::tie(position_pool, velocity_pool));
 	auto e = entity::end(entities, entity::tie(position_pool, velocity_pool));
 
-	if(b == e)
+	if(b != e)
 	{
-
+		float* a = boost::fusion::at_c<0>(*b);
 	}
+
 
 	return 0;
 }

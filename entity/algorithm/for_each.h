@@ -11,76 +11,22 @@
 #include "entity/config.h"
 #include "entity/entity_component_iterator.h"
 #include <algorithm>
-#include <tuple>
-
-#if 0 //ENTITY_SUPPORT_VARIADICS == 0
-#  include <boost/proprocessor.hpp>
-#endif
 
 // ----------------------------------------------------------------------------
 //
 namespace entity
 {
-#if ENTITY_SUPPORT_VARIADICS
-	template<typename... ComponentPools>
-	class entity_component_pool_package
-	{
-	public:
-
-		entity_component_pool_package(ComponentPools... pools)
-			: components_(std::forward<ComponentPools>(pools)...)
-		{}
-
-	private:
-
-		std::tuple<ComponentPools...> components_;
-	};
 	// ------------------------------------------------------------------------
 	//
-	template<typename EntityList, typename... ComponentPools>
-	void for_each(EntityList const& entities, ComponentPools&&... pools)
+	template<typename EntityList, typename... ComponentPools, typename Fn) //void(f)(boost::fusion::vector<typename ComponentPools::type* ...> const&)>
+	void for_each(EntityList const& entities, ComponentPools&... p, Fn f)
 	{
-		// using boost::fusion::at_c;
-		// for(auto i = begin(entities, pools...), e = end(entities, pools...); i != e; ++i)
-		// {
-		// 	auto const& components = *i;
-		// 	// if(at_c<1>(components))
-		// 	// {
-		// 	// 	f(*at_c<1>(components));
-		// 	// }
-		// }
-	}
-#else
-	// ------------------------------------------------------------------------
-	//
-	template<typename EntityList, typename ComponentPool>
-	void for_each(EntityList const& entities, ComponentPool& p, void(f)(typename ComponentPool::type&))
-	{
-		using boost::fusion::at_c;
-		for(auto i = begin(entities, p), e = end(entities, p); i != e; ++i)
+		//using boost::fusion::at_c;
+		for(auto i = begin(entities, tie(p...)), e = end(entities, tie(p...)); i != e; ++i)
 		{
-			auto const& components = *i;
-			if(at_c<1>(components))
-			{
-				f(*at_c<1>(components));
-			}
+			//f(*i);
 		}
 	}
-
-	template<typename EntityList, typename ComponentPool1, typename ComponentPool2, typename Fn>
-	void for_each(EntityList const& entities, ComponentPool1& p1, ComponentPool2& p2, Fn f)
-	{
-		using boost::fusion::at_c;
-		for(auto i = begin(entities, p1, p2), e = end(entities, p1, p2); i != e; ++i)
-		{
-			auto const& components = *i;
-			if(at_c<1>(components) && at_c<2>(components))
-			{
-				f(*at_c<1>(components), *at_c<2>(components));
-			}
-		}
-	}
-#endif
 }
 
 #endif // _COMPONENT_FOREACH_H_INCLUDED_

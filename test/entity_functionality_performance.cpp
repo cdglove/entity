@@ -44,6 +44,8 @@ int main()
 	typedef entity::sparse_component_pool<float> accel_pool_type;
 #endif
 
+	using boost::fusion::at_c;
+
 	position_pool_type position_pool(entities);
 	velocity_pool_type velocity_pool(entities);
 	accel_pool_type accel_pool(entities);
@@ -210,22 +212,22 @@ int main()
 				p += v * frame_time;
 			});
 		#else
-			entity::for_each(entities, accel_pool, [](float& a)
+			entity::for_each(entities, entity::tie(accel_pool), [](boost::fusion::vector<float*> a)
 			{
 				// Add a little to accel each frame.
-				a += 0.001f;
+				*at_c<0>(a) += 0.001f;
 			});
 
-			entity::for_each(entities, accel_pool, velocity_pool, [](float a, float& v)
+			entity::for_each(entities, entity::tie(accel_pool, velocity_pool), [](boost::fusion::vector<float*, float*> const& av)
 			{
 				// Compute new velocity.
-				v += (a/2.f) * (kFrameTime * kFrameTime);
+				*at_c<1>(av) += (*at_c<0>(av)/2.f) * (kFrameTime * kFrameTime);
 			});
 
-			entity::for_each(entities, velocity_pool, position_pool, [](float v, float& p)
+			entity::for_each(entities, entity::tie(velocity_pool, position_pool), [](boost::fusion::vector<float*, float*> const& vp)
 			{
 				// Compute new position.
-				p += v * kFrameTime;
+				*at_c<1>(vp) += *at_c<0>(vp) * kFrameTime;
 			});
 		#endif
 
