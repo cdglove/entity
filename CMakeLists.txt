@@ -6,7 +6,7 @@ set(ENTITY_VERSION_MINOR 0)
 set(ENTITY_VERSION_PATCH 0)
 set(ENTITY_VERSION_STRING ${ENTITY_VERSION_MAJOR}.${ENTITY_VERSION_MINOR}.${ENTITY_VERSION_PATCH})
 
-option( DAILY_BUILD_TESTS "Build the daily project tests." ON)
+option( ENTITY_BUILD_TESTS "Build the daily project tests." ON)
 
 configure_file (
   "${PROJECT_SOURCE_DIR}/config/config.h.in"
