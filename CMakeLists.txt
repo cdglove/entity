@@ -31,7 +31,7 @@ endif()
 #
 ###############################################################################
 include(contrib/cmaketools/external_git.cmake)
-set(DAILY_BUILD_TESTS OFF)
+set(DAILY_BUILD_TESTS OFF CACHE BOOL "Disable libdaily tests" FORCE)
 
 ###############################################################################
 #
@@ -41,9 +41,7 @@ set(DAILY_BUILD_TESTS OFF)
 add_external_git_repo(
   "https://github.com/cdglove/daily.git"
   "master"
-  "${PROJECT_SOURCE_DIR}/contrib/daily")
-add_subdirectory("${PROJECT_SOURCE_DIR}/contrib/daily")
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${PROJECT_BINARY_DIR}/contrib/daily" )
+  "contrib/daily")
 find_package(daily)
 
 ###############################################################################
