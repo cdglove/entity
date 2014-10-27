@@ -8,7 +8,7 @@ namespace entity {
 const int VersionMajor = @ENTITY_VERSION_MAJOR@;
 const int VersionMinor = @ENTITY_VERSION_MINOR@;
 const int VersionPatch = @ENTITY_VERSION_PATCH@;
-char const* const VersionString = @ENTITY_VERSION_STRING@;
+char const* const VersionString = "@ENTITY_VERSION_STRING@";
 
 }
 
