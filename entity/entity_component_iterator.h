@@ -5,8 +5,8 @@
 // entity pool and component pool at the same time.
 // 
 #pragma once
-#ifndef _COMPONENT_ENTITYCOMPONENTITERATOR_H_INCLUDED_
-#define _COMPONENT_ENTITYCOMPONENTITERATOR_H_INCLUDED_
+#ifndef _ENTITY_ENTITYCOMPONENTITERATOR_H_INCLUDED_
+#define _ENTITY_ENTITYCOMPONENTITERATOR_H_INCLUDED_
 
 #include "entity/config.h"
 #include <boost/iterator/iterator_facade.hpp>
@@ -34,31 +34,15 @@ namespace entity
 			typedef typename std::decay<T>::type::type* type;
 		};
 
-		// template<typename ComponentPoolTuple>
-		// struct generate_value_type
-		// {
-		// 	typedef
-		// 	typename boost::fusion::result_of::as_vector<
-		// 		typename boost::mpl::push_front<
-		// 			typename boost::mpl::transform<
-		// 				ComponentPoolTuple,
-		// 				extract_component_ptr_type<boost::mpl::_1>
-		// 			>::type,
-		// 			entity
-		// 		>::type
-		// 	>::type type;
-		// };
-
 		template<typename ComponentPoolTuple>
 		struct generate_value_type
 		{
 			typedef
 			typename boost::fusion::result_of::as_vector<
-					typename boost::mpl::transform<
-						ComponentPoolTuple,
-						extract_value_ptr_type<boost::mpl::_1>
-					>::type
-				//>::type
+				typename boost::mpl::transform<
+					ComponentPoolTuple,
+					extract_value_ptr_type<boost::mpl::_1>
+				>::type
 			>::type type;
 		};
 
@@ -249,24 +233,6 @@ namespace entity
 			typename detail::component_iterators<ComponentPoolsTuple>::type
 		>(end(entities), detail::make_component_ends(pools));
 	}
-
-	template<typename Pool>
-	boost::fusion::vector<Pool&> tie(Pool& pool)
-	{
-		return boost::fusion::vector<Pool&>(pool);
-	}
-
-	template<typename Pool1, typename Pool2>
-	boost::fusion::vector<Pool1&, Pool2&> tie(Pool1& pool_1, Pool2& pool_2)
-	{
-		return boost::fusion::vector<Pool1&, Pool2&>(pool_1, pool_2);
-	}
-
-	template<typename Pool1, typename Pool2, typename Pool3>
-	boost::fusion::vector<Pool1&, Pool2&, Pool3&> tie(Pool1& pool_1, Pool2& pool_2, Pool3& pool_3)
-	{
-		return boost::fusion::vector<Pool1&, Pool2&, Pool3&>(pool_1, pool_2, pool_3);
-	}
 }
 
-#endif // _COMPONENT_ENTITYCOMPONENTITERATOR_H_INCLUDED_
+#endif // _ENTITY_ENTITYCOMPONENTITERATOR_H_INCLUDED_

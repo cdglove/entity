@@ -3,9 +3,13 @@
 #include "entity/algorithm/for_each.h"
 #include "entity/algorithm/for_all.h"
 #include "entity/algorithm/simd/sse/for_each.h"
-#include "entity/algorithm/simd/avx/for_each.h"
 #include "entity/component_pool_creation_queue.h"
 #include "entity/component_pool_destruction_queue.h"
+#include "entity/component/tie.h"
+
+#if ENTITY_SUPPORT_AVX
+#  include "entity/algorithm/simd/avx/for_each.h"
+#endif
 
 #include <random>
 #include <iostream>
@@ -161,7 +165,7 @@ int main()
 		{
 		#if USE_SSE
 			__m128 increment = _mm_set1_ps(0.001f);
-			entity::simd::sse::for_each(entities, accel_pool, [&increment](__m128& a)
+			entity::simd::sse::for_each(entities, entity::tie(accel_pool), [&increment](__m128& a)
 			{
 				// Add a little to accel each frame.
 				a = _mm_add_ps(increment, a);
@@ -170,7 +174,7 @@ int main()
 			// Compute new velocity.
 			__m128 divisor = _mm_set1_ps(2.f);
 			__m128 frame_time_sq = _mm_set1_ps(kFrameTime * kFrameTime);
-			entity::simd::sse::for_each(entities, accel_pool, velocity_pool, [&divisor,&frame_time_sq](__m128 const& a, __m128& v)
+			entity::simd::sse::for_each(entities, entity::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m128 const& a, __m128& v)
 			{
 				v = _mm_add_ps(
 						_mm_mul_ps(
@@ -184,50 +188,66 @@ int main()
 			});
 
 			__m128 frame_time = _mm_set1_ps(kFrameTime);
-			entity::simd::sse::for_each(entities, velocity_pool, position_pool, [&frame_time](__m128 const& v, __m128& p)
+			entity::simd::sse::for_each(entities, entity::tie(velocity_pool, position_pool), [&frame_time](__m128 const& v, __m128& p)
 			{
 				// Compute new position.
-				p = _mm_add_ps(_mm_mul_ps(v, frame_time), p);
+				p = _mm_add_ps(
+						_mm_mul_ps(v, frame_time),
+						p
+					);
 			});
 		#elif USE_AVX && ENTITY_SUPPORT_AVX
-			entity::simd::avx::for_each(entities, accel_pool, [](__m256& a)
+			__m256 increment = _mm256_set1_ps(0.001f);
+			entity::simd::avx::for_each(entities, entity::tie(accel_pool), [&increment](__m256& a)
 			{
 				// Add a little to accel each frame.
-				__m256 increment = _mm256_set1_ps(0.001f);
-				a += increment;
+				a = _mm256_add_ps(increment, a);
 			});
 
-			entity::simd::avx::for_each(entities, accel_pool, velocity_pool, [](__m256 a, __m256& v)
+			// Compute new velocity.
+			__m256 divisor = _mm256_set1_ps(2.f);
+			__m256 frame_time_sq = _mm256_set1_ps(kFrameTime * kFrameTime);
+			entity::simd::avx::for_each(entities, entity::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m256 a, __m256& v)
 			{
 				// Compute new velocity.
-				__m256 divisor = _mm256_set1_ps(2.f);
-				__m256 frame_time_sq = _mm256_set1_ps(kFrameTime * kFrameTime);
-				v += (a/divisor) * frame_time_sq;
+				v = _mm256_add_ps(
+						_mm256_mul_ps(
+							_mm256_div_ps(
+								a, divisor
+							),
+						    frame_time_sq
+						),
+						v
+					);
 			});
 
-			entity::simd::avx::for_each(entities, velocity_pool, position_pool, [](__m256 v, __m256& p)
+			__m256 frame_time = _mm256_set1_ps(kFrameTime);
+			entity::simd::avx::for_each(entities, entity::tie(velocity_pool, position_pool), [&frame_time](__m256 v, __m256& p)
 			{
 				// Compute new position.
-				__m256 frame_time = _mm256_set1_ps(kFrameTime);
-				p += v * frame_time;
+				// Compute new position.
+				p = _mm256_add_ps(
+						_mm256_mul_ps(v, frame_time),
+						p
+					);
 			});
 		#else
-			entity::for_each(entities, entity::tie(accel_pool), [](boost::fusion::vector<float*> a)
+			entity::for_each(entities, entity::tie(accel_pool), [](float& a)
 			{
 				// Add a little to accel each frame.
-				*at_c<0>(a) += 0.001f;
+				a += 0.001f;
 			});
 
-			entity::for_each(entities, entity::tie(accel_pool, velocity_pool), [](boost::fusion::vector<float*, float*> const& av)
+			entity::for_each(entities, entity::tie(accel_pool, velocity_pool), [](float a, float& v)
 			{
 				// Compute new velocity.
-				*at_c<1>(av) += (*at_c<0>(av)/2.f) * (kFrameTime * kFrameTime);
+				v += (a/2.f) * (kFrameTime * kFrameTime);
 			});
 
-			entity::for_each(entities, entity::tie(velocity_pool, position_pool), [](boost::fusion::vector<float*, float*> const& vp)
+			entity::for_each(entities, entity::tie(velocity_pool, position_pool), [](float v, float& p)
 			{
 				// Compute new position.
-				*at_c<1>(vp) += *at_c<0>(vp) * kFrameTime;
+				p += v * kFrameTime;
 			});
 		#endif
 

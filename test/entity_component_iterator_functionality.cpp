@@ -1,7 +1,7 @@
 #include "entity/entity_pool.h"
 #include "entity/dense_component_pool.h"
 #include "entity/sparse_component_pool.h"
-
+#include "entity/component/tie.h"
 #include <iostream>
 
 static const int kNumEntities = 1024 * 2048;

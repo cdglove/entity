@@ -5,8 +5,8 @@
 // Basically trades space for run time efficiency.
 // 
 #pragma once
-#ifndef _COMPONENT_DENSECOMPONENTPOOL_H_INCLUDED_
-#define _COMPONENT_DENSECOMPONENTPOOL_H_INCLUDED_
+#ifndef _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
+#define _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
 
 #include "entity/config.h"
 #include "entity/entity_pool.h"
@@ -224,4 +224,4 @@ namespace entity
 	};
 }
 
-#endif // _COMPONENT_DENSECOMPONENTPOOL_H_INCLUDED_
+#endif // _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_

@@ -3,8 +3,8 @@
 // Represents a pool of entity ids.
 // 
 #pragma once
-#ifndef _COMPONENT_ENTITYPOOL_H_INCLUDED_
-#define _COMPONENT_ENTITYPOOL_H_INCLUDED_
+#ifndef _ENTITY_ENTITYPOOL_H_INCLUDED_
+#define _ENTITY_ENTITYPOOL_H_INCLUDED_
 
 #include "entity/entity.h"
 #include <boost/iterator/iterator_facade.hpp>
@@ -147,4 +147,4 @@ namespace entity
 	// }
 }
 
-#endif // _COMPONENT_ENTITYPOOL_H_INCLUDED_
+#endif // _ENTITY_ENTITYPOOL_H_INCLUDED_

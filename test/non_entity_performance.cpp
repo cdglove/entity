@@ -22,6 +22,16 @@ struct PhysicsData
 #endif
 };
 
+template<typename I, typename Fn>
+void for_each(I i, I e, Fn f)
+{
+#pragma loop( no_vector )
+	for(; i != e; ++i)
+	{
+		f(*i);
+	}
+}
+
 int main()
 {
 	std::vector<PhysicsData> entities;
@@ -30,7 +40,7 @@ int main()
 	std::clog << "Created Pools\n";
 
 	unsigned int ids = 0;
-	std::for_each(entities.begin(), entities.end(), [&ids](PhysicsData& p)
+	::for_each(entities.begin(), entities.end(), [&ids](PhysicsData& p)
 	{
 		p.id = ids++;
 		p.accel = 9.8f;
@@ -43,19 +53,19 @@ int main()
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)
 		{
-			std::for_each(entities.begin(), entities.end(), [](PhysicsData& p)
+			::for_each(entities.begin(), entities.end(), [](PhysicsData& p)
 			{
 				// Add a little to accel each frame.
 				p.accel += 0.001f;
 			});
 
-			std::for_each(entities.begin(), entities.end(), [](PhysicsData& p)
+			::for_each(entities.begin(), entities.end(), [](PhysicsData& p)
 			{
 				// Compute new velocity.
 				p.velocity += (p.accel/2.f) * (kFrameTime * kFrameTime);
 			});
 
-			std::for_each(entities.begin(), entities.end(), [](PhysicsData& p)
+			::for_each(entities.begin(), entities.end(), [](PhysicsData& p)
 			{
 				// Compute new position.
 				p.position += p.velocity * kFrameTime;
