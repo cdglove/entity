@@ -1,6 +1,12 @@
+#define DAILY_ENABLE_INSTRUMENTATION 1
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <daily/timer/instrument.h>
+
+#if DAILY_ENABLE_INSTRUMENTATION
+#  define SIZE_OF_TEST 1024 * 256
+#endif
 
 #if SIZE_OF_TEST
 	static const int kNumEntities = SIZE_OF_TEST;
@@ -25,7 +31,7 @@ struct PhysicsData
 template<typename I, typename Fn>
 void for_each(I i, I e, Fn f)
 {
-#pragma loop( no_vector )
+	#pragma loop( no_vector )
 	for(; i != e; ++i)
 	{
 		f(*i);
@@ -39,17 +45,22 @@ int main()
 
 	std::clog << "Created Pools\n";
 
-	unsigned int ids = 0;
-	::for_each(entities.begin(), entities.end(), [&ids](PhysicsData& p)
-	{
-		p.id = ids++;
-		p.accel = 9.8f;
-	});
+	{	 DAILY_AUTO_INSTRUMENT_NODE(ComponentCreation);
+
+		unsigned int ids = 0;
+		::for_each(entities.begin(), entities.end(), [&ids](PhysicsData& p)
+		{
+			p.id = ids++;
+			p.accel = 9.8f;
+		});
+	}
 
 	std::clog << "Created Components, simulating...";
 
 	// Simulate over some seconds using a fixed step.
 	{
+		DAILY_AUTO_INSTRUMENT_NODE(Simulation);
+
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)
 		{
@@ -79,6 +90,10 @@ int main()
 
     std::clog << "Positions: " << entities[0].position << std::endl;
     std::clog << "Velocities: " << entities[0].velocity << std::endl;
+
+	std::cout << "---------- Report -----------\n";
+	daily::timer_map::get_default().report(std::cout);
+	std::cout.flush();
 
 	return 0;
 }

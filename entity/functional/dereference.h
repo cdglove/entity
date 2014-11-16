@@ -15,12 +15,6 @@ namespace entity {
 		{
 			return *c;
 		}
-
-		//template<typename Component>
-		//Component const& operator()(Component const* c) const
-		//{
-		//	return *c;
-		//}
 	};
 }
 #endif // _ENTITY_FUNCTIONAL_TOREFERENCESEQUENCE_H_INCLUDED_

@@ -63,7 +63,7 @@ namespace entity { namespace simd { namespace sse
 		auto i = begin(entities, std::forward<ComponentPoolTuple>(p));
 		auto e = end(entities, std::forward<ComponentPoolTuple>(p));
 
-		for(; i != e; std::advance(i, 4))
+		for(; i != e; boost::advance(i, 4))
 		{
 			boost::fusion::for_each(
 				boost::fusion::zip(*i, data_refs),

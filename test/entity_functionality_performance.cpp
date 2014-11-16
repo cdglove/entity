@@ -1,3 +1,5 @@
+
+#define DAILY_ENABLE_INSTRUMENTATION 1
 #include "entity/dense_component_pool.h"
 #include "entity/sparse_component_pool.h"
 #include "entity/algorithm/for_each.h"
@@ -16,6 +18,9 @@
 
 #include <daily/timer/instrument.h>
 
+#if DAILY_ENABLE_INSTRUMENTATION
+#  define SIZE_OF_TEST 1024 * 256
+#endif
 #if SIZE_OF_TEST
 	static const int kNumEntities = SIZE_OF_TEST;
 #else
@@ -260,9 +265,9 @@ int main()
     std::clog << "Positions: " << *position_pool.get(entity::entity(0)) << std::endl;
     std::clog << "Velocities: " << *velocity_pool.get(entity::entity(0)) << std::endl;
 
+	std::cout << "---------- Report -----------\n";
 	daily::timer_map::get_default().report(std::cout);
 	daily::timer_map::get_default().reset_all();
-	std::cout << std::endl;
 
 	if(true)
 	{
@@ -319,6 +324,7 @@ int main()
     }
 
     daily::timer_map::get_default().report(std::cout);
+	std::cout.flush();
 
 	return 0;
 }
