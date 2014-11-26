@@ -1,7 +1,8 @@
 
-#define DAILY_ENABLE_INSTRUMENTATION 1
+#define DAILY_ENABLE_INSTRUMENTATION 0
 #include "entity/dense_component_pool.h"
 #include "entity/sparse_component_pool.h"
+#include "entity/saturated_component_pool.h"
 #include "entity/algorithm/for_each.h"
 #include "entity/algorithm/for_all.h"
 #include "entity/algorithm/simd/sse/for_each.h"
@@ -24,7 +25,7 @@
 #if SIZE_OF_TEST
 	static const int kNumEntities = SIZE_OF_TEST;
 #else
-	static const int kNumEntities = 1024 * 2048;
+static const int kNumEntities = 1024*2048;
 #endif 
 
 static const float kTestLength = 10.0f;
@@ -47,6 +48,10 @@ int main()
 	typedef entity::sparse_component_pool<float> position_pool_type;
 	typedef entity::sparse_component_pool<float> velocity_pool_type;
 	typedef entity::sparse_component_pool<float> accel_pool_type;
+#elif TEST_SATURATED_POOLS
+	typedef entity::saturated_component_pool<float> position_pool_type;
+	typedef entity::saturated_component_pool<float> velocity_pool_type;
+	typedef entity::saturated_component_pool<float> accel_pool_type;
 #elif TEST_MIXED_POOLS
 	typedef entity::sparse_component_pool<float> position_pool_type;
 	typedef entity::dense_component_pool<float> velocity_pool_type;
@@ -54,6 +59,46 @@ int main()
 #endif
 
 	using boost::fusion::at_c;
+
+	std::clog << "Created Pools\n";
+
+	// Mix things up to make it more realistic
+	if(false)
+	{
+		DAILY_AUTO_INSTRUMENT_NODE(Shuffling);
+
+		std::vector<entity::entity> shuffled_entitys;
+		for(int i = 0; i < kNumEntities; ++i)
+		{
+			shuffled_entitys.push_back(entities.create());
+		}
+
+		std::random_device rd;
+    	std::mt19937 g(rd());
+
+    	while(shuffled_entitys.size() > 0)
+    	{
+    		std::uniform_int_distribution<std::size_t> dis(0, shuffled_entitys.size()-1);
+    		auto e = dis(g);
+    		entities.destroy(shuffled_entitys[e]);
+    		std::swap(shuffled_entitys[e], shuffled_entitys.back());
+    		shuffled_entitys.pop_back();
+    	}
+	}
+
+	std::clog << "Shuffled Entities\n";
+
+	// Create entities and components.
+	std::vector<entity::entity> shuffled_entitys;
+	{
+		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
+
+		shuffled_entitys.reserve(entities.size());
+		for (int i = 0; i < kNumEntities; ++i)
+		{
+			shuffled_entitys.push_back(entities.create());
+		}
+	}
 
 	position_pool_type position_pool(entities);
 	velocity_pool_type velocity_pool(entities);
@@ -83,47 +128,8 @@ int main()
 		accel_pool_type
 	> accel_destruction_queue(accel_pool);
 
-	std::clog << "Created Pools\n";
-
-	DAILY_STOP_INSTRUMENT_NODE(Instantiation);
-
-	// Mix things up to make it more realistic
-	if(true)
+	// ------------------------------------------------------------------------
 	{
-		DAILY_AUTO_INSTRUMENT_NODE(Instantiation);
-
-		std::vector<entity::entity> shuffled_entitys;
-		for(int i = 0; i < kNumEntities; ++i)
-		{
-			shuffled_entitys.push_back(entities.create());
-		}
-
-		std::random_device rd;
-    	std::mt19937 g(rd());
-
-    	while(shuffled_entitys.size() > 0)
-    	{
-    		std::uniform_int_distribution<> dis(0, shuffled_entitys.size()-1);
-    		auto e = dis(g);
-    		entities.destroy(shuffled_entitys[e]);
-    		std::swap(shuffled_entitys[e], shuffled_entitys.back());
-    		shuffled_entitys.pop_back();
-    	}
-	}
-
-	std::clog << "Shuffled Entities\n";
-
-	// Create entities and components.
-	{
-		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
-
-		std::vector<entity::entity> shuffled_entitys;
-		shuffled_entitys.reserve(entities.size());
-		for(int i = 0; i < kNumEntities; ++i)
-		{
-			shuffled_entitys.push_back(entities.create());
-		}
-
 		if(kUseCreationQueue)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(QueueCreation);
@@ -177,13 +183,13 @@ int main()
 			});
 
 			// Compute new velocity.
-			__m128 divisor = _mm_set1_ps(2.f);
+			__m128 divisor = _mm_set1_ps(0.5f);
 			__m128 frame_time_sq = _mm_set1_ps(kFrameTime * kFrameTime);
 			entity::simd::sse::for_each(entities, entity::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m128 const& a, __m128& v)
 			{
 				v = _mm_add_ps(
 						_mm_mul_ps(
-							_mm_div_ps(
+							_mm_mul_ps(
 								a, divisor
 							),
 						    frame_time_sq
@@ -262,8 +268,8 @@ int main()
 
 	std::clog << "done.\n";
 
-    std::clog << "Positions: " << *position_pool.get(entity::entity(0)) << std::endl;
-    std::clog << "Velocities: " << *velocity_pool.get(entity::entity(0)) << std::endl;
+    std::clog << "Positions: " << *position_pool.get(entity::make_entity(0)) << std::endl;
+    std::clog << "Velocities: " << *velocity_pool.get(entity::make_entity(0)) << std::endl;
 
 	std::cout << "---------- Report -----------\n";
 	daily::timer_map::get_default().report(std::cout);
@@ -287,7 +293,7 @@ int main()
     	{
 	    	while(entitys_list.size() > 0)
 	    	{
-	    		std::uniform_int_distribution<> dis(0, entitys_list.size()-1);
+	    		std::uniform_int_distribution<std::size_t> dis(0, entitys_list.size()-1);
 	    		auto idx = dis(g);
 	    		auto e = entitys_list[idx];
 	    		
@@ -308,7 +314,7 @@ int main()
     	{
 	    	while(entitys_list.size() > 0)
 	    	{
-	    		std::uniform_int_distribution<> dis(0, entitys_list.size()-1);
+	    		std::uniform_int_distribution<std::size_t> dis(0, entitys_list.size()-1);
 	    		auto idx = dis(g);
 	    		auto e = entitys_list[idx];
 	    		

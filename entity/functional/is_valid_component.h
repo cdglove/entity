@@ -14,10 +14,10 @@ namespace entity
 	//
 	struct is_valid_component
 	{
-		template<typename Component>
-		bool operator()(Component const* c)
+		template<typename ComponentIterator>
+		bool operator()(ComponentIterator c)
 		{
-			return c != nullptr;
+			return c.is_valid();
 		}
 	};
 }

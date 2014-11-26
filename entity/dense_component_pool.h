@@ -48,9 +48,24 @@ namespace entity
 			iterator_impl()
 			{}
 
-			void advance(entity target)
+			void advance_to_target_entity(entity target)
 			{
-				m_Iterator = m_Begin + target;
+				m_Iterator = m_Begin + target.index();
+			}
+
+			T* maybe_extract_ptr(entity ent) const
+			{
+				if(!m_Parent->is_available(ent.index()))
+				{
+					return m_Parent->get_component(ent);
+				}
+
+				return nullptr;
+			}
+
+			bool is_valid() const
+			{
+				return !m_Parent->is_available(get_entity().index());
 			}
 
 		private:
@@ -103,7 +118,7 @@ namespace entity
 		T* create(entity e, Args&&... args)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__create);
-			set_available(e, false);
+			set_available(e.index(), false);
 			T* ret_val = get_component(e);
 			new(ret_val) T(std::forward<Args>(args)...);
 			return ret_val;
@@ -112,7 +127,7 @@ namespace entity
 		T* create(entity e, type&& original)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__create);
-			set_available(e, false);
+			set_available(e.index(), false);
 			T* ret_val = get_component(e);
 			new(ret_val) T(std::move(original));
 			return ret_val;
@@ -122,21 +137,19 @@ namespace entity
 		void destroy(entity e)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__destroy);
-			std::size_t obj_index = e;
 
-			assert(obj_index < m_EntityPool.size() && "Trying to destroy component not owned by this pool");
-			assert(!is_available(obj_index) && "Trying to destroy un-allocated component.");
+			assert(!is_available(e.index()) && "Trying to destroy un-allocated component.");
 			
 			T* p = get_component(e);
 			p->~T();
 			
-			set_available(obj_index, true);
+			set_available(e.index(), true);
 		}
 
 		T* get(entity e)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__get);
-			if(is_available(e))
+			if(is_available(e.index()))
 			{
 				return nullptr;
 			}
@@ -147,7 +160,7 @@ namespace entity
 		T const* get(entity e) const
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__get);
-			if(is_available(e))
+			if(is_available(e.index()))
 			{
 				return nullptr;
 			}
@@ -172,24 +185,22 @@ namespace entity
 
 		T* get_component(entity e)
 		{
-			std::size_t index = e;
-			return reinterpret_cast<T*>(&m_Components[index]);
+			return reinterpret_cast<T*>(&m_Components[e.index()]);
 		}
 
 		T const* get_component(entity e) const
 		{
-			std::size_t index = e;
-			return reinterpret_cast<T*>(&m_Components[index]);
+			return reinterpret_cast<T*>(&m_Components[e.index()]);
 		}
 
-		bool is_available(std::size_t e)
+		bool is_available(entity_index_t idx)
 		{
-			return m_Available[e] != 0;
+			return m_Available[idx] != 0;
 		}
 
-		void set_available(std::size_t e, bool available)
+		void set_available(entity_index_t idx, bool available)
 		{
-            m_Available[e] = available == true;
+            m_Available[idx] = available == true;
 		}
 
 		template<typename Iter>
@@ -197,7 +208,7 @@ namespace entity
 		{
 			while(first != last)
 			{
-				m_Available[first->first] = false;
+				m_Available[first->first.index()] = false;
 				new(get_component(first->first)) T(first->second);
 				++first;
 			}

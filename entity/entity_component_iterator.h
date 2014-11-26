@@ -104,17 +104,17 @@ namespace entity
 		//
 		struct advance_component_iterator
 		{
-			advance_component_iterator(entity e)
-				: m_Entity(e)
+			advance_component_iterator(entity target)
+				: m_Target(target)
 			{}
 
 		    template<typename T>
 		    void operator()(T& t) const
 		    {
-				t.advance(m_Entity);
+				t.advance_to_target_entity(m_Target);
 		    }
 
-		    entity m_Entity;
+		    entity m_Target;
 		};
 
 		// --------------------------------------------------------------------
@@ -128,12 +128,7 @@ namespace entity
 			template<typename Iterator>
 			typename Iterator::pointer operator()(Iterator& i) const
 			{
-				if(i.get_entity() == m_Entity)
-				{
-					return &(*i);
-				}
-
-				return nullptr;
+				return i.maybe_extract_ptr(m_Entity);
 			}
 
 			entity m_Entity;
@@ -150,9 +145,9 @@ namespace entity
 	class entity_component_iterator 
 		: public boost::iterator_facade<
 			entity_component_iterator<EntityList, ComponentPoolsTuple, ComponentPoolIterators>
-		,	typename detail::generate_value_type<ComponentPoolsTuple>::type
+		,	ComponentPoolIterators
 		,	boost::forward_traversal_tag
-		,	typename detail::generate_value_type<ComponentPoolsTuple>::type
+		,	ComponentPoolIterators
 		>
 	{
 	public:	
@@ -170,9 +165,9 @@ namespace entity
 
 		typedef boost::iterator_facade<
 			entity_component_iterator<EntityList, ComponentPoolsTuple, ComponentPoolIterators>
-		,	typename detail::generate_value_type<ComponentPoolsTuple>::type
+		,	ComponentPoolIterators
 		,	boost::forward_traversal_tag
-		,	typename detail::generate_value_type<ComponentPoolsTuple>::type
+		,	ComponentPoolIterators
 		> base;
 
 		friend class boost::iterator_core_access;
@@ -192,12 +187,9 @@ namespace entity
 			return m_EntityIter == other.m_EntityIter;
 		}
 
-		typename base::reference dereference() const
+		ComponentPoolIterators const& dereference() const
 		{
-			return boost::fusion::transform(
-				m_PoolIterators,
-				detail::extract_value_ptr(*m_EntityIter)
-			);
+			return m_PoolIterators;
 		}
 		
 		entity_iterator m_EntityIter;

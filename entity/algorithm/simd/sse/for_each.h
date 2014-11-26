@@ -25,19 +25,21 @@ namespace entity { namespace simd { namespace sse
 	{
 		struct loadu_ps
 		{
-			void operator()(boost::fusion::vector<float*, __m128&> const& source_and_v) const
+			template<typename V>
+			void operator()(V const& source_and_v) const
 			{
 				using boost::fusion::at_c;
-				at_c<1>(source_and_v) = _mm_loadu_ps(at_c<0>(source_and_v));
+				at_c<1>(source_and_v) = _mm_loadu_ps(&*at_c<0>(source_and_v));
 			}
 		};
 
 		struct storeu_ps
 		{
-			void operator()(boost::fusion::vector<float*, __m128&> const& dest_and_v) const
+			template<typename V>
+			void operator()(V const& dest_and_v) const
 			{
 				using boost::fusion::at_c;
-				_mm_storeu_ps(at_c<0>(dest_and_v), at_c<1>(dest_and_v));
+				_mm_storeu_ps(&*at_c<0>(dest_and_v), at_c<1>(dest_and_v));
 			}
 		};
 	}
@@ -63,17 +65,24 @@ namespace entity { namespace simd { namespace sse
 		auto i = begin(entities, std::forward<ComponentPoolTuple>(p));
 		auto e = end(entities, std::forward<ComponentPoolTuple>(p));
 
-		for(; i != e; boost::advance(i, 4))
+		for(; i != e; std::advance(i, 4))
 		{
+			
 			boost::fusion::for_each(
-				boost::fusion::zip(*i, data_refs),
+				boost::fusion::zip(
+					*i,
+					data_refs
+				),
 				detail::loadu_ps()
 			);
 
 			simd::detail::invoke(f, data_refs);
 
 			boost::fusion::for_each(
-				boost::fusion::zip(*i, data_refs),
+				boost::fusion::zip(
+					*i,
+					data_refs
+				),
 				detail::storeu_ps()
 			);
 		}

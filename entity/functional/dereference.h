@@ -10,10 +10,19 @@ namespace entity {
 
 	struct dereference
 	{
-		template<typename Component>
-		Component& operator()(Component* c) const
+		template<typename ComponentIterator>
+		typename ComponentIterator::reference operator()(ComponentIterator c) const
 		{
 			return *c;
+		}
+	};
+
+	struct address_of
+	{
+		template<typename ComponentIterator>
+		typename ComponentIterator::reference* operator()(ComponentIterator c) const
+		{
+			return &(*c);
 		}
 	};
 }

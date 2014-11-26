@@ -1,4 +1,4 @@
-#define DAILY_ENABLE_INSTRUMENTATION 1
+#define DAILY_ENABLE_INSTRUMENTATION 0
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -41,18 +41,21 @@ void for_each(I i, I e, Fn f)
 int main()
 {
 	std::vector<PhysicsData> entities;
-	entities.resize(kNumEntities);
 
 	std::clog << "Created Pools\n";
 
 	{	 DAILY_AUTO_INSTRUMENT_NODE(ComponentCreation);
 
 		unsigned int ids = 0;
-		::for_each(entities.begin(), entities.end(), [&ids](PhysicsData& p)
+		for(int i = 0; i < kNumEntities; ++i)
 		{
+			PhysicsData p;
 			p.id = ids++;
 			p.accel = 9.8f;
-		});
+			p.velocity = 0;
+			p.position = 0;
+			entities.push_back(p);
+		}
 	}
 
 	std::clog << "Created Components, simulating...";

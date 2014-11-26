@@ -36,7 +36,7 @@ namespace entity
 			  , boost::forward_traversal_tag
 		  	>
 		{
-			entity	get_entity() const
+			entity get_entity() const
 			{
 				return m_Iterator->first;
 			}
@@ -44,12 +44,27 @@ namespace entity
 			iterator_impl()
 			{}
 
-			void advance(entity target)
+			void advance_to_target_entity(entity target)
 			{
-				while(get_entity() < target)
+				if(get_entity().index() < target.index())
 				{
 					++m_Iterator;
 				}
+			}
+
+			T* maybe_extract_ptr(entity ent) const
+			{
+				if (get_entity() == ent)
+				{
+					return &(m_Iterator->second);
+				}
+
+				return nullptr;
+			}
+
+			bool is_valid()
+			{
+				return true;
 			}
 
 		private:
@@ -58,7 +73,6 @@ namespace entity
 			friend class sparse_component_pool;
 			
 			typedef typename boost::container::flat_map<entity, T>::iterator parent_iterator;
-
 
 			explicit iterator_impl(parent_iterator convert_from)
 				: m_Iterator(std::move(convert_from))

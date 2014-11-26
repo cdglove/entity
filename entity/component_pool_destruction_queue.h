@@ -20,7 +20,7 @@ namespace entity
 		typedef typename ComponentPool::type type;
 
 		component_pool_destruction_queue(ComponentPool& p)
-			: m_Pool(p)
+			: pool_(p)
 		{}
 
 		~component_pool_destruction_queue()
@@ -30,19 +30,19 @@ namespace entity
 
 		void push(entity e)
 		{
-			m_Destroyed.push_back(e);
+			destroyed_.push_back(e);
 		}
 
 		void flush()
 		{
-			std::sort(m_Destroyed.begin(), m_Destroyed.end(), std::greater<entity>());
-			m_Pool.destroy_range(m_Destroyed.begin(), m_Destroyed.end());
+			std::sort(destroyed_.begin(), destroyed_.end(), std::greater<entity>());
+			pool_.destroy_range(destroyed_.begin(), destroyed_.end());
 			clear();
 		}
 
 		void clear()
 		{
-			m_Destroyed.clear();
+			destroyed_.clear();
 		}
 
 	private: 
@@ -51,7 +51,7 @@ namespace entity
 		component_pool_destruction_queue(component_pool_destruction_queue const&);
 		component_pool_destruction_queue operator=(component_pool_destruction_queue);
 
-		std::vector<entity> m_Destroyed;
-		ComponentPool& m_Pool;
+		std::vector<entity> destroyed_;
+		ComponentPool& pool_;
 	};
 }
