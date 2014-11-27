@@ -58,7 +58,7 @@ namespace entity
 				return parent_->get_component(ent);
 			}
 			
-			bool is_valid()
+			bool is_valid() const
 			{
 				return true;
 			}

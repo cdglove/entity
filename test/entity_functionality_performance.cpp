@@ -1,4 +1,3 @@
-
 #define DAILY_ENABLE_INSTRUMENTATION 0
 #include "entity/dense_component_pool.h"
 #include "entity/sparse_component_pool.h"
@@ -178,18 +177,20 @@ int main()
 			__m128 increment = _mm_set1_ps(0.001f);
 			entity::simd::sse::for_each(entities, entity::tie(accel_pool), [&increment](__m128& a)
 			{
+				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Accel);
 				// Add a little to accel each frame.
 				a = _mm_add_ps(increment, a);
 			});
 
 			// Compute new velocity.
-			__m128 divisor = _mm_set1_ps(0.5f);
+			__m128 divisor = _mm_set1_ps(2.f);
 			__m128 frame_time_sq = _mm_set1_ps(kFrameTime * kFrameTime);
 			entity::simd::sse::for_each(entities, entity::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m128 const& a, __m128& v)
 			{
+				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Velocity);
 				v = _mm_add_ps(
 						_mm_mul_ps(
-							_mm_mul_ps(
+							_mm_div_ps(
 								a, divisor
 							),
 						    frame_time_sq
@@ -201,6 +202,7 @@ int main()
 			__m128 frame_time = _mm_set1_ps(kFrameTime);
 			entity::simd::sse::for_each(entities, entity::tie(velocity_pool, position_pool), [&frame_time](__m128 const& v, __m128& p)
 			{
+				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Position);
 				// Compute new position.
 				p = _mm_add_ps(
 						_mm_mul_ps(v, frame_time),

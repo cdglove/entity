@@ -15,7 +15,7 @@ namespace entity
 	struct is_valid_component
 	{
 		template<typename ComponentIterator>
-		bool operator()(ComponentIterator c)
+		bool operator()(ComponentIterator const& c)
 		{
 			return c.is_valid();
 		}

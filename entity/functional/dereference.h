@@ -16,14 +16,5 @@ namespace entity {
 			return *c;
 		}
 	};
-
-	struct address_of
-	{
-		template<typename ComponentIterator>
-		typename ComponentIterator::reference* operator()(ComponentIterator c) const
-		{
-			return &(*c);
-		}
-	};
 }
 #endif // _ENTITY_FUNCTIONAL_TOREFERENCESEQUENCE_H_INCLUDED_

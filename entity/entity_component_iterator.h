@@ -35,7 +35,7 @@ namespace entity
 		};
 
 		template<typename ComponentPoolTuple>
-		struct generate_value_type
+		struct generate_value_ptr_type
 		{
 			typedef
 			typename boost::fusion::result_of::as_vector<
@@ -187,7 +187,7 @@ namespace entity
 			return m_EntityIter == other.m_EntityIter;
 		}
 
-		ComponentPoolIterators const& dereference() const
+		ComponentPoolIterators dereference() const
 		{
 			return m_PoolIterators;
 		}

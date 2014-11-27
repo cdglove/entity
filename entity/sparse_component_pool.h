@@ -62,7 +62,7 @@ namespace entity
 				return nullptr;
 			}
 
-			bool is_valid()
+			bool is_valid() const
 			{
 				return true;
 			}

@@ -13,6 +13,7 @@
 #include <boost/fusion/container/generation/make_vector.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/algorithm/transformation/zip.hpp>
+#include <daily/timer/instrument.h>
 #include "entity/entity_component_iterator.h"
 #include "entity/functional/dereference.h"
 #include "entity/algorithm/simd/detail/invoke.h"
@@ -25,21 +26,28 @@ namespace entity { namespace simd { namespace sse
 	{
 		struct loadu_ps
 		{
-			template<typename V>
-			void operator()(V const& source_and_v) const
+			inline void operator()(boost::fusion::vector<float*, __m128&> source_and_v) const
 			{
 				using boost::fusion::at_c;
-				at_c<1>(source_and_v) = _mm_loadu_ps(&*at_c<0>(source_and_v));
+				at_c<1>(source_and_v) = _mm_loadu_ps(at_c<0>(source_and_v));
 			}
 		};
 
 		struct storeu_ps
 		{
-			template<typename V>
-			void operator()(V const& dest_and_v) const
+			inline void operator()(boost::fusion::vector<float*, __m128&> dest_and_v) const
 			{
 				using boost::fusion::at_c;
-				_mm_storeu_ps(&*at_c<0>(dest_and_v), at_c<1>(dest_and_v));
+				_mm_storeu_ps(at_c<0>(dest_and_v), at_c<1>(dest_and_v));
+			}
+		};
+
+		struct iterator_to_ptr
+		{
+			template<typename Iterator>
+			float* operator()(Iterator iter) const
+			{
+				return &(*iter);
 			}
 		};
 	}
@@ -49,6 +57,7 @@ namespace entity { namespace simd { namespace sse
 	template<typename EntityList, typename ComponentPoolTuple, typename Fn>
 	void for_each(EntityList const& entities, ComponentPoolTuple&& p, Fn f)
 	{
+		DAILY_AUTO_INSTRUMENT_NODE(for_each);
 		typedef typename boost::mpl::transform<
 			ComponentPoolTuple,
 			simd::detail::make_type<boost::mpl::_1, __m128>
@@ -65,12 +74,11 @@ namespace entity { namespace simd { namespace sse
 		auto i = begin(entities, std::forward<ComponentPoolTuple>(p));
 		auto e = end(entities, std::forward<ComponentPoolTuple>(p));
 
-		for(; i != e; std::advance(i, 4))
+		while(i != e)
 		{
-			
 			boost::fusion::for_each(
 				boost::fusion::zip(
-					*i,
+					boost::fusion::transform(*i, detail::iterator_to_ptr()),
 					data_refs
 				),
 				detail::loadu_ps()
@@ -80,11 +88,21 @@ namespace entity { namespace simd { namespace sse
 
 			boost::fusion::for_each(
 				boost::fusion::zip(
-					*i,
+					boost::fusion::transform(*i, detail::iterator_to_ptr()),
 					data_refs
 				),
 				detail::storeu_ps()
 			);
+
+			for(int j = 0; j < 4; ++j)
+			{
+				DAILY_AUTO_INSTRUMENT_NODE(for_each_loop);
+				++i;
+				if(i == e)
+				{
+					break;
+				}
+			}
 		}
 	}
 }}} // namespace entity { namespace simd { namespace sse { 
