@@ -25,7 +25,7 @@ namespace entity { namespace simd { namespace avx
 	{
 		struct loadu_ps
 		{
-			void operator()(boost::fusion::vector<float*, __m256&> const& source_and_v) const
+			void operator()(boost::fusion::vector<float*, __m256&> source_and_v) const
 			{
 				using boost::fusion::at_c;
 				at_c<1>(source_and_v) = _mm256_loadu_ps(at_c<0>(source_and_v));
@@ -34,7 +34,7 @@ namespace entity { namespace simd { namespace avx
 
 		struct storeu_ps
 		{
-			void operator()(boost::fusion::vector<float*, __m256&> const& dest_and_v) const
+			void operator()(boost::fusion::vector<float*, __m256&> dest_and_v) const
 			{
 				using boost::fusion::at_c;
 				_mm256_storeu_ps(at_c<0>(dest_and_v), at_c<1>(dest_and_v));

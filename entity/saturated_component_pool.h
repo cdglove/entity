@@ -1,7 +1,8 @@
 //! \file entity/saturated_component_pool.h
 //
 // Represents a component pool where the number of components
-// equals the number of entities.
+// equals the number of entities.  Allows assumptions to be
+// made to optimize bookkeeping and iteration.
 // 
 #pragma once
 #ifndef _ENTITY_SATURATEDCOMPONENTPOOL_H_INCLUDED_

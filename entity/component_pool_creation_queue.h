@@ -3,6 +3,9 @@
 // Represents a way to queue component creation in order to 
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
 // 
+#pragma once
+#ifndef _ENTITY_COMPONENTPOOLCREATIONQUEUE_H_INCLUDED_
+#define _ENTITY_COMPONENTPOOLCREATIONQUEUE_H_INCLUDED_
 
 #include "entity/config.h"
 #include <vector>
@@ -63,3 +66,5 @@ namespace entity
 		ComponentPool& m_Pool;
 	};
 }
+
+#endif // _ENTITY_COMPONENTPOOLCREATIONQUEUE_H_INCLUDED_

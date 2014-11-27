@@ -3,6 +3,9 @@
 // Represents a way to queue component destruction in order to 
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
 // 
+#pragma once
+#ifndef _ENTITY_COMPONENTPOOLDESTRUCTIONQUEUE_H_INCLUDED_
+#define _ENTITY_COMPONENTPOOLDESTRUCTIONQUEUE_H_INCLUDED_
 
 #include "entity/config.h"
 #include <vector>
@@ -55,3 +58,5 @@ namespace entity
 		ComponentPool& pool_;
 	};
 }
+
+#endif // _ENTITY_COMPONENTPOOLDESTRUCTIONQUEUE_H_INCLUDED_

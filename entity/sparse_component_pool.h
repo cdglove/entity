@@ -1,8 +1,8 @@
-//! \file entity/dense_component_pool.h
+//! \file entity/sparse_component_pool.h
 //
 // Represents a component pool where the number of components
-// approaches the number of entitys on those components.
-// Basically trades space for run time efficiency.
+// is significantly less than the number of entities with those components.
+// Uses less space and will be faster to iterate under these conditions.
 // 
 #pragma once
 #ifndef _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
