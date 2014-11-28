@@ -8,6 +8,7 @@
 
 #include "entity/entity.h"
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/signals2/signal.hpp>
 #include <boost/assert.hpp>
 
 // ----------------------------------------------------------------------------
@@ -56,19 +57,29 @@ namespace entity
 		typedef iterator_impl iterator;
 		typedef iterator_impl const_iterator;
 
-		entity_pool(entity_index_t max_entities)
-			: max_entities_(max_entities)
-			, num_entities_(0)
+		struct signal_list
+		{
+			boost::signals2::signal<void(entity)> on_entity_create;
+			boost::signals2::signal<void(entity)> on_entity_destroy;
+			boost::signals2::signal<void(entity, entity)> on_entity_swap;
+		};
+
+		entity_pool()
+			: num_entities_(0)
 		{}
 
 		entity create()
 		{
-			return make_entity(num_entities_++);
+			entity new_entity = make_entity(num_entities_++);
+			signals().on_entity_create(new_entity);
+			return new_entity;
 		}	
 
 		void destroy(entity e)
 		{
 			--num_entities_;
+			signals().on_entity_swap(e, make_entity(num_entities_));
+			signals().on_entity_destroy(make_entity(num_entities_));
 		}
 
 		std::size_t size() const
@@ -86,13 +97,18 @@ namespace entity
 			return iterator_impl(num_entities_);
 		}
 
+		signal_list& signals()
+		{
+			return signals_;
+		}
+
 	private:
 
 		entity_pool(entity_pool const&);
 		entity_pool operator=(entity_pool);
 
-		entity_index_t max_entities_;
 		entity_index_t num_entities_;
+		signal_list    signals_;
 	};
 
 	entity_pool::iterator begin(entity_pool const& p)

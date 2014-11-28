@@ -102,23 +102,85 @@ namespace entity
 		typedef T type;
 		typedef iterator_impl iterator;
 		
-		saturated_component_pool(entity_pool const& owner_pool)
-		{}
+		saturated_component_pool(entity_pool& owner_pool, T const& default_value = T())
+		{
+			// Create default values for existing entities.
+			std::for_each(
+				owner_pool.begin(),
+				owner_pool.end(),
+				boost::bind(
+					&saturated_component_pool::create<T const&>,
+					this,
+					::_1,
+					boost::ref(default_value)
+				)
+			);
+
+			slots_.entity_destroy_handler = 
+				owner_pool.signals().on_entity_destroy.connect(
+					boost::bind(
+						&saturated_component_pool::handle_destroy_entity,
+						this,
+						::_1
+					)
+				)
+			;
+
+			slots_.entity_swap_handler = 
+				owner_pool.signals().on_entity_swap.connect(
+					boost::bind(
+						&saturated_component_pool::handle_swap_entity,
+						this,
+						::_1, 
+						::_2
+					)
+				)
+			;
+		}
+
+	#if ENTITY_SUPPORT_VARIADICS
+		template<typename... Args>
+		void auto_create_components(entity_pool& owner_pool, Args... constructor_args)
+		{
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					std::function<void(entity)>(
+						[this, constructor_args...](entity e) 
+						{
+							create(e, constructor_args...);
+						}
+					)
+				)
+			;
+		}
+	#else
+		void auto_create_components(entity_pool& owner_pool, T const& default_value)
+		{
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					boost::bind(
+						&saturated_component_pool::create,
+						this,
+						::_1,
+						default_value
+					)
+				)
+			;
+		}
+	#endif
 
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(saturated_component_pool__create);
-			components_.emplace_back(std::forward<Args>(args)...);
-			return &components_.back();
+			components_.emplace(components_.begin() + e.index(), std::forward<Args>(args)...);
+			return &components_[e.index()];
 		}	
 
 		void destroy(entity e)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(saturated_component_pool__destroy);
-			using std::swap;
-			swap(components_[e.index()], components_.back());
-			components_.pop_back();
+			components_.erase(components_.begin() + e.index());
 		}
 
 		T* get(entity e)
@@ -141,10 +203,22 @@ namespace entity
 			return iterator(this, components_.size());
 		}
 
+		std::size_t size()
+		{
+			return components_.size();
+		}
+
 	private:
 
 		friend class component_pool_creation_queue<saturated_component_pool<type>>;
 		friend class component_pool_destruction_queue<saturated_component_pool<type>>;
+
+		struct slot_list
+		{
+			boost::signals2::scoped_connection entity_create_handler;
+			boost::signals2::scoped_connection entity_destroy_handler;
+			boost::signals2::scoped_connection entity_swap_handler;
+		};
 
 		T* get_component(entity e)
 		{
@@ -156,6 +230,8 @@ namespace entity
 			return &components_[e.index()];
 		}
 
+		// --------------------------------------------------------------------
+		// Queue interface.
 		template<typename Iter>
 		void create_range(Iter first, Iter last)
 		{
@@ -176,7 +252,21 @@ namespace entity
 			}
 		}
 
+		// --------------------------------------------------------------------
+		// Slot Handlers.
+		void handle_destroy_entity(entity e)
+		{
+			destroy(e);
+		}
+
+		void handle_swap_entity(entity a, entity b)
+		{
+			using std::swap;
+			swap(components_[a.index()], components_[b.index()]);
+		}
+
 		std::vector<type> components_;
+		slot_list		  slots_;
 	};
 }
 

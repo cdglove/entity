@@ -6,7 +6,7 @@ static int const kNumEntities = 1024;
 
 int main()
 {
-	entity::entity_pool entities(kNumEntities);
+	entity::entity_pool entities;
 
 	for (entity::entity_index_t i = 0; i < kNumEntities; ++i)
 	{

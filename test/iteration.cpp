@@ -7,7 +7,7 @@ static int const kNumEntities = 1024;
 
 int main()
 {
-	entity::entity_pool entities(kNumEntities);
+	entity::entity_pool entities;
 	std::for_each(
 		entities.begin(),
 		entities.end(),

@@ -2,13 +2,9 @@
 #include <vector>
 #include <algorithm>
 #include <immintrin.h>
+#include "performance_common.h"
 
-#if SIZE_OF_TEST
-	static const int kNumEntities = SIZE_OF_TEST;
-#else
-	static const int kNumEntities = 1024 * 2048;
-#endif 
-
+static const int kNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
 

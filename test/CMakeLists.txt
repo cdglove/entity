@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
  
-find_package( Boost )
+set(Boost_USE_MULTI_THREADED ON)
+set(Boost_USE_STATIC_LIBS ON)
+find_package( Boost
+	REQUIRED
+    unit_test_framework
+    system
+)
 
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_BINARY_DIR}")
@@ -12,8 +18,12 @@ function(create_test test_name test_source test_defines)
 	add_executable(${test_name} ${test_source})
 	#set_target_properties(${test_name} PROPERTIES COMPILE_DEFINITIONS ${test_defines})
 	target_include_directories( ${test_name} PUBLIC ${Boost_INCLUDE_DIR} ${DAILY_INCLUDE_DIRS})
+	target_link_libraries(${test_name} ${Boost_LIBRARIES})
 	add_test(${test_name} ${test_name})
-	set_property(TARGET ${test_name} APPEND PROPERTY COMPILE_DEFINITIONS ${test_defines})
+	set_property(TARGET ${test_name} APPEND PROPERTY COMPILE_DEFINITIONS ${test_defines})	
+	if(MSVC)
+		set_property(TARGET ${test_name} APPEND PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
+	endif()
 endfunction(create_test)
 
 #create_test(test_sparse_variadics entity_functionality_performance.cpp "TEST_SPARSE_POOLS=1;ENTITY_SUPPORT_VARIADICS=1;SIZE_OF_TEST=512")
@@ -35,10 +45,11 @@ endfunction(create_test)
 create_test(test_basic_compilation instantiate_pools.cpp "")
 create_test(test_entity_lifetimes entity_lifetimes.cpp "")
 create_test(test_iterator iteration.cpp "")
+create_test(test_signals signals.cpp "")
 create_test(test_saturated_performance entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1")
 create_test(test_saturated_performance_sse entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_SSE=1")
-create_test(test_sparse_performance entity_functionality_performance.cpp "TEST_SPARSE_POOLS=1")
-create_test(test_dense_performance entity_functionality_performance.cpp "TEST_DENSE_POOLS=1")
+create_test(test_sparse_performance entity_functionality_performance.cpp "TEST_SPARSE_POOLS=1;")
+create_test(test_dense_performance entity_functionality_performance.cpp "TEST_DENSE_POOLS=1;")
 create_test(test_non_entity_performance_0 non_entity_performance.cpp "EXTRA_PADDING=0")
 create_test(test_manual_entity_performance manual_entity_performance.cpp "")
 

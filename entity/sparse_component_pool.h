@@ -105,25 +105,89 @@ namespace entity
 		friend class component_pool_creation_queue<sparse_component_pool<type>>;
 		friend class component_pool_destruction_queue<sparse_component_pool<type>>;
 
-		sparse_component_pool(entity_pool const& owner_pool)
+		sparse_component_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
-			// Inserta dummy node to make iteration simpler.
-			m_Entities[entity(owner_pool.size())] = T();
+			// Create default values for existing entities.
+			std::for_each(
+				owner_pool.begin(),
+				owner_pool.end(),
+				boost::bind(
+					&sparse_component_pool::create<T const&>,
+					this,
+					::_1,
+					boost::ref(default_value)
+				)
+			);
+
+			// Insert dummy node to make iteration simpler.
+			//components_[make_entity(owner_pool.size())] = T();
+
+			slots_.entity_destroy_handler = 
+				owner_pool.signals().on_entity_destroy.connect(
+					boost::bind(
+						&sparse_component_pool::handle_destroy_entity,
+						this,
+						::_1
+					)
+				)
+			;
+
+			slots_.entity_swap_handler = 
+				owner_pool.signals().on_entity_swap.connect(
+					boost::bind(
+						&sparse_component_pool::handle_swap_entity,
+						this,
+						::_1, 
+						::_2
+					)
+				)
+			;
 		}
+
+	#if ENTITY_SUPPORT_VARIADICS
+		template<typename... Args>
+		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
+		{
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					std::function<void(entity)>(
+						[this, constructor_args...](entity e)
+						{
+							create(e, constructor_args...);
+						}
+					)
+				)
+			;
+		}
+	#else
+		void auto_create_components(entity_pool& owner_pool, T const& default_value)
+		{
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					boost::bind(
+						&sparse_component_pool::create,
+						this,
+						::_1,
+						default_value
+					)
+				)
+			;
+		}
+	#endif
 
 	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
-			auto r = m_Entities.emplace(e, std::forward<Args>(args)...);
+			auto r = components_.emplace(e, std::forward<Args>(args)...);
 			return &(r.first->second);
 		}
 	#else
 		T* create(entity e, type&& original)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
-			auto r = m_Entities.emplace(e, std::move(original));
+			auto r = components_.emplace(e, std::move(original));
 			return &(r.first->second);
 		}
 	#endif
@@ -131,14 +195,14 @@ namespace entity
 		void destroy(entity e)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__destroy);
-			m_Entities.erase(e);
+			components_.erase(e);
 		}
 
 		T* get(entity e)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__get);
-			auto obj = m_Entities.find(e);
-			if(obj != m_Entities.end())
+			auto obj = components_.find(e);
+			if(obj != components_.end())
 			{
 				return &obj->second;
 			}
@@ -149,8 +213,8 @@ namespace entity
 		T const* get(entity e) const
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__get);
-			auto obj = m_Entities.find(e);
-			if(obj != m_Entities.end())
+			auto obj = components_.find(e);
+			if(obj != components_.end())
 			{
 				return &obj->second;
 			}
@@ -160,20 +224,34 @@ namespace entity
 
 		iterator begin()
 		{
-			return iterator(m_Entities.begin());
+			return iterator(components_.begin());
 		}
 
 		iterator end()
 		{
-			return iterator(m_Entities.end()-1);
+			return iterator(components_.end()-1);
+		}
+
+		std::size_t size()
+		{
+			return components_.size();
 		}
 
 	private:
 
+		struct slot_list
+		{
+			boost::signals2::scoped_connection entity_create_handler;
+			boost::signals2::scoped_connection entity_destroy_handler;
+			boost::signals2::scoped_connection entity_swap_handler;
+		};
+
+		// --------------------------------------------------------------------
+		// Queue interface.
 		template<typename Iter>
 		void create_range(Iter first, Iter last)
 		{
-			m_Entities.insert(boost::container::ordered_unique_range_t(), first, last);
+			components_.insert(boost::container::ordered_unique_range_t(), first, last);
 		}
 
 		template<typename Iter>
@@ -181,12 +259,26 @@ namespace entity
 		{
 			while(first != last)
 			{
-				destroy(*first);
-				++first;
+				destroy(*last);
+				--last;
 			}
 		}
 
-		boost::container::flat_map<entity, T> m_Entities;
+		// --------------------------------------------------------------------
+		// Slot Handlers.
+		void handle_destroy_entity(entity e)
+		{
+			destroy(e);
+		}
+
+		void handle_swap_entity(entity a, entity b)
+		{
+			using std::swap;
+			swap(components_[a], components_[b]);
+		}
+
+		boost::container::flat_map<entity, T> components_;
+		slot_list slots_;
 	};
 }
 

@@ -13,6 +13,7 @@
 #include "entity/entity_component_iterator.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
+#include <boost/assert.hpp>
 #include <cstddef>
 #include <memory>
 #include <vector>
@@ -42,7 +43,7 @@ namespace entity
 		{
 			entity get_entity() const
 			{
-				return entity(std::distance(m_Begin, m_Iterator));
+				return entity(std::distance(begin_, iterator_));
 			}
 
 			iterator_impl()
@@ -50,14 +51,14 @@ namespace entity
 
 			void advance_to_target_entity(entity target)
 			{
-				m_Iterator = m_Begin + target.index();
+				iterator_ = begin_ + target.index();
 			}
 
 			T* maybe_extract_ptr(entity ent) const
 			{
-				if(!m_Parent->is_available(ent.index()))
+				if(!parent_->is_available(ent.index()))
 				{
-					return m_Parent->get_component(ent);
+					return parent_->get_component(ent);
 				}
 
 				return nullptr;
@@ -65,7 +66,7 @@ namespace entity
 
 			bool is_valid() const
 			{
-				return !m_Parent->is_available(get_entity().index());
+				return !parent_->is_available(get_entity().index());
 			}
 
 		private:
@@ -76,30 +77,30 @@ namespace entity
 			typedef typename std::vector<char>::iterator parent_iterator;
 
 			iterator_impl(dense_component_pool* parent, parent_iterator start, parent_iterator first)
-				: m_Parent(parent)
-				, m_Iterator(std::move(start))
-				, m_Begin(std::move(first))
+				: parent_(parent)
+				, iterator_(std::move(start))
+				, begin_(std::move(first))
 			{}
 
 			void increment()
 			{
 				DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__iterator_impl__increment);
-				++m_Iterator;
+				++iterator_;
 			}
 
 			bool equal(iterator_impl const& other) const
 			{
-				return m_Iterator == other.m_Iterator;
+				return iterator_ == other.iterator_;
 			}
 
 			T& dereference() const
 			{
-				return *m_Parent->get_component(get_entity());
+				return *parent_->get_component(get_entity());
 			}
 
-			dense_component_pool* m_Parent;
-			parent_iterator m_Iterator;
-			parent_iterator m_Begin;
+			dense_component_pool* parent_;
+			parent_iterator iterator_;
+			parent_iterator begin_;
 		};
 
 	public:
@@ -107,11 +108,84 @@ namespace entity
 		typedef T type;
 		typedef iterator_impl iterator;
 		
-		dense_component_pool(entity_pool const& owner_pool)
-			: m_Components(new element_t[owner_pool.size()])
-			, m_Available(owner_pool.size(), 1)
-			, m_EntityPool(owner_pool)
-		{}
+		dense_component_pool(entity_pool& owner_pool, T const& default_value = T())
+			: used_count_(0)
+		{
+			// Create default values for existing entities.
+			std::for_each(
+				owner_pool.begin(),
+				owner_pool.end(),
+				boost::bind(
+					&dense_component_pool::create<T const&>,
+					this,
+					::_1,
+					boost::ref(default_value)
+				)
+			);
+
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					boost::bind(
+						&dense_component_pool::handle_create_entity,
+						this,
+						::_1
+					)
+				)
+			;
+
+			slots_.entity_destroy_handler = 
+				owner_pool.signals().on_entity_destroy.connect(
+					boost::bind(
+						&dense_component_pool::handle_destroy_entity,
+						this,
+						::_1
+					)
+				)
+			;
+
+			slots_.entity_swap_handler = 
+				owner_pool.signals().on_entity_swap.connect(
+					boost::bind(
+						&dense_component_pool::handle_swap_entity,
+						this,
+						::_1,
+						::_2
+					)
+				)
+			;
+		}
+
+	#if ENTITY_SUPPORT_VARIADICS
+		template<typename... Args>
+		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
+		{
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					std::function<void(entity)>(
+						[this, constructor_args...](entity e)
+						{
+							create_entity_slot(e);
+							create(e, constructor_args...);
+						}
+					)
+				)
+			;
+		}
+	#else
+		void auto_create_components(entity_pool& owner_pool, T const& default_value)
+		{
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					boost::bind(
+						&dense_component_pool::create,
+						this,
+						::_1,
+						default_value
+					)
+				)
+			;
+		}
+	#endif
 
 	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
@@ -121,6 +195,7 @@ namespace entity
 			set_available(e.index(), false);
 			T* ret_val = get_component(e);
 			new(ret_val) T(std::forward<Args>(args)...);
+			++used_count_;
 			return ret_val;
 		}	
 	#else
@@ -138,8 +213,8 @@ namespace entity
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__destroy);
 
-			assert(!is_available(e.index()) && "Trying to destroy un-allocated component.");
-			
+			BOOST_ASSERT(!is_available(e.index()) && "Trying to destroy un-allocated component.");
+			--used_count_;
 			T* p = get_component(e);
 			p->~T();
 			
@@ -170,12 +245,17 @@ namespace entity
 
 		iterator begin()
 		{
-			return iterator(this, m_Available.begin(), m_Available.begin());
+			return iterator(this, available_.begin(), available_.begin());
 		}
 
 		iterator end()
 		{
-			return iterator(this, m_Available.end(), m_Available.begin());
+			return iterator(this, available_.end(), available_.begin());
+		}
+
+		std::size_t size()
+		{
+			return used_count_;
 		}
 
 	private:
@@ -183,56 +263,100 @@ namespace entity
 		friend class component_pool_creation_queue<dense_component_pool<type>>;
 		friend class component_pool_destruction_queue<dense_component_pool<type>>;
 
+		struct slot_list
+		{
+			boost::signals2::scoped_connection entity_create_handler;
+			boost::signals2::scoped_connection entity_destroy_handler;
+			boost::signals2::scoped_connection entity_swap_handler;
+		};
+
 		T* get_component(entity e)
 		{
-			return reinterpret_cast<T*>(&m_Components[e.index()]);
+			return reinterpret_cast<T*>(&components_[e.index()]);
 		}
 
 		T const* get_component(entity e) const
 		{
-			return reinterpret_cast<T*>(&m_Components[e.index()]);
+			return reinterpret_cast<T*>(&components_[e.index()]);
 		}
 
 		bool is_available(entity_index_t idx)
 		{
-			return m_Available[idx] != 0;
+			return available_[idx] != 0;
 		}
 
 		void set_available(entity_index_t idx, bool available)
 		{
-            m_Available[idx] = available == true;
+			available_[idx] = (available == true);
 		}
 
-		template<typename Iter>
-		void create_range(Iter first, Iter last)
+		void create_entity_slot(entity e)
 		{
-			while(first != last)
+			components_.insert(components_.begin() + e.index(), element_t());
+			available_.emplace(available_.begin() + e.index(), true);
+		}
+
+		void free_entity_slot(entity e)
+		{
+			available_.erase(available_.begin() + e.index());
+			components_.erase(components_.begin() + e.index());
+		}
+
+		// --------------------------------------------------------------------
+		// Queue interface.
+		template<typename Iter>
+		void create_range(Iter current, Iter last)
+		{
+			while(current != last)
 			{
-				m_Available[first->first.index()] = false;
-				new(get_component(first->first)) T(first->second);
-				++first;
+				create(current->first, current->second);
+				++current;
 			}
 		}
 
 		template<typename Iter>
-		void destroy_range(Iter first, Iter last)
+		void destroy_range(Iter current, Iter last)
 		{
-			while(first != last)
+			while(current != last)
 			{
-				destroy(*first);
-				++first;
+				destroy(*current);
+				++current;
 			}
 		}
 
-		typedef boost::aligned_storage<
-			sizeof(T), 
-			boost::alignment_of<T>::value
-		> element_t;
+		// --------------------------------------------------------------------
+		// Slot Handlers
+		void handle_create_entity(entity e)
+		{
+			create_entity_slot(e);
+		}
 
-		std::unique_ptr<element_t[]>	m_Components;
-		std::vector<char>				m_Available;
-		entity_pool const& 				m_EntityPool;
+		void handle_destroy_entity(entity e)
+		{
+			if(!is_available(e.index()))
+			{
+				destroy(e);
+			}
+
+			free_entity_slot(e);
+		}
+
+		void handle_swap_entity(entity a, entity b)
+		{
+			using std::swap;
+			swap(components_[a.index()], components_[b.index()]);
+		}
+
+		struct element_t
+		{
+			char mem_[sizeof(T)];
+		};
+
+		std::vector<element_t>			components_;
+		std::vector<char>				available_;
+		std::size_t						used_count_;
+		slot_list						slots_;
 	};
 }
-
+	
 #endif // _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_

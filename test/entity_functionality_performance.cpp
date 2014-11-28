@@ -1,4 +1,5 @@
 #define DAILY_ENABLE_INSTRUMENTATION 0
+
 #include "entity/dense_component_pool.h"
 #include "entity/sparse_component_pool.h"
 #include "entity/saturated_component_pool.h"
@@ -8,25 +9,16 @@
 #include "entity/component_pool_creation_queue.h"
 #include "entity/component_pool_destruction_queue.h"
 #include "entity/component/tie.h"
+#include "performance_common.h"
+#include <random>
+#include <iostream>
+#include <daily/timer/instrument.h>
 
 #if ENTITY_SUPPORT_AVX
 #  include "entity/algorithm/simd/avx/for_each.h"
 #endif
 
-#include <random>
-#include <iostream>
-
-#include <daily/timer/instrument.h>
-
-#if DAILY_ENABLE_INSTRUMENTATION
-#  define SIZE_OF_TEST 1024 * 256
-#endif
-#if SIZE_OF_TEST
-	static const int kNumEntities = SIZE_OF_TEST;
-#else
-static const int kNumEntities = 1024*2048;
-#endif 
-
+static const int kNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
 static const bool kUseCreationQueue = true;
@@ -37,7 +29,7 @@ int main()
 	DAILY_DECLARE_INSTRUMENT_NODE(Instantiation);
 	DAILY_START_INSTRUMENT_NODE(Instantiation);
 
-	entity::entity_pool entities(kNumEntities);
+	entity::entity_pool entities;
 
 #if TEST_DENSE_POOLS
 	typedef entity::dense_component_pool<float> position_pool_type;
@@ -56,48 +48,6 @@ int main()
 	typedef entity::dense_component_pool<float> velocity_pool_type;
 	typedef entity::sparse_component_pool<float> accel_pool_type;
 #endif
-
-	using boost::fusion::at_c;
-
-	std::clog << "Created Pools\n";
-
-	// Mix things up to make it more realistic
-	if(false)
-	{
-		DAILY_AUTO_INSTRUMENT_NODE(Shuffling);
-
-		std::vector<entity::entity> shuffled_entitys;
-		for(int i = 0; i < kNumEntities; ++i)
-		{
-			shuffled_entitys.push_back(entities.create());
-		}
-
-		std::random_device rd;
-    	std::mt19937 g(rd());
-
-    	while(shuffled_entitys.size() > 0)
-    	{
-    		std::uniform_int_distribution<std::size_t> dis(0, shuffled_entitys.size()-1);
-    		auto e = dis(g);
-    		entities.destroy(shuffled_entitys[e]);
-    		std::swap(shuffled_entitys[e], shuffled_entitys.back());
-    		shuffled_entitys.pop_back();
-    	}
-	}
-
-	std::clog << "Shuffled Entities\n";
-
-	// Create entities and components.
-	std::vector<entity::entity> shuffled_entitys;
-	{
-		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
-
-		shuffled_entitys.reserve(entities.size());
-		for (int i = 0; i < kNumEntities; ++i)
-		{
-			shuffled_entitys.push_back(entities.create());
-		}
-	}
 
 	position_pool_type position_pool(entities);
 	velocity_pool_type velocity_pool(entities);
@@ -126,6 +76,20 @@ int main()
 	entity::component_pool_destruction_queue<
 		accel_pool_type
 	> accel_destruction_queue(accel_pool);
+
+	std::clog << "Created Pools\n";
+
+	// Create entities and components.
+	std::vector<entity::entity> shuffled_entitys;
+	{
+		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
+
+		shuffled_entitys.reserve(entities.size());
+		for (int i = 0; i < kNumEntities; ++i)
+		{
+			shuffled_entitys.push_back(entities.create());
+		}
+	}
 
 	// ------------------------------------------------------------------------
 	{
@@ -273,63 +237,44 @@ int main()
     std::clog << "Positions: " << *position_pool.get(entity::make_entity(0)) << std::endl;
     std::clog << "Velocities: " << *velocity_pool.get(entity::make_entity(0)) << std::endl;
 
-	std::cout << "---------- Report -----------\n";
-	daily::timer_map::get_default().report(std::cout);
+	if(!daily::timer_map::get_default().empty())
+	{
+		std::cout << "---------- Report -----------\n";
+		daily::timer_map::get_default().report(std::cout);
+	}
+
 	daily::timer_map::get_default().reset_all();
 
 	if(true)
 	{
 		DAILY_AUTO_INSTRUMENT_NODE(Cleanup);
 
-		std::vector<entity::entity> entitys_list;
-		entitys_list.reserve(kNumEntities);
-		for(auto i = begin(entities); i != end(entities); ++i)
+		//std::vector<entity::entity> entitys_list;
+		//entitys_list.reserve(kNumEntities);
+		//for(auto i = begin(entities); i != end(entities); ++i)
+		//{
+		//	entitys_list.push_back(*i);
+		//}
+
+		//std::random_device rd;
+  //  	std::mt19937 g(rd());
+
+	 //   while(entitys_list.size() > 0)
+	 //   {
+	 //   	std::uniform_int_distribution<std::size_t> dis(0, entitys_list.size()-1);
+	 //   	auto idx = dis(g);
+	 //   	auto e = entitys_list[idx];
+	 //   		
+	 //   	entities.destroy(e);
+	 //   	std::swap(entitys_list[idx], entitys_list.back());
+	 //   	entitys_list.pop_back();
+	 //   }
+
+		while(entities.size() > 0)
 		{
-			entitys_list.push_back(*i);
+			entities.destroy(entity::make_entity(0));
 		}
-
-		std::random_device rd;
-    	std::mt19937 g(rd());
-
-    	if(kUseDestructionQueue)
-    	{
-	    	while(entitys_list.size() > 0)
-	    	{
-	    		std::uniform_int_distribution<std::size_t> dis(0, entitys_list.size()-1);
-	    		auto idx = dis(g);
-	    		auto e = entitys_list[idx];
-	    		
-	    		position_destruction_queue.push(e);
-				velocity_destruction_queue.push(e);
-				accel_destruction_queue.push(e);
-
-	    		entities.destroy(e);
-	    		std::swap(entitys_list[idx], entitys_list.back());
-	    		entitys_list.pop_back();
-	    	}
-
-	    	position_destruction_queue.flush();
-	    	velocity_destruction_queue.flush();
-	    	accel_destruction_queue.flush();
-    	}
-    	else
-    	{
-	    	while(entitys_list.size() > 0)
-	    	{
-	    		std::uniform_int_distribution<std::size_t> dis(0, entitys_list.size()-1);
-	    		auto idx = dis(g);
-	    		auto e = entitys_list[idx];
-	    		
-	    		position_pool.destroy(e);
-				velocity_pool.destroy(e);
-				accel_pool.destroy(e);
-
-	    		entities.destroy(e);
-	    		std::swap(entitys_list[idx], entitys_list.back());
-	    		entitys_list.pop_back();
-	    	}
-	    }
-    }
+	}
 
     daily::timer_map::get_default().report(std::cout);
 	std::cout.flush();

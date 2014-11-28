@@ -3,17 +3,9 @@
 #include <vector>
 #include <algorithm>
 #include <daily/timer/instrument.h>
+#include "performance_common.h"
 
-#if DAILY_ENABLE_INSTRUMENTATION
-#  define SIZE_OF_TEST 1024 * 256
-#endif
-
-#if SIZE_OF_TEST
-	static const int kNumEntities = SIZE_OF_TEST;
-#else
-	static const int kNumEntities = 1024 * 2048;
-#endif 
-
+static const int kNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
 
@@ -94,8 +86,12 @@ int main()
     std::clog << "Positions: " << entities[0].position << std::endl;
     std::clog << "Velocities: " << entities[0].velocity << std::endl;
 
-	std::cout << "---------- Report -----------\n";
-	daily::timer_map::get_default().report(std::cout);
+	if(!daily::timer_map::get_default().empty())
+	{
+		std::cout << "---------- Report -----------\n";
+		daily::timer_map::get_default().report(std::cout);
+	}
+
 	std::cout.flush();
 
 	return 0;
