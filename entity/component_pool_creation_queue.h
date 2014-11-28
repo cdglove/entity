@@ -23,7 +23,7 @@ namespace entity
 		typedef typename ComponentPool::type type;
 
 		component_pool_creation_queue(ComponentPool& p)
-			: m_Pool(p)
+			: pool_(p)
 		{}
 
 		~component_pool_creation_queue()
@@ -35,25 +35,25 @@ namespace entity
 		template<typename... Args>
 		void push(entity e, Args&&... args)
 		{
-			m_Created.push_back(std::make_pair(e, type(std::forward<Args>(args)...)));
+			created_.push_back(std::make_pair(e, type(std::forward<Args>(args)...)));
 		}
 	#else
 		void push(entity e, type&& original)
 		{
-			m_Created.push_back(std::make_pair(e, std::move(original)));
+			created_.push_back(std::make_pair(e, std::move(original)));
 		}
 	#endif
 
 		void flush()
 		{
-			std::sort(m_Created.begin(), m_Created.end());
-			m_Pool.create_range(m_Created.begin(), m_Created.end());
+			std::sort(created_.begin(), created_.end());
+			pool_.create_range(created_.begin(), created_.end());
 			clear();
 		}
 
 		void clear()
 		{
-			m_Created.clear();
+			created_.clear();
 		}
 
 	private: 
@@ -62,8 +62,8 @@ namespace entity
 		component_pool_creation_queue(component_pool_creation_queue const&);
 		component_pool_creation_queue operator=(component_pool_creation_queue);
 
-		std::vector<std::pair<entity, type>> m_Created;
-		ComponentPool& m_Pool;
+		std::vector<std::pair<entity, type>> created_;
+		ComponentPool& pool_;
 	};
 }
 

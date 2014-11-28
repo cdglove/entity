@@ -38,7 +38,7 @@ namespace entity
 		{
 			entity get_entity() const
 			{
-				return m_Iterator->first;
+				return iterator_->first;
 			}
 
 			iterator_impl()
@@ -48,7 +48,7 @@ namespace entity
 			{
 				if(get_entity().index() < target.index())
 				{
-					++m_Iterator;
+					++iterator_;
 				}
 			}
 
@@ -56,7 +56,7 @@ namespace entity
 			{
 				if (get_entity() == ent)
 				{
-					return &(m_Iterator->second);
+					return &(iterator_->second);
 				}
 
 				return nullptr;
@@ -75,26 +75,26 @@ namespace entity
 			typedef typename boost::container::flat_map<entity, T>::iterator parent_iterator;
 
 			explicit iterator_impl(parent_iterator convert_from)
-				: m_Iterator(std::move(convert_from))
+				: iterator_(std::move(convert_from))
 			{}
 
 			void increment()
 			{
 				DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__iterator_impl__increment);
-				++m_Iterator;
+				++iterator_;
 			}
 
 			bool equal(iterator_impl const& other) const
 			{
-				return m_Iterator == other.m_Iterator;
+				return iterator_ == other.iterator_;
 			}
 
 			T& dereference() const
 			{
-				return m_Iterator->second;
+				return iterator_->second;
 			}
 
-			parent_iterator m_Iterator;
+			parent_iterator iterator_;
 		};
 
 	public:

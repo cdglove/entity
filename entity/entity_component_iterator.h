@@ -105,16 +105,16 @@ namespace entity
 		struct advance_component_iterator
 		{
 			advance_component_iterator(entity target)
-				: m_Target(target)
+				: target_(target)
 			{}
 
 		    template<typename T>
 		    void operator()(T& t) const
 		    {
-				t.advance_to_target_entity(m_Target);
+				t.advance_to_target_entity(target_);
 		    }
 
-		    entity m_Target;
+		    entity target_;
 		};
 
 		// --------------------------------------------------------------------
@@ -122,16 +122,16 @@ namespace entity
 		struct extract_value_ptr
 		{
 			extract_value_ptr(entity e)
-				: m_Entity(e)
+				: entity_(e)
 			{}
 
 			template<typename Iterator>
 			typename Iterator::pointer operator()(Iterator& i) const
 			{
-				return i.maybe_extract_ptr(m_Entity);
+				return i.maybe_extract_ptr(entity_);
 			}
 
-			entity m_Entity;
+			entity entity_;
 		};
 	}
 
@@ -157,8 +157,8 @@ namespace entity
 		entity_component_iterator(
 			entity_iterator ei,
 			ComponentPoolIterators&& iterator_tuple)
-			: m_EntityIter(std::move(ei))
-			, m_PoolIterators(std::move(iterator_tuple))
+			: entity_iter_(std::move(ei))
+			, pool_iterators_(std::move(iterator_tuple))
 		{}
 
 	private:
@@ -175,25 +175,25 @@ namespace entity
 		void increment()
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(entity_component_iterator__increment);
-			++m_EntityIter;
+			++entity_iter_;
 			boost::fusion::for_each(
-				m_PoolIterators,
-				detail::advance_component_iterator(*m_EntityIter)
+				pool_iterators_,
+				detail::advance_component_iterator(*entity_iter_)
 			);
 		}
 
 		bool equal(entity_component_iterator const& other) const
 		{
-			return m_EntityIter == other.m_EntityIter;
+			return entity_iter_ == other.entity_iter_;
 		}
 
 		ComponentPoolIterators dereference() const
 		{
-			return m_PoolIterators;
+			return pool_iterators_;
 		}
 		
-		entity_iterator m_EntityIter;
-		ComponentPoolIterators m_PoolIterators;
+		entity_iterator entity_iter_;
+		ComponentPoolIterators pool_iterators_;
 	};
 
 	// ------------------------------------------------------------------------
