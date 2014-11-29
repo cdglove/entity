@@ -27,7 +27,7 @@ namespace entity
 	{
 		auto i = begin(entities, std::forward<ComponentPoolTuple>(p));
 		auto e = end(entities, std::forward<ComponentPoolTuple>(p));
-		for(; ; )
+		for(; i != e; ++i)
 		{
 			if(boost::fusion::all(*i, is_valid_component()))
 			{
@@ -36,15 +36,7 @@ namespace entity
 					f, 
 					boost::fusion::transform(*i, dereference())
 				);
-			}
-
-			{DAILY_AUTO_INSTRUMENT_NODE(foreach_increment);
-			++i;}
-			{DAILY_AUTO_INSTRUMENT_NODE(foreach_compare);
-			if(i == e)
-				break;
-			}
-			
+			}		
 		}
 	}
 }

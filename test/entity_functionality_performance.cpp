@@ -79,51 +79,60 @@ int main()
 
 	std::clog << "Created Pools\n";
 
-	// Create entities and components.
-	std::vector<entity::entity_handle> shuffled_entitys;
-	{
-		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
-
-		shuffled_entitys.reserve(entities.size());
-		for (int i = 0; i < kNumEntities; ++i)
-		{
-			shuffled_entitys.push_back(entities.create());
-		}
-	}
-
 	// ------------------------------------------------------------------------
 	{
-		if(kUseCreationQueue)
-		{
-			DAILY_AUTO_INSTRUMENT_NODE(QueueCreation);
+		// The foloowing code, even when not active is causing visual c++
+		// to generate a very slow executable.  I have no ida why at this tine.
+		//if(false) //kUseCreationQueue)
+		//{
+		//	// Create entities and components.
+		//	std::vector<entity::entity_handle> shuffled_entitys;
+		//	{
+		//		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
 
-			for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
+		//		shuffled_entitys.reserve(entities.size());
+		//		for (int i = 0; i < kNumEntities; ++i)
+		//		{
+		//			shuffled_entitys.push_back(entities.create());
+		//		}
+		//	}
+
+		//	DAILY_AUTO_INSTRUMENT_NODE(QueueCreation);
+
+		//	for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
+		//	{
+		//		auto e = *i;
+		//		position_creation_queue.push(e, 0.f);
+		//		velocity_creation_queue.push(e, 0.f);
+		//		accel_creation_queue.push(e, 9.8f);
+		//	}
+
+		//	{ DAILY_AUTO_INSTRUMENT_NODE(FlushCreation);
+		//	
+		//		position_creation_queue.flush();
+		//		velocity_creation_queue.flush();
+		//		accel_creation_queue.flush();
+		//	}
+		//}
+		//else
+		{
+			// ----------------------------------------------------------------
 			{
-				auto e = *i;
-				position_creation_queue.push(e, 0.f);
-				velocity_creation_queue.push(e, 0.f);
-				accel_creation_queue.push(e, 9.8f);
+				DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
+
+				for (int i = 0; i < kNumEntities; ++i)
+				{
+					entities.create();
+				}
 			}
-
-
-			{ DAILY_AUTO_INSTRUMENT_NODE(FlushCreation);
 			
-				position_creation_queue.flush();
-				velocity_creation_queue.flush();
-				accel_creation_queue.flush();
-			}
-
-		}
-		else
-		{
 			DAILY_AUTO_INSTRUMENT_NODE(ComponentCreation);
 
-			for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
+			for(auto&& e : entities)
 			{
-				auto e = *i;
-				position_pool.create(e.get(), 0.f);
-				velocity_pool.create(e.get(), 0.f);
-				accel_pool.create(e.get(), 9.8f);
+				position_pool.create(e, 0.f);
+				velocity_pool.create(e, 0.f);
+				accel_pool.create(e, 9.8f);
 			}
 		}
 	}
