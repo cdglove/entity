@@ -44,9 +44,9 @@ namespace entity
 			iterator_impl()
 			{}
 
-			void advance_to_target_entity(entity target)
+			void advance_to_target_entity(entity_index_t target)
 			{
-				if(get_entity().index() < target.index())
+				if(get_entity().index() < target)
 				{
 					++iterator_;
 				}
@@ -118,9 +118,6 @@ namespace entity
 					boost::ref(default_value)
 				)
 			);
-
-			// Insert dummy node to make iteration simpler.
-			//components_[make_entity(owner_pool.size())] = T();
 
 			slots_.entity_destroy_handler = 
 				owner_pool.signals().on_entity_destroy.connect(
@@ -251,16 +248,22 @@ namespace entity
 		template<typename Iter>
 		void create_range(Iter first, Iter last)
 		{
-			components_.insert(boost::container::ordered_unique_range_t(), first, last);
+			std::vector<std::pair<entity, T>> entities;
+			std::transform(first, last, std::back_inserter(entities), [entities](std::pair<entity_handle, type>& h)
+			{
+				return std::make_pair(h.first.get(), std::move(h.second));
+			});
+
+			components_.insert(boost::container::ordered_unique_range_t(), entities.begin(), entities.end());
 		}
 
 		template<typename Iter>
-		void destroy_range(Iter first, Iter last)
+		void destroy_range(Iter current, Iter last)
 		{
-			while(first != last)
+			while(current != last)
 			{
-				destroy(*last);
-				--last;
+				destroy(current->get());
+				++current;
 			}
 		}
 

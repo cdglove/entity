@@ -43,15 +43,15 @@ namespace entity
 		{
 			entity get_entity() const
 			{
-				return entity(std::distance(begin_, iterator_));
+				return make_entity(std::distance(begin_, iterator_));
 			}
 
 			iterator_impl()
 			{}
 
-			void advance_to_target_entity(entity target)
+			void advance_to_target_entity(entity_index_t target)
 			{
-				iterator_ = begin_ + target.index();
+				iterator_ = begin_ + target;
 			}
 
 			T* maybe_extract_ptr(entity ent) const
@@ -309,7 +309,7 @@ namespace entity
 		{
 			while(current != last)
 			{
-				create(current->first, current->second);
+				create(current->first.get(), std::move(current->second));
 				++current;
 			}
 		}
@@ -319,7 +319,7 @@ namespace entity
 		{
 			while(current != last)
 			{
-				destroy(*current);
+				destroy(current->get());
 				++current;
 			}
 		}

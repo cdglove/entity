@@ -104,7 +104,7 @@ namespace entity
 		//
 		struct advance_component_iterator
 		{
-			advance_component_iterator(entity target)
+			advance_component_iterator(entity_index_t target)
 				: target_(target)
 			{}
 
@@ -114,7 +114,7 @@ namespace entity
 				t.advance_to_target_entity(target_);
 		    }
 
-		    entity target_;
+			entity_index_t target_;
 		};
 
 		// --------------------------------------------------------------------
@@ -178,7 +178,7 @@ namespace entity
 			++entity_iter_;
 			boost::fusion::for_each(
 				pool_iterators_,
-				detail::advance_component_iterator(*entity_iter_)
+				detail::advance_component_iterator(entity_iter_->index())
 			);
 		}
 

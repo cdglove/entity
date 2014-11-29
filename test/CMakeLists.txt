@@ -6,6 +6,9 @@ find_package( Boost
 	REQUIRED
     unit_test_framework
     system
+    thread
+    date_time
+    chrono
 )
 
 include_directories("${PROJECT_INCLUDE_DIR}")

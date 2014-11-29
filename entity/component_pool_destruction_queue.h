@@ -31,14 +31,14 @@ namespace entity
 			flush();
 		}
 
-		void push(entity e)
+		void push(entity_handle e)
 		{
 			destroyed_.push_back(e);
 		}
 
 		void flush()
 		{
-			std::sort(destroyed_.begin(), destroyed_.end(), std::greater<entity>());
+			std::sort(destroyed_.begin(), destroyed_.end(), std::greater<entity_handle>());
 			pool_.destroy_range(destroyed_.begin(), destroyed_.end());
 			clear();
 		}
@@ -54,7 +54,7 @@ namespace entity
 		component_pool_destruction_queue(component_pool_destruction_queue const&);
 		component_pool_destruction_queue operator=(component_pool_destruction_queue);
 
-		std::vector<entity> destroyed_;
+		std::vector<entity_handle> destroyed_;
 		ComponentPool& pool_;
 	};
 }

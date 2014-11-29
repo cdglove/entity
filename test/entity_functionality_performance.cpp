@@ -80,7 +80,7 @@ int main()
 	std::clog << "Created Pools\n";
 
 	// Create entities and components.
-	std::vector<entity::entity> shuffled_entitys;
+	std::vector<entity::entity_handle> shuffled_entitys;
 	{
 		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
 
@@ -121,9 +121,9 @@ int main()
 			for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
 			{
 				auto e = *i;
-				position_pool.create(e, 0.f);
-				velocity_pool.create(e, 0.f);
-				accel_pool.create(e, 9.8f);
+				position_pool.create(e.get(), 0.f);
+				velocity_pool.create(e.get(), 0.f);
+				accel_pool.create(e.get(), 9.8f);
 			}
 		}
 	}
@@ -232,7 +232,7 @@ int main()
 		}
 	}
 
-	std::clog << "done.\n";
+	std::clog << "done." << std::endl;
 
     std::clog << "Positions: " << *position_pool.get(entity::make_entity(0)) << std::endl;
     std::clog << "Velocities: " << *velocity_pool.get(entity::make_entity(0)) << std::endl;
@@ -249,26 +249,6 @@ int main()
 	{
 		DAILY_AUTO_INSTRUMENT_NODE(Cleanup);
 
-		//std::vector<entity::entity> entitys_list;
-		//entitys_list.reserve(kNumEntities);
-		//for(auto i = begin(entities); i != end(entities); ++i)
-		//{
-		//	entitys_list.push_back(*i);
-		//}
-
-		//std::random_device rd;
-  //  	std::mt19937 g(rd());
-
-	 //   while(entitys_list.size() > 0)
-	 //   {
-	 //   	std::uniform_int_distribution<std::size_t> dis(0, entitys_list.size()-1);
-	 //   	auto idx = dis(g);
-	 //   	auto e = entitys_list[idx];
-	 //   		
-	 //   	entities.destroy(e);
-	 //   	std::swap(entitys_list[idx], entitys_list.back());
-	 //   	entitys_list.pop_back();
-	 //   }
 
 		while(entities.size() > 0)
 		{
