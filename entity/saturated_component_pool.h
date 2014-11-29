@@ -49,9 +49,9 @@ namespace entity
 				return make_entity(entity_index_);
 			}
 
-			void advance_to_target_entity(entity_index_t e)
+			void advance_to_target_entity(entity e)
 			{
-				entity_index_ = e;
+				entity_index_ = e.index();
 			}
 
 			T* maybe_extract_ptr(entity ent) const
@@ -80,7 +80,6 @@ namespace entity
 
 			void increment()
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(saturated_component_pool_iterator__increment);
 				++entity_index_;
 			}
 
@@ -238,18 +237,18 @@ namespace entity
 		{
 			while(first != last)
 			{
-				components_.emplace_back(std::move(first->second));
+				components_.emplace_back(first->second);
 				++first;
 			}
 		}
 
 		template<typename Iter>
-		void destroy_range(Iter current, Iter last)
+		void destroy_range(Iter first, Iter last)
 		{
-			while(current != last)
+			while(first != last)
 			{
-				destroy(current->get());
-				++current;
+				destroy(*first);
+				++first;
 			}
 		}
 

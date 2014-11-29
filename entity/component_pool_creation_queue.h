@@ -33,7 +33,7 @@ namespace entity
 
 	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
-		void push(entity_handle e, Args&&... args)
+		void push(entity e, Args&&... args)
 		{
 			created_.push_back(std::make_pair(e, type(std::forward<Args>(args)...)));
 		}
@@ -62,7 +62,7 @@ namespace entity
 		component_pool_creation_queue(component_pool_creation_queue const&);
 		component_pool_creation_queue operator=(component_pool_creation_queue);
 
-		std::vector<std::pair<entity_handle, type>> created_;
+		std::vector<std::pair<entity, type>> created_;
 		ComponentPool& pool_;
 	};
 }

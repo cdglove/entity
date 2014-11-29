@@ -20,72 +20,34 @@ namespace entity
 	{
 	public:
 
+		explicit entity(entity_index_t ref)
+			: entity_ref_(ref)
+		{}
+
 		entity_index_t index() const
 		{
-			return idx_;
+			return entity_ref_;
 		}
 
 		bool operator==(entity const& rhs) const
 		{
-			return index() == rhs.index(); 
+			return entity_ref_ == rhs.entity_ref_; 
 		}
 
 		bool operator<(entity const& rhs) const
 		{
-			return index() < rhs.index();
+			return entity_ref_ < rhs.entity_ref_;
 		}
 
 	private:
 
-		friend entity make_entity(entity_index_t);
-
-		// Only make entity can construct entities.
-		// Can consider impicit conversion here, but
-		// perfer to be conservative at first.
-		explicit entity(entity_index_t idx)
-			: idx_(idx)
-		{}
-
-		entity_index_t idx_;
+		entity_index_t entity_ref_;
 	};
 
 	inline entity make_entity(entity_index_t idx)
 	{
 		return entity(idx);
 	}
-
-	// ------------------------------------------------------------------------
-	//
-	class entity_handle : boost::totally_ordered<entity_handle>
-	{
-	public:
-
-		entity get() const
-		{
-			return make_entity(*ref_);
-		}
-
-		bool operator==(entity_handle const& rhs) const
-		{
-			return get() == rhs.get(); 
-		}
-
-		bool operator<(entity_handle const& rhs) const
-		{
-			return get() < rhs.get();
-		}
-
-	private:
-
-		friend class entity_pool;
-
-		// Only entity_pool can create entity handles.
-		explicit entity_handle(entity_index_t const* ref)
-			: ref_(ref)
-		{}
-
-		entity_index_t const* ref_;
-	};
 }
 
 #endif // _ENTITY_ENTITY_H_INCLUDED_

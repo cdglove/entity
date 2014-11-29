@@ -10,8 +10,6 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/assert.hpp>
-#include <boost/pool/pool.hpp>
-#include <daily/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //
@@ -67,50 +65,26 @@ namespace entity
 		};
 
 		entity_pool()
-			: entity_pool_(sizeof(entity_index_t))
+			: num_entities_(0)
 		{}
 
-		~entity_pool()
+		entity create()
 		{
-			while(!entities_.empty())
-			{
-				destroy(make_entity(*entities_.back()));
-			}
-		}
-
-		entity_handle create()
-		{
-			entity_index_t* new_idx = new(entity_pool_.malloc()) entity_index_t();
-			*new_idx = entities_.size();
-			entity_handle ret_handle(new_idx);
-			entities_.push_back(new_idx);
-			signals().on_entity_create(ret_handle.get());
-			return ret_handle;
+			entity new_entity = make_entity(num_entities_++);
+			signals().on_entity_create(new_entity);
+			return new_entity;
 		}	
 
 		void destroy(entity e)
 		{
-			// Avoid swapping if this is at the end.
-			if(e.index() + 1 < entities_.size())
-			{
-				swap_entities(e.index(), *entities_.back());
-			}
-
-			entity_index_t* idx = entities_.back();
-			entities_.pop_back();
-			signals().on_entity_destroy(make_entity(*idx));
-			idx->~entity_index_t();
-			entity_pool_.free(idx);
-		}
-
-		entity_handle handle(entity e)
-		{
-			return entity_handle(entities_[e.index()]);
+			--num_entities_;
+			signals().on_entity_swap(e, make_entity(num_entities_));
+			signals().on_entity_destroy(make_entity(num_entities_));
 		}
 
 		std::size_t size() const
 		{
-			return entities_.size();
+			return num_entities_;
 		}
 
 		iterator begin() const
@@ -120,7 +94,7 @@ namespace entity
 
 		iterator end() const
 		{
-			return iterator_impl(size());
+			return iterator_impl(num_entities_);
 		}
 
 		signal_list& signals()
@@ -133,17 +107,8 @@ namespace entity
 		entity_pool(entity_pool const&);
 		entity_pool operator=(entity_pool);
 
-		void swap_entities(entity_index_t a, entity_index_t b)
-		{
-			using std::swap;
-			swap(entities_[a], entities_[b]);
-			swap(*entities_[a], *entities_[b]);
-			signals().on_entity_swap(make_entity(a), make_entity(b));
-		}
-
-		boost::pool<> entity_pool_;
-		std::vector<entity_index_t*> entities_;
-		signal_list signals_;
+		entity_index_t num_entities_;
+		signal_list    signals_;
 	};
 
 	entity_pool::iterator begin(entity_pool const& p)
