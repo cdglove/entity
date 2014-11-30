@@ -27,9 +27,11 @@ before_install:
   - sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo apt-get update -qq
   - sudo apt-get install cmake
-  - sudo apt-get install aptitude
-  - aptitude search libboost
-  - sudo apt-get install libboost1.55-all-dev #libboost-thread-dev libboost-chrono1.48.0 libboost-date-time-dev libboost-system-dev libboost-test-dev
+  # Used foer determining the boost verion on the machine
+  #- sudo apt-get install aptitude
+  #- aptitude search libboost
+  - export BOOST_VERSION="1.55"
+  - sudo apt-get install libboost-thread${BOOST_VERSION}-dev libboost-chrono${BOOST_VERSION}-dev libboost-date-time${BOOST_VERSION}-dev libboost-system${BOOST_VERSION}-dev libboost-test${BOOST_VERSION}-dev #libboost1.55-all-dev
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-${GCC_VERSION}; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
 
@@ -47,7 +49,7 @@ install:
   - cd $CHECKOUT_PATH
   - if [ ! -d build ]; then mkdir build; fi
   - cd build
-  - export CXX_FLAGS=""
+  - export CXX_FLAGS="-DTEST_SIZE=1024"
   - export CXX_LINKER_FLAGS=""
   - if [ -z "$BUILD_TYPE" ]; then export BUILD_TYPE=Release; fi
   - if [ -n "$ASAN" ]; then export CXX_FLAGS="${CXX_FLAGS} -fsanitize=address,undefined,integer -fno-omit-frame-pointer -fno-sanitize=unsigned-integer-overflow"; fi
