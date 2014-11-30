@@ -271,7 +271,7 @@ int main()
 	daily::timer_map::get_default().report(std::cout);
 	std::cout.flush();
 
-	std::cout << "Elapsed: " << _t.elapsed();
+	std::cout << "Elapsed: " << _t.elapsed() << std::endl;
 
 	return 0;
 }
