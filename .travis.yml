@@ -28,7 +28,7 @@ before_install:
   - sudo apt-get install cmake
   - sudo apt-get install aptitude
   - aptitude search libboost
-  - sudo apt-get install libboost-all-dev #libboost-thread-dev libboost-chrono1.48.0 libboost-date-time-dev libboost-system-dev libboost-test-dev
+  - sudo apt-get install libboost1.48-all-dev #libboost-thread-dev libboost-chrono1.48.0 libboost-date-time-dev libboost-system-dev libboost-test-dev
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-${GCC_VERSION}; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
 
