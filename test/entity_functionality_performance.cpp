@@ -268,8 +268,8 @@ int main()
 			entities.destroy(entity::make_entity(0));
 		}
 	}
-#error
-    daily::timer_map::get_default().report(std::cout);
+
+	daily::timer_map::get_default().report(std::cout);
 	std::cout.flush();
 
 	return 0;

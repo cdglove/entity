@@ -61,5 +61,4 @@ install:
   - make VERBOSE=1
 script:
   - ctest -VV
-notifications:
-  email: c.d.glover@gmail.com
+  
