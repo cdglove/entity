@@ -26,7 +26,7 @@ before_install:
   - sudo add-apt-repository --yes ppa:kalakris/cmake
   - sudo apt-get update -qq
   - sudo apt-get install cmake
-  - sudo apt-get install libboost-thread-dev libboost-system-dev libboost-test-dev
+  - sudo apt-get install libboost-thread-dev libboost-chrono-dev libboost-system-dev libboost-test-dev
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-${GCC_VERSION}; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
 
