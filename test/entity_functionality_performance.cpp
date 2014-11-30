@@ -12,8 +12,7 @@
 #include "performance_common.h"
 #include <random>
 #include <iostream>
-#include <daily/timer/instrument.h>
-#include <boost/timer/timer.hpp>
+#include <daily/timer/timer.h>
 
 #if ENTITY_SUPPORT_AVX
 #  include "entity/algorithm/simd/avx/for_each.h"
@@ -30,7 +29,7 @@ int main()
 	DAILY_DECLARE_INSTRUMENT_NODE(Instantiation);
 	DAILY_START_INSTRUMENT_NODE(Instantiation);
 
-	boost::timer::auto_cpu_timer _t;
+	daily::timer _t;
 
 	entity::entity_pool entities;
 
@@ -271,6 +270,8 @@ int main()
 
 	daily::timer_map::get_default().report(std::cout);
 	std::cout.flush();
+
+	std::cout << "Elapsed: " << _t.elapsed();
 
 	return 0;
 }

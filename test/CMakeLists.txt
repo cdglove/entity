@@ -8,7 +8,6 @@ find_package( Boost
     system
     thread
     date_time
-    timer
     chrono
 )
 
@@ -27,9 +26,6 @@ function(create_test test_name test_source test_defines)
 	set_property(TARGET ${test_name} APPEND PROPERTY COMPILE_DEFINITIONS ${test_defines})	
 	if(MSVC)
 		set_property(TARGET ${test_name} APPEND PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
-	endif()
-	if(LINUX)
-		target_link_libraries(${test_name} rt)
 	endif()
 endfunction(create_test)
 
