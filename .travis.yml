@@ -62,4 +62,4 @@ install:
 script:
   - ctest -VV
 notifications:
-  email: c.d.glover@gmail.com
+  email: none

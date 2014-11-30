@@ -13,6 +13,7 @@
 #include <random>
 #include <iostream>
 #include <daily/timer/instrument.h>
+#include <boost/timer/timer.hpp>
 
 #if ENTITY_SUPPORT_AVX
 #  include "entity/algorithm/simd/avx/for_each.h"
@@ -28,6 +29,8 @@ int main()
 {
 	DAILY_DECLARE_INSTRUMENT_NODE(Instantiation);
 	DAILY_START_INSTRUMENT_NODE(Instantiation);
+
+	boost::timer::auto_cpu_timer _t;
 
 	entity::entity_pool entities;
 
@@ -137,7 +140,9 @@ int main()
 		}
 	}
 
-	std::clog << "Created Components, simulating...";
+	std::clog << "Created Components\n"
+				 "Simulating " << kNumEntities << " entities..." 
+	;
 
 	// Simulate over some seconds using a fixed step.
 	{
@@ -258,13 +263,12 @@ int main()
 	{
 		DAILY_AUTO_INSTRUMENT_NODE(Cleanup);
 
-
 		while(entities.size() > 0)
 		{
 			entities.destroy(entity::make_entity(0));
 		}
 	}
-
+#error
     daily::timer_map::get_default().report(std::cout);
 	std::cout.flush();
 

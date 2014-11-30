@@ -9,6 +9,7 @@ find_package( Boost
     thread
     date_time
     chrono
+    timer
 )
 
 include_directories("${PROJECT_INCLUDE_DIR}")
@@ -50,7 +51,7 @@ create_test(test_entity_lifetimes entity_lifetimes.cpp "")
 create_test(test_iterator iteration.cpp "")
 create_test(test_signals signals.cpp "")
 create_test(test_saturated_performance entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1")
-create_test(test_saturated_performance_sse entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_SSE=1")
+#create_test(test_saturated_performance_sse entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_SSE=1")
 create_test(test_sparse_performance entity_functionality_performance.cpp "TEST_SPARSE_POOLS=1;")
 create_test(test_dense_performance entity_functionality_performance.cpp "TEST_DENSE_POOLS=1;")
 create_test(test_non_entity_performance_0 non_entity_performance.cpp "EXTRA_PADDING=0")
