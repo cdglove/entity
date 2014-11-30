@@ -8,8 +8,8 @@ find_package( Boost
     system
     thread
     date_time
-    chrono
     timer
+    chrono
 )
 
 include_directories("${PROJECT_INCLUDE_DIR}")
