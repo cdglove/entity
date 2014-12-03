@@ -9,6 +9,7 @@
 
 #include "entity/config.h"
 #include <boost/operators.hpp>
+#include <memory>
 
 // ----------------------------------------------------------------------------
 //
@@ -37,7 +38,7 @@ namespace entity
 
 	private:
 
-		friend entity make_entity(entity_index_t);
+		friend entity make_entity(entity_index_t) noexcept;
 
 		// Only make entity can construct entities.
 		// Can consider impicit conversion here, but
@@ -49,42 +50,95 @@ namespace entity
 		entity_index_t idx_;
 	};
 
-	inline entity make_entity(entity_index_t idx)
+	inline entity make_entity(entity_index_t idx) noexcept
 	{
 		return entity(idx);
 	}
 
 	// ------------------------------------------------------------------------
 	//
-	class entity_handle : boost::totally_ordered<entity_handle>
+	class unique_entity : boost::totally_ordered<unique_entity>
+	{
+
+	};
+
+	// ------------------------------------------------------------------------
+	//
+	class weak_entity;
+	class shared_entity;
+	
+	class shared_entity : boost::totally_ordered<shared_entity>
 	{
 	public:
+
+		shared_entity()
+		{}
 
 		entity get() const
 		{
 			return make_entity(*ref_);
 		}
 
-		bool operator==(entity_handle const& rhs) const
+		bool operator==(shared_entity const& rhs) const
 		{
 			return get() == rhs.get(); 
 		}
 
-		bool operator<(entity_handle const& rhs) const
+		bool operator<(shared_entity const& rhs) const
 		{
 			return get() < rhs.get();
+		}
+
+		void clear()
+		{
+			ref_ = nullptr;
 		}
 
 	private:
 
 		friend class entity_pool;
+		friend class weak_entity;
 
-		// Only entity_pool can create entity handles.
-		explicit entity_handle(entity_index_t const* ref)
-			: ref_(ref)
+		shared_entity(std::shared_ptr<const entity_index_t> ref)
+			: ref_(std::move(ref))
 		{}
 
-		entity_index_t const* ref_;
+		shared_entity(std::shared_ptr<entity_index_t> ref)
+			: ref_(std::move(ref))
+		{}
+
+		std::shared_ptr<const entity_index_t> ref_;
+	};
+
+	// ------------------------------------------------------------------------
+	//
+	class weak_entity : boost::totally_ordered<weak_entity>
+	{
+	public:
+
+		weak_entity(shared_entity const& ref)
+			: ref_(ref.ref_)
+		{}
+
+		shared_entity lock() const
+		{
+			return ref_.lock();
+		}
+
+		bool operator==(weak_entity const& rhs) const
+		{
+			return ref_.lock() == rhs.ref_.lock();
+		}
+
+		bool operator<(weak_entity const& rhs) const
+		{
+			return ref_.lock() < rhs.ref_.lock();
+		}
+
+	private:
+
+		friend class shared_entity;
+		std::weak_ptr<const entity_index_t> ref_;
 	};
 }
 

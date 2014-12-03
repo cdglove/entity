@@ -86,7 +86,7 @@ int main()
 		//if(false) //kUseCreationQueue)
 		//{
 		//	// Create entities and components.
-		//	std::vector<entity::entity_handle> shuffled_entitys;
+		//	std::vector<entity::weak_entity> shuffled_entitys;
 		//	{
 		//		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
 

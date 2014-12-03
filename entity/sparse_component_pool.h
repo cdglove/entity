@@ -249,9 +249,9 @@ namespace entity
 		void create_range(Iter first, Iter last)
 		{
 			std::vector<std::pair<entity, T>> entities;
-			std::transform(first, last, std::back_inserter(entities), [entities](std::pair<entity_handle, type>& h)
+			std::transform(first, last, std::back_inserter(entities), [entities](std::pair<weak_entity, type>& h)
 			{
-				return std::make_pair(h.first.get(), std::move(h.second));
+				return std::make_pair(h.first.lock().get(), std::move(h.second));
 			});
 
 			components_.insert(boost::container::ordered_unique_range_t(), entities.begin(), entities.end());
@@ -262,7 +262,7 @@ namespace entity
 		{
 			while(current != last)
 			{
-				destroy(current->get());
+				destroy(current->lock().get());
 				++current;
 			}
 		}
