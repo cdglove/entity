@@ -5,7 +5,7 @@
 #define BOOST_TEST_MODULE Lifetimes
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE( no_ownership )
+BOOST_AUTO_TEST_CASE( manual_ownership )
 {
 	entity::entity_pool entities;
 	entities.create();
@@ -15,6 +15,21 @@ BOOST_AUTO_TEST_CASE( no_ownership )
 	entities.destroy(entity::make_entity(0));
 	BOOST_CHECK_EQUAL(entities.size(), 1);
 	entities.destroy(entity::make_entity(0));
+	BOOST_CHECK(entities.empty());
+}
+
+BOOST_AUTO_TEST_CASE( unique_ownership )
+{
+	entity::entity_pool entities;
+	entity::unique_entity e = entities.create_unique();
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	entity::unique_entity e2 = entities.create_unique();
+	BOOST_CHECK_EQUAL(entities.size(), 2);
+	e = std::move(e2);
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	e2.clear();
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	e.clear();
 	BOOST_CHECK(entities.empty());
 }
 

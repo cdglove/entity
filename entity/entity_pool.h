@@ -89,7 +89,7 @@ namespace entity
 			return ret_val;
 		}	
 
-		shared_entity create_shared()
+		unique_entity create_unique()
 		{
 			entity_index_t* new_idx_ptr = nullptr;
 			void* new_index_mem = nullptr;
@@ -98,20 +98,19 @@ namespace entity
 			{	
 				new_index_mem = entity_pool_.malloc();
 				new_idx_ptr = new(new_index_mem) entity_index_t(entities_.size());
-				
+
 				entity ret_val = make_entity(*new_idx_ptr);
 				entities_.push_back(new_idx_ptr);
 
 				// Ensure we leave the container in a good state if shared_ptr throws.
 				pop_on_catch = true;
 
-				// cglover-todo: consider passing an allocator to shared 
-				std::shared_ptr<entity_index_t> new_idx(
+				unique_entity::ref_type new_idx(
 					new_idx_ptr,
-					[this](entity_index_t const* p) { destroy_impl(*p); }
+					entity_deleter(*this)
 				);
-				
-				return new_idx;
+
+				return std::move(new_idx);
 			}
 			catch(...)
 			{
@@ -123,6 +122,11 @@ namespace entity
 					entity_pool_.free(new_index_mem);
 				throw;
 			}
+		}
+
+		shared_entity create_shared()
+		{
+			return create_unique();
 		}
 
 		void destroy(entity e)
@@ -159,6 +163,20 @@ namespace entity
 
 		entity_pool(entity_pool const&);
 		entity_pool operator=(entity_pool);
+
+		struct entity_deleter
+		{
+			entity_deleter(entity_pool& owner_pool)
+				: owner_pool_(owner_pool)
+			{}
+
+			void operator()(entity_index_t const* p)
+			{
+				owner_pool_.destroy_impl(*p);
+			}
+
+			entity_pool& owner_pool_;
+		};
 
 		void swap_entities(entity_index_t a, entity_index_t b)
 		{

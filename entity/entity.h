@@ -8,15 +8,15 @@
 #define _ENTITY_ENTITY_H_INCLUDED_
 
 #include "entity/config.h"
+#include "entity/entity_index.h"
 #include <boost/operators.hpp>
 #include <memory>
+#include <functional>
 
 // ----------------------------------------------------------------------------
 //
 namespace entity
 {
-	typedef std::size_t entity_index_t;
-
 	class entity : boost::totally_ordered<entity>
 	{
 	public:
@@ -40,7 +40,7 @@ namespace entity
 
 		friend entity make_entity(entity_index_t) noexcept;
 
-		// Only make entity can construct entities.
+		// Only make_entity can construct entities.
 		// Can consider impicit conversion here, but
 		// perfer to be conservative at first.
 		explicit entity(entity_index_t idx)
@@ -59,8 +59,62 @@ namespace entity
 	//
 	class unique_entity : boost::totally_ordered<unique_entity>
 	{
+	public:
 
+		unique_entity()
+		{}
+
+		entity get() const
+		{
+			return make_entity(*ref_);
+		}
+
+		bool operator==(unique_entity const& rhs) const
+		{
+			return get() == rhs.get(); 
+		}
+
+		bool operator<(unique_entity const& rhs) const
+		{
+			return get() < rhs.get();
+		}
+
+		void clear()
+		{
+			ref_ = nullptr;
+		}
+
+	private:
+
+		friend class entity_pool;
+		friend class shared_entity;
+		friend void swap(unique_entity&, unique_entity&);
+		
+		typedef std::unique_ptr<
+			const entity_index_t, 
+			std::function<void(entity_index_t const*)>
+		> const_ref_type;
+
+		typedef std::unique_ptr<
+			entity_index_t, 
+			std::function<void(entity_index_t const*)>
+		> ref_type;
+		
+		unique_entity(const_ref_type ref)
+			: ref_(std::move(ref))
+		{}
+
+		unique_entity(ref_type ref)
+			: ref_(std::move(ref))
+		{}
+
+		const_ref_type ref_;
 	};
+
+	inline void swap(unique_entity& a, unique_entity& b)
+	{
+		std::swap(a.ref_, b.ref_);
+	}
 
 	// ------------------------------------------------------------------------
 	//
@@ -72,6 +126,10 @@ namespace entity
 	public:
 
 		shared_entity()
+		{}
+
+		shared_entity(unique_entity&& ref)
+			: ref_(std::move(ref.ref_))
 		{}
 
 		entity get() const
@@ -98,17 +156,26 @@ namespace entity
 
 		friend class entity_pool;
 		friend class weak_entity;
+		friend void swap(shared_entity&, shared_entity&);
 
-		shared_entity(std::shared_ptr<const entity_index_t> ref)
+		typedef std::shared_ptr<const entity_index_t> const_ref_type;
+		typedef std::shared_ptr<entity_index_t> ref_type;
+
+		shared_entity(const_ref_type ref)
 			: ref_(std::move(ref))
 		{}
 
-		shared_entity(std::shared_ptr<entity_index_t> ref)
+		shared_entity(ref_type ref)
 			: ref_(std::move(ref))
 		{}
 
-		std::shared_ptr<const entity_index_t> ref_;
+		const_ref_type ref_;
 	};
+
+	inline void swap(shared_entity& a, shared_entity& b)
+	{
+		std::swap(a.ref_, b.ref_);
+	}
 
 	// ------------------------------------------------------------------------
 	//
