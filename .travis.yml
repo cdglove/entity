@@ -53,9 +53,9 @@ install:
   - export CXX_LINKER_FLAGS=""
   - if [ -z "$BUILD_TYPE" ]; then export BUILD_TYPE=Release; fi
   - if [ -n "$ASAN" ]; then export CXX_FLAGS="${CXX_FLAGS} -fsanitize=address,undefined,integer -fno-omit-frame-pointer -fno-sanitize=unsigned-integer-overflow"; fi
-  - if [ "$CXX" == "clang++" ]; then CXX_FLAGS="${CXX_FLAGS} -D__extern_always_inline=inline"; fi
-  - if [ -n "$LIBCXX" ]; then CXX_FLAGS="${CXX_FLAGS} -stdlib=libc++ -I/usr/include/c++/v1/";
-  - elif [ "$CXX" = "clang++" ]; then CXX_FLAGS="${CXX_FLAGS} -I/usr/lib/gcc/x86_64-linux-gnu/${GCC_VERSION}/include/"; fi
+  - if [ "$CXX" = "clang++" ]; then CXX_FLAGS="${CXX_FLAGS} -D__extern_always_inline=inline"; fi
+  - if [ -n "$LIBCXX" ]; then CXX_FLAGS="${CXX_FLAGS} -stdlib=libc++ -I/usr/include/c++/v1/"; fi
+  - if [ "$CXX" = "clang++" ]; then CXX_FLAGS="${CXX_FLAGS} -I/usr/lib/gcc/x86_64-linux-gnu/${GCC_VERSION}/include/"; fi
   - if [ -n "$LIBCXX" ]; then CXX_LINKER_FLAGS="${CXX_FLAGS} -L/usr/lib/ -lc++"; fi
 
   - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DCMAKE_EXE_LINKER_FLAGS="${CXX_LINKER_FLAGS}"
