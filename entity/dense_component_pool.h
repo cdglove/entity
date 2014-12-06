@@ -84,7 +84,6 @@ namespace entity
 
 			void increment()
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__iterator_impl__increment);
 				++iterator_;
 			}
 

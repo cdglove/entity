@@ -80,7 +80,6 @@ namespace entity
 
 			void increment()
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(saturated_component_pool_iterator__increment);
 				++entity_index_;
 			}
 

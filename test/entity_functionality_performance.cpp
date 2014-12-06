@@ -145,7 +145,8 @@ int main()
 
 	// Simulate over some seconds using a fixed step.
 	{
-		DAILY_AUTO_INSTRUMENT_NODE(Simulation);
+		daily::timer_node& simulation_node = daily::timer_map::get_default().create_node("Simulation");
+		daily::auto_timer_scope simulation_scope(simulation_node);
 
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)
@@ -221,6 +222,27 @@ int main()
 						p
 					);
 			});
+		#elif USE_RAW_LOOPS
+			float* __restrict a = accel_pool.get(entity::make_entity(0));
+			for(entity::entity_index_t i = 0; i < entities.size(); ++i)
+			{
+				// Add a little to accel each frame.
+				a[i] += 0.001f;
+			}
+
+			float* __restrict v = velocity_pool.get(entity::make_entity(0));
+			for(entity::entity_index_t i = 0; i < entities.size(); ++i)
+			{
+				// Compute new velocity.
+				v[i] += (a[i]/2.f) * (kFrameTime * kFrameTime);
+			}
+
+			float* __restrict p = position_pool.get(entity::make_entity(0));
+			for(entity::entity_index_t i = 0; i < entities.size(); ++i)
+			{
+				// Compute new position.
+				p[i] += v[i] * kFrameTime;
+			}
 		#else
 			entity::for_each(entities, entity::tie(accel_pool), [](float& a)
 			{

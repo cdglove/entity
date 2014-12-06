@@ -31,7 +31,8 @@ int main()
 
 	// Simulate over some seconds using a fixed step.
 	{
-		DAILY_AUTO_INSTRUMENT_NODE(Simulation);
+		daily::timer_node& simulation_node = daily::timer_map::get_default().create_node("Simulation");
+		daily::auto_timer_scope simulation_scope(simulation_node);
 
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)

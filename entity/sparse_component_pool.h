@@ -80,7 +80,6 @@ namespace entity
 
 			void increment()
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__iterator_impl__increment);
 				++iterator_;
 			}
 
