@@ -32,8 +32,8 @@ before_install:
   #- aptitude search libboost
   - export BOOST_VERSION="1.55"
   - sudo apt-get install libboost-thread${BOOST_VERSION}-dev libboost-chrono${BOOST_VERSION}-dev libboost-date-time${BOOST_VERSION}-dev libboost-system${BOOST_VERSION}-dev libboost-test${BOOST_VERSION}-dev libboost-timer${BOOST_VERSION}-dev #libboost1.55-all-dev
-  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-${GCC_VERSION}; fi
-  - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - sudo apt-get install -qq g++-${GCC_VERSION}
+  - export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"
 
   # Install libc++ if tests are run with clang++
   # - if [ "$CXX" == "clang++" ]; then export LIBCXX=On; fi
