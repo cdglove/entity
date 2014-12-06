@@ -238,7 +238,7 @@ namespace entity
 		{
 			while(first != last)
 			{
-				components_.emplace_back(std::move(first->second));
+				create(first->first.lock().get(), std::move(first->second));
 				++first;
 			}
 		}
@@ -248,7 +248,7 @@ namespace entity
 		{
 			while(current != last)
 			{
-				destroy(current->get());
+				destroy(current->lock().get());
 				++current;
 			}
 		}

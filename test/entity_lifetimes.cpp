@@ -2,21 +2,48 @@
 #include "entity/entity_pool.h"
 #include "entity/entity.h"
 
-static int const kNumEntities = 1024;
+#define BOOST_TEST_MODULE Lifetimes
+#include <boost/test/unit_test.hpp>
 
-int main()
+BOOST_AUTO_TEST_CASE( manual_ownership )
 {
 	entity::entity_pool entities;
+	entities.create();
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	entities.create();
+	BOOST_CHECK_EQUAL(entities.size(), 2);
+	entities.destroy(entity::make_entity(0));
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	entities.destroy(entity::make_entity(0));
+	BOOST_CHECK(entities.empty());
+}
 
-	for (entity::entity_index_t i = 0; i < kNumEntities; ++i)
-	{
-		entities.create();
-	}
+BOOST_AUTO_TEST_CASE( unique_ownership )
+{
+	entity::entity_pool entities;
+	entity::unique_entity e = entities.create_unique();
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	entity::unique_entity e2 = entities.create_unique();
+	BOOST_CHECK_EQUAL(entities.size(), 2);
+	e = std::move(e2);
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	e2.clear();
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	e.clear();
+	BOOST_CHECK(entities.empty());
+}
 
-	for (entity::entity_index_t i = 0; i < kNumEntities; ++i)
-	{
-		entities.destroy(entity::make_entity(i));
-	}
-
-	return 0;
+BOOST_AUTO_TEST_CASE( shared_ownership )
+{
+	entity::entity_pool entities;
+	entity::shared_entity e = entities.create_shared();
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	entity::shared_entity e2 = entities.create_shared();
+	BOOST_CHECK_EQUAL(entities.size(), 2);
+	e = e2;
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	e.clear();
+	BOOST_CHECK_EQUAL(entities.size(), 1);
+	e2.clear();
+	BOOST_CHECK(entities.empty());
 }

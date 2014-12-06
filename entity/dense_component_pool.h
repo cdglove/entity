@@ -309,7 +309,7 @@ namespace entity
 		{
 			while(current != last)
 			{
-				create(current->first.get(), std::move(current->second));
+				create(current->first.lock().get(), std::move(current->second));
 				++current;
 			}
 		}
@@ -319,7 +319,7 @@ namespace entity
 		{
 			while(current != last)
 			{
-				destroy(current->get());
+				destroy(current->lock().get());
 				++current;
 			}
 		}

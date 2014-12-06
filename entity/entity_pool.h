@@ -12,6 +12,8 @@
 #include <boost/assert.hpp>
 #include <boost/pool/pool.hpp>
 #include <daily/timer/instrument.h>
+#include <daily/memory/boost_pool_allocator.h>
+#include <boost/shared_ptr.hpp>
 
 // ----------------------------------------------------------------------------
 //
@@ -67,7 +69,7 @@ namespace entity
 		};
 
 		entity_pool()
-			: entity_pool_(sizeof(entity_index_t))
+			: entity_pool_(16)
 		{}
 
 		~entity_pool()
@@ -78,39 +80,68 @@ namespace entity
 			}
 		}
 
-		entity_handle create()
+		entity create()
 		{
-			entity_index_t* new_idx = new(entity_pool_.malloc()) entity_index_t();
-			*new_idx = entities_.size();
-			entity_handle ret_handle(new_idx);
+			entity_index_t* new_idx = new(entity_pool_.malloc()) entity_index_t(entities_.size());
+			entity ret_val = make_entity(*new_idx);
 			entities_.push_back(new_idx);
-			signals().on_entity_create(ret_handle.get());
-			return ret_handle;
+			signals().on_entity_create(ret_val);
+			return ret_val;
 		}	
+
+		unique_entity create_unique()
+		{
+			entity_index_t* new_idx_ptr = nullptr;
+			void* new_index_mem = nullptr;
+			bool pop_on_catch = false;
+			try
+			{	
+				new_index_mem = entity_pool_.malloc();
+				new_idx_ptr = new(new_index_mem) entity_index_t(entities_.size());
+
+				entity ret_val = make_entity(*new_idx_ptr);
+				entities_.push_back(new_idx_ptr);
+
+				// Ensure we leave the container in a good state if shared_ptr throws.
+				pop_on_catch = true;
+
+				unique_entity::ref_type new_idx(
+					new_idx_ptr,
+					entity_deleter(*this)
+				);
+
+				return std::move(new_idx);
+			}
+			catch(...)
+			{
+				if(pop_on_catch)
+					entities_.pop_back();
+				if(new_idx_ptr)
+					new_idx_ptr->~entity_index_t();
+				if(new_index_mem)
+					entity_pool_.free(new_index_mem);
+				throw;
+			}
+		}
+
+		shared_entity create_shared()
+		{
+			return create_unique();
+		}
 
 		void destroy(entity e)
 		{
-			// Avoid swapping if this is at the end.
-			if(e.index() + 1 < entities_.size())
-			{
-				swap_entities(e.index(), *entities_.back());
-			}
-
-			entity_index_t* idx = entities_.back();
-			entities_.pop_back();
-			signals().on_entity_destroy(make_entity(*idx));
-			idx->~entity_index_t();
-			entity_pool_.free(idx);
-		}
-
-		entity_handle handle(entity e)
-		{
-			return entity_handle(entities_[e.index()]);
+			destroy_impl(e.index());
 		}
 
 		std::size_t size() const
 		{
 			return entities_.size();
+		}
+
+		bool empty() const
+		{
+			return entities_.empty();
 		}
 
 		iterator begin() const
@@ -133,12 +164,51 @@ namespace entity
 		entity_pool(entity_pool const&);
 		entity_pool operator=(entity_pool);
 
+		struct entity_deleter
+		{
+			entity_deleter(entity_pool& owner_pool)
+				: owner_pool_(owner_pool)
+			{}
+
+			void operator()(entity_index_t const* p)
+			{
+				owner_pool_.destroy_impl(*p);
+			}
+
+			entity_pool& owner_pool_;
+		};
+
 		void swap_entities(entity_index_t a, entity_index_t b)
 		{
 			using std::swap;
 			swap(entities_[a], entities_[b]);
 			swap(*entities_[a], *entities_[b]);
 			signals().on_entity_swap(make_entity(a), make_entity(b));
+		}
+
+		void destroy_impl(entity_index_t e)
+		{
+			// Avoid swapping if this is at the end.
+			if((e + 1) < entities_.size())
+			{
+				swap_entities(e, *entities_.back());
+			}
+
+			entity_index_t* idx = entities_.back();
+			entities_.pop_back();
+			try
+			{
+				signals().on_entity_destroy(make_entity(*idx));
+				idx->~entity_index_t();
+				void* idx_mem = idx;
+				idx = nullptr;
+				entity_pool_.free(idx_mem);
+			}
+			catch(...)
+			{
+				if(idx)
+					entities_.push_back(idx);
+			}
 		}
 
 		boost::pool<> entity_pool_;
