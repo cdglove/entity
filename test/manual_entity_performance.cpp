@@ -37,19 +37,19 @@ int main()
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)
 		{
-			for(int i = 0; i < kNumEntities; ++i)
+			for(std::size_t i = 0, s = accels.size(); i < s; ++i)
 			{
 				// Add a little to accel each frame.
 				accels[i] += 0.001f;
 			}
 
-			for(int i = 0; i < kNumEntities; ++i)
+			for(std::size_t i = 0, s = velocities.size(); i < s; ++i)
 			{
 				// Compute new velocity.
 				velocities[i] += (accels[i]/2.f) * (kFrameTime * kFrameTime);
 			}
 
-			for(int i = 0; i < kNumEntities; ++i)
+			for(std::size_t i = 0, s = positions.size(); i < s; ++i)
 			{
 				// Compute new position.
 				positions[i] += velocities[i] * kFrameTime;

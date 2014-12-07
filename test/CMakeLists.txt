@@ -54,6 +54,8 @@ create_test(test_saturated_performance entity_functionality_performance.cpp "TES
 create_test(test_saturated_performance_raw entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_RAW_LOOPS=1")
 create_test(test_sparse_performance entity_functionality_performance.cpp "TEST_SPARSE_POOLS=1;")
 create_test(test_dense_performance entity_functionality_performance.cpp "TEST_DENSE_POOLS=1;")
+create_test(test_sparse_performance_50 entity_functionality_performance.cpp "TEST_SPARSE_POOLS=1;TEST_DENSITY=(0.5f)")
+create_test(test_dense_performance_50 entity_functionality_performance.cpp "TEST_DENSE_POOLS=1;TEST_DENSITY=(0.5f)")
 create_test(test_non_entity_performance_0 non_entity_performance.cpp "EXTRA_PADDING=0")
 create_test(test_manual_entity_performance manual_entity_performance.cpp "")
 

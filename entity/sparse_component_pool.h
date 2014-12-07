@@ -276,7 +276,24 @@ namespace entity
 		void handle_swap_entity(entity a, entity b)
 		{
 			using std::swap;
-			swap(components_[a], components_[b]);
+			auto c_a = components_.find(a);
+			auto c_b = components_.find(b);
+			auto end = components_.end();
+
+			if(c_a != end && c_b != end)
+			{
+				swap(c_a->second, c_b->second);
+			}
+			else if(c_a != end)
+			{
+				components_.emplace(b, std::move(c_a->second));
+				components_.erase(a);
+			}
+			else if(c_b != end)
+			{
+				components_.emplace(a, std::move(c_b->second));
+				components_.erase(b);
+			}
 		}
 
 		boost::container::flat_map<entity, T> components_;

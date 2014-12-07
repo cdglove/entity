@@ -18,18 +18,20 @@
 #  include "entity/algorithm/simd/avx/for_each.h"
 #endif
 
-static const int kNumEntities = TEST_SIZE;
+static const std::size_t kNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
-static const bool kUseCreationQueue = true;
-static const bool kUseDestructionQueue = true;
+static       bool kUseCreationQueue = false;
+static const float kTestDensity = TEST_DENSITY;
+
+#define ALWAYS_TIME_NODE(name) \
+	daily::timer_node& name ## _timer = daily::timer_map::get_default().create_node(#name); \
+	daily::auto_timer_scope name ## _auto_timer_scope(name ## _timer)
 
 int main()
 {
-	DAILY_DECLARE_INSTRUMENT_NODE(Instantiation);
-	DAILY_START_INSTRUMENT_NODE(Instantiation);
-
-	daily::timer _t;
+	ALWAYS_TIME_NODE(Total);
+	ALWAYS_TIME_NODE(Instantiation);
 
 	entity::entity_pool entities;
 
@@ -42,6 +44,7 @@ int main()
 	typedef entity::sparse_component_pool<float> velocity_pool_type;
 	typedef entity::sparse_component_pool<float> accel_pool_type;
 #elif TEST_SATURATED_POOLS
+	assert(kTestDensity == 1.f);
 	typedef entity::saturated_component_pool<float> position_pool_type;
 	typedef entity::saturated_component_pool<float> velocity_pool_type;
 	typedef entity::saturated_component_pool<float> accel_pool_type;
@@ -79,48 +82,66 @@ int main()
 		accel_pool_type
 	> accel_destruction_queue(accel_pool);
 
+	Instantiation_timer.stop();
+
 	std::clog << "Created Pools\n";
 
+	std::vector<entity::shared_entity> shuffled_entitys;
+
+	if(kTestDensity < 1.f)
+	{
+		kUseCreationQueue = true;
+	}
+	
 	// ------------------------------------------------------------------------
 	{
 		// The foloowing code, even when not active is causing visual c++
 		// to generate a very slow executable.  I have no ida why at this tine.
-		//if(false) //kUseCreationQueue)
-		//{
-		//	// Create entities and components.
-		//	std::vector<entity::weak_entity> shuffled_entitys;
-		//	{
-		//		DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
+		if(kUseCreationQueue)
+		{
+			// Create entities and components.
+			{
+				ALWAYS_TIME_NODE(Create_Entities);
 
-		//		shuffled_entitys.reserve(entities.size());
-		//		for (int i = 0; i < kNumEntities; ++i)
-		//		{
-		//			shuffled_entitys.push_back(entities.create());
-		//		}
-		//	}
+				shuffled_entitys.reserve(entities.size());
+				for (int i = 0; i < kNumEntities; ++i)
+				{
+					shuffled_entitys.push_back(entities.create_shared());
+				}
 
-		//	DAILY_AUTO_INSTRUMENT_NODE(QueueCreation);
+				std::random_device rd;
+				std::mt19937 g(rd());
 
-		//	for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
-		//	{
-		//		auto e = *i;
-		//		position_creation_queue.push(e, 0.f);
-		//		velocity_creation_queue.push(e, 0.f);
-		//		accel_creation_queue.push(e, 9.8f);
-		//	}
+				std::shuffle(
+					shuffled_entitys.begin(),
+					shuffled_entitys.end(),
+					g
+				);
 
-		//	{ DAILY_AUTO_INSTRUMENT_NODE(FlushCreation);
-		//	
-		//		position_creation_queue.flush();
-		//		velocity_creation_queue.flush();
-		//		accel_creation_queue.flush();
-		//	}
-		//}
-		//else
+				std::size_t actual_size_to_use = std::size_t(kTestDensity * kNumEntities);
+				shuffled_entitys.resize(actual_size_to_use);
+			}
+
+			ALWAYS_TIME_NODE(Create_Components);
+
+			for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
+			{
+				auto e = *i;
+				position_creation_queue.push(e, 0.f);
+				velocity_creation_queue.push(e, 0.f);
+				accel_creation_queue.push(e, 9.8f);
+			}
+
+			ALWAYS_TIME_NODE(Flush_Create_Components);
+			position_creation_queue.flush();
+			velocity_creation_queue.flush();
+			accel_creation_queue.flush();
+		}
+		else
 		{
 			// ----------------------------------------------------------------
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(CreateEntities);
+				ALWAYS_TIME_NODE(Create_Entities);
 
 				for (int i = 0; i < kNumEntities; ++i)
 				{
@@ -128,7 +149,7 @@ int main()
 				}
 			}
 			
-			DAILY_AUTO_INSTRUMENT_NODE(ComponentCreation);
+			ALWAYS_TIME_NODE(Create_Components);
 
 			for(auto&& e : entities)
 			{
@@ -145,8 +166,7 @@ int main()
 
 	// Simulate over some seconds using a fixed step.
 	{
-		daily::timer_node& simulation_node = daily::timer_map::get_default().create_node("Simulation");
-		daily::auto_timer_scope simulation_scope(simulation_node);
+		ALWAYS_TIME_NODE(Simulation);
 
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)
@@ -224,21 +244,21 @@ int main()
 			});
 		#elif USE_RAW_LOOPS
 			float* __restrict a = accel_pool.get(entity::make_entity(0));
-			for(entity::entity_index_t i = 0; i < entities.size(); ++i)
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
 				// Add a little to accel each frame.
 				a[i] += 0.001f;
 			}
 
 			float* __restrict v = velocity_pool.get(entity::make_entity(0));
-			for(entity::entity_index_t i = 0; i < entities.size(); ++i)
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
 				// Compute new velocity.
 				v[i] += (a[i]/2.f) * (kFrameTime * kFrameTime);
 			}
 
 			float* __restrict p = position_pool.get(entity::make_entity(0));
-			for(entity::entity_index_t i = 0; i < entities.size(); ++i)
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
 				// Compute new position.
 				p[i] += v[i] * kFrameTime;
@@ -267,10 +287,12 @@ int main()
 		}
 	}
 
+	
 	std::clog << "done." << std::endl;
 
-    std::clog << "Positions: " << *position_pool.get(entity::make_entity(0)) << std::endl;
-    std::clog << "Velocities: " << *velocity_pool.get(entity::make_entity(0)) << std::endl;
+
+    std::clog << "Positions: " << *position_pool.begin() << std::endl;
+    std::clog << "Velocities: " << *velocity_pool.begin() << std::endl;
 
 	if(!daily::timer_map::get_default().empty())
 	{
@@ -280,20 +302,31 @@ int main()
 
 	daily::timer_map::get_default().reset_all();
 
-	if(true)
+	if(!kUseCreationQueue)
 	{
-		DAILY_AUTO_INSTRUMENT_NODE(Cleanup);
+		ALWAYS_TIME_NODE(Cleanup);
 
 		while(entities.size() > 0)
 		{
 			entities.destroy(entity::make_entity(0));
 		}
 	}
+	else
+	{
+		ALWAYS_TIME_NODE(Cleanup);
+		// Make sure entities are cleaed up in reverse, otherwise
+		// it takes a long time for sparce pool.
+		std::sort(
+			shuffled_entitys.begin(),
+			shuffled_entitys.end(), 
+			std::greater<entity::shared_entity>()
+		);
+		shuffled_entitys.clear();
+	}
 
+	Total_timer.stop();
 	daily::timer_map::get_default().report(std::cout);
 	std::cout.flush();
-
-	std::cout << "Elapsed: " << _t.elapsed() << std::endl;
 
 	return 0;
 }

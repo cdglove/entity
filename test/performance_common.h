@@ -16,3 +16,7 @@
 #  define TEST_SIZE (1024*2048)
 #endif
 
+#ifndef TEST_DENSITY
+#  define TEST_DENSITY (1.0f)
+#endif
+

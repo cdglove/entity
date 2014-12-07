@@ -99,7 +99,7 @@ namespace entity
 				new_index_mem = entity_pool_.malloc();
 				new_idx_ptr = new(new_index_mem) entity_index_t(entities_.size());
 
-				entity ret_val = make_entity(*new_idx_ptr);
+				entity ent_val = make_entity(*new_idx_ptr);
 				entities_.push_back(new_idx_ptr);
 
 				// Ensure we leave the container in a good state if shared_ptr throws.
@@ -110,6 +110,7 @@ namespace entity
 					entity_deleter(*this)
 				);
 
+				signals().on_entity_create(ent_val);
 				return std::move(new_idx);
 			}
 			catch(...)

@@ -94,7 +94,7 @@ namespace entity
 
 			T& dereference() const
 			{
-				return *parent_->get_component(get_entity());
+				return *parent_->get_component(get_entity().index());
 			}
 
 			dense_component_pool* parent_;
@@ -152,6 +152,14 @@ namespace entity
 					)
 				)
 			;
+
+			components_.resize(owner_pool.size());
+			available_.resize(owner_pool.size(), true);
+
+			for(entity_index_t i = 0; i < components_.size(); ++i)
+			{
+				new(get_component(i)) T(default_value);
+			}
 		}
 
 	#if ENTITY_SUPPORT_VARIADICS
@@ -192,7 +200,7 @@ namespace entity
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__create);
 			set_available(e.index(), false);
-			T* ret_val = get_component(e);
+			T* ret_val = get_component(e.index());
 			new(ret_val) T(std::forward<Args>(args)...);
 			++used_count_;
 			return ret_val;
@@ -214,7 +222,7 @@ namespace entity
 
 			BOOST_ASSERT(!is_available(e.index()) && "Trying to destroy un-allocated component.");
 			--used_count_;
-			T* p = get_component(e);
+			T* p = get_component(e.index());
 			p->~T();
 			
 			set_available(e.index(), true);
@@ -223,12 +231,12 @@ namespace entity
 		T* get(entity e)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__get);
-			if(is_available(e.index()))
+			if(is_available(e.index()))	
 			{
 				return nullptr;
 			}
 
-			return get_component(e);
+			return get_component(e.index());
 		}
 
 		T const* get(entity e) const
@@ -239,7 +247,7 @@ namespace entity
 				return nullptr;
 			}
 
-			return get_component(e);
+			return get_component(e.index());
 		}
 
 		iterator begin()
@@ -269,14 +277,14 @@ namespace entity
 			boost::signals2::scoped_connection entity_swap_handler;
 		};
 
-		T* get_component(entity e)
+		T* get_component(entity_index_t e)
 		{
-			return reinterpret_cast<T*>(&components_[e.index()]);
+			return reinterpret_cast<T*>(&components_[e]);
 		}
 
-		T const* get_component(entity e) const
+		T const* get_component(entity_index_t e) const
 		{
-			return reinterpret_cast<T*>(&components_[e.index()]);
+			return reinterpret_cast<T*>(&components_[e]);
 		}
 
 		bool is_available(entity_index_t idx)
@@ -343,7 +351,24 @@ namespace entity
 		void handle_swap_entity(entity a, entity b)
 		{
 			using std::swap;
-			swap(components_[a.index()], components_[b.index()]);
+
+			auto c_a = get(a);
+			auto c_b = get(b);
+
+			if(c_a && c_b)
+			{
+				swap(*c_a, *c_b);
+			}
+			else if(c_a)
+			{
+				create(b, std::move(*c_a));
+				destroy(a);
+			}
+			else if(c_b)
+			{
+				create(a, std::move(*c_b));
+				destroy(b);
+			}
 		}
 
 		struct element_t
