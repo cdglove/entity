@@ -86,7 +86,6 @@ BOOST_AUTO_TEST_CASE( tied_iteration )
 	typedef entity::dense_component_pool<float> velocity_pool_type;
 	typedef entity::saturated_component_pool<float> accel_pool_type;
 
-
 	position_pool_type position_pool(entities);
 	velocity_pool_type velocity_pool(entities);
 	accel_pool_type accel_pool(entities);
@@ -104,3 +103,36 @@ BOOST_AUTO_TEST_CASE( tied_iteration )
 		(void)a;
 	}
 }
+
+BOOST_AUTO_TEST_CASE( list_iteration )
+{
+	entity::entity_pool entities;
+	std::vector<entity::entity> ids;
+	for(int i = 0; i < kNumEntities; ++i)
+	{
+		ids.push_back(entities.create());
+	}
+
+	typedef entity::sparse_component_pool<float> position_pool_type;
+	typedef entity::dense_component_pool<float> velocity_pool_type;
+	typedef entity::saturated_component_pool<float> accel_pool_type;
+
+	position_pool_type position_pool(entities);
+	velocity_pool_type velocity_pool(entities);
+	accel_pool_type accel_pool(entities);
+
+	auto b = entity::begin(ids, entity::tie(position_pool, velocity_pool, accel_pool));
+	auto e = entity::end(ids, entity::tie(position_pool, velocity_pool, accel_pool));
+
+	if(b != e)
+	{
+		float& p = *boost::fusion::at_c<0>(*b);
+		(void)p;
+		float& v = *boost::fusion::at_c<1>(*b);
+		(void)v;
+		float& a = *boost::fusion::at_c<2>(*b);
+		(void)a;
+	}
+}
+
+
