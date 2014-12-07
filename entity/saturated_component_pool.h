@@ -104,17 +104,7 @@ namespace entity
 		
 		saturated_component_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
-			// Create default values for existing entities.
-			std::for_each(
-				owner_pool.begin(),
-				owner_pool.end(),
-				boost::bind(
-					&saturated_component_pool::create<T const&>,
-					this,
-					::_1,
-					boost::ref(default_value)
-				)
-			);
+			components_.resize(owner_pool.size(), default_value);
 
 			slots_.entity_destroy_handler = 
 				owner_pool.signals().on_entity_destroy.connect(

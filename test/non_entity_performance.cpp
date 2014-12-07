@@ -30,7 +30,10 @@ void for_each(I i, I e, Fn f)
 	}
 }
 
-int main()
+#define BOOST_TEST_MODULE Performance
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_CASE( non_entity )
 {
 	std::vector<PhysicsData> entities;
 
@@ -94,6 +97,4 @@ int main()
 	}
 
 	std::cout.flush();
-
-	return 0;
 }

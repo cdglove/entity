@@ -28,7 +28,10 @@ static const float kTestDensity = TEST_DENSITY;
 	daily::timer_node& name ## _timer = daily::timer_map::get_default().create_node(#name); \
 	daily::auto_timer_scope name ## _auto_timer_scope(name ## _timer)
 
-int main()
+#define BOOST_TEST_MODULE Performance
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_CASE( library_entity )
 {
 	ALWAYS_TIME_NODE(Total);
 	ALWAYS_TIME_NODE(Instantiation);
@@ -327,6 +330,4 @@ int main()
 	Total_timer.stop();
 	daily::timer_map::get_default().report(std::cout);
 	std::cout.flush();
-
-	return 0;
 }

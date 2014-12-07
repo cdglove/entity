@@ -110,6 +110,9 @@ namespace entity
 		dense_component_pool(entity_pool& owner_pool, T const& default_value = T())
 			: used_count_(0)
 		{
+			components_.resize(owner_pool.size());
+			available_.resize(owner_pool.size(), true);
+			
 			// Create default values for existing entities.
 			std::for_each(
 				owner_pool.begin(),
@@ -152,14 +155,6 @@ namespace entity
 					)
 				)
 			;
-
-			components_.resize(owner_pool.size());
-			available_.resize(owner_pool.size(), true);
-
-			for(entity_index_t i = 0; i < components_.size(); ++i)
-			{
-				new(get_component(i)) T(default_value);
-			}
 		}
 
 	#if ENTITY_SUPPORT_VARIADICS

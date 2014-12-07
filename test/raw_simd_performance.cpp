@@ -8,7 +8,10 @@ static const int kNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
 
-int main()
+#define BOOST_TEST_MODULE Performance
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_CASE( raw_simd )
 {
 #if USE_EXPLICIT_LOADS
 	std::vector<unsigned int> ids;
