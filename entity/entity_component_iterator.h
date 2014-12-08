@@ -21,6 +21,7 @@
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector.hpp>
 #include <daily/timer/instrument.h>
+#include <boost/typeof/typeof.hpp>
 
 // ----------------------------------------------------------------------------
 //
@@ -28,110 +29,90 @@ namespace entity
 {
 	namespace detail
 	{
-		template<typename T>
-		struct extract_value_ptr_type
-		{
-			typedef typename std::decay<T>::type::type* type;
-		};
-
-		template<typename ComponentPoolTuple>
-		struct generate_value_ptr_type
-		{
-			typedef
-			typename boost::fusion::result_of::as_vector<
-				typename boost::mpl::transform<
-					ComponentPoolTuple,
-					extract_value_ptr_type<boost::mpl::_1>
-				>::type
-			>::type type;
-		};
-
-		template<typename ComponentPool>
+		template<typename EntityListIterator, typename ComponentPool>
 		struct extract_iterator
 		{
 			typedef typename 
 			std::decay<
 				ComponentPool
-			>::type::iterator type;
+			>::type::template entity_iterator<EntityListIterator> type;
 		};
 
-		template<typename ComponentPoolsTuple>
+		template<typename EntityList, typename ComponentPoolsTuple>
 		struct component_iterators
 		{
+			typedef typename BOOST_TYPEOF(boost::declval<const EntityList>().begin()) entity_iterator;
 			typedef typename
 			boost::mpl::transform<
-				ComponentPoolsTuple, extract_iterator<boost::mpl::_1>
+				ComponentPoolsTuple, 
+				extract_iterator<
+					entity_iterator, boost::mpl::_1
+				>
 			>::type type;
 		};
 
 		// --------------------------------------------------------------------
 		//
+		template<typename EntityListIterator>
 		struct begin_pool
 		{
+			begin_pool(EntityListIterator iter)
+				: entity_iter_(std::move(iter))
+			{}
+
 			template<typename Pool>
-			typename Pool::iterator operator()(Pool& p) const
+			typename Pool::template entity_iterator<EntityListIterator> operator()(Pool& p) const
 			{
-				return p.begin();
+				return p.begin(entity_iter_);
 			}
+
+			EntityListIterator entity_iter_;
 		};
 
+		template<typename EntityListIterator>
 		struct end_pool
 		{
+			end_pool(EntityListIterator iter)
+				: entity_iter_(std::move(iter))
+			{}
+
 			template<typename Pool>
-			typename Pool::iterator operator()(Pool& p) const
+			typename Pool::template entity_iterator<EntityListIterator> operator()(Pool& p) const
 			{
-				return p.end();
+				return p.end(entity_iter_);
 			}
+
+			EntityListIterator entity_iter_;
 		};
 
-		template<typename ComponentPools>
+		template<typename EntityList, typename EntityListIterator, typename ComponentPools>
 		typename component_iterators<
-			ComponentPools
-		>::type	make_component_begins(ComponentPools const& pools)
+			EntityList, ComponentPools
+		>::type	make_component_begins(EntityListIterator entity_iter, ComponentPools const& pools)
 		{
-			return boost::fusion::transform(pools, begin_pool());
+			return boost::fusion::transform(pools, begin_pool<EntityListIterator>(entity_iter));
 		}
 
-		template<typename ComponentPools>
+		template<typename EntityList, typename EntityListIterator, typename ComponentPools>
 		typename component_iterators<
-			ComponentPools
-		>::type	make_component_ends(ComponentPools const& pools)
+			EntityList, ComponentPools
+		>::type	make_component_ends(EntityListIterator entity_iter, ComponentPools const& pools)
 		{
-			return boost::fusion::transform(pools, end_pool());
+			return boost::fusion::transform(pools, end_pool<EntityListIterator>(entity_iter));
 		}
 		
 		// --------------------------------------------------------------------
 		//
 		struct advance_component_iterator
 		{
-			advance_component_iterator(entity_index_t target)
-				: target_(target)
+			advance_component_iterator()
 			{}
 
 		    template<typename T>
 		    void operator()(T& t) const
 		    {
-				t.advance_to_target_entity(target_);
+				++t;
 		    }
-
-			entity_index_t target_;
-		};
-
-		// --------------------------------------------------------------------
-		//
-		struct extract_value_ptr
-		{
-			extract_value_ptr(entity e)
-				: entity_(e)
-			{}
-
-			template<typename Iterator>
-			typename Iterator::pointer operator()(Iterator& i) const
-			{
-				return i.maybe_extract_ptr(entity_);
-			}
-
-			entity entity_;
 		};
 	}
 
@@ -178,7 +159,7 @@ namespace entity
 			++entity_iter_;
 			boost::fusion::for_each(
 				pool_iterators_,
-				detail::advance_component_iterator(entity_iter_->index())
+				detail::advance_component_iterator()
 			);
 		}
 
@@ -202,28 +183,28 @@ namespace entity
 	entity_component_iterator<
 		EntityList, 
 		ComponentPoolsTuple,
-		typename detail::component_iterators<ComponentPoolsTuple>::type
+		typename detail::component_iterators<EntityList, ComponentPoolsTuple>::type
 	> begin(EntityList const& entities, ComponentPoolsTuple const& pools)
 	{
 		return entity_component_iterator<
 			EntityList,
 			ComponentPoolsTuple, 
-			typename detail::component_iterators<ComponentPoolsTuple>::type
-		>(begin(entities), detail::make_component_begins(pools));
+			typename detail::component_iterators<EntityList, ComponentPoolsTuple>::type
+		>(begin(entities), detail::make_component_begins<EntityList>(begin(entities), pools));
 	}
 
 	template<typename EntityList, typename ComponentPoolsTuple>
 	entity_component_iterator<
 		EntityList, 
 		ComponentPoolsTuple, 
-		typename detail::component_iterators<ComponentPoolsTuple>::type
+		typename detail::component_iterators<EntityList, ComponentPoolsTuple>::type
 	> end(EntityList const& entities, ComponentPoolsTuple const& pools)
 	{
 		return entity_component_iterator<
 			EntityList,
 			ComponentPoolsTuple, 
-			typename detail::component_iterators<ComponentPoolsTuple>::type
-		>(end(entities), detail::make_component_ends(pools));
+			typename detail::component_iterators<EntityList, ComponentPoolsTuple>::type
+		>(end(entities), detail::make_component_ends<EntityList>(end(entities), pools));
 	}
 }
 

@@ -44,29 +44,6 @@ namespace entity
 			iterator_impl()
 			{}
 
-			void advance_to_target_entity(entity_index_t target)
-			{
-				if(get_entity().index() < target)
-				{
-					++iterator_;
-				}
-			}
-
-			T* maybe_extract_ptr(entity ent) const
-			{
-				if (get_entity() == ent)
-				{
-					return &(iterator_->second);
-				}
-
-				return nullptr;
-			}
-
-			bool is_valid() const
-			{
-				return true;
-			}
-
 		private:
 
 			friend class boost::iterator_core_access;
@@ -101,9 +78,71 @@ namespace entity
 		typedef T type;
 		typedef iterator_impl iterator;
 
-		friend class component_pool_creation_queue<sparse_component_pool<type>>;
-		friend class component_pool_destruction_queue<sparse_component_pool<type>>;
+		// --------------------------------------------------------------------
+		//
+		template<typename EntityListIterator>
+		struct entity_iterator
+			: boost::iterator_facade<
+			  entity_iterator<EntityListIterator>
+			, T&
+			, boost::forward_traversal_tag
+			>
+		{
+			entity_iterator()
+			{}
 
+			entity get_entity() const
+			{
+				return iterator_->first;
+			}
+
+			bool is_valid() const
+			{
+				return iterator_ != end_ && *entity_iter_ == iterator_->first;
+			}
+
+		private:
+
+			friend class boost::iterator_core_access;
+			friend class sparse_component_pool;
+
+			typedef typename boost::container::flat_map<
+				entity, T
+			>::iterator parent_iterator;
+
+			explicit entity_iterator(EntityListIterator entity_iter, parent_iterator start, parent_iterator end)
+				: entity_iter_(std::move(entity_iter))
+				, iterator_(std::move(start))
+				, end_(std::move(end))
+			{}
+
+			void increment()
+			{
+				DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__entity_iterator__is_valid);
+				++entity_iter_;
+				
+				entity target = *entity_iter_;
+				while(iterator_ != end_ && iterator_->first < target)
+					++iterator_;
+			}
+
+			bool equal(entity_iterator const& other) const
+			{
+				return iterator_ == other.iterator_;
+			}
+
+			T& dereference() const
+			{
+				return iterator_->second;
+			}
+
+			mutable parent_iterator iterator_;
+			parent_iterator end_;
+			EntityListIterator entity_iter_;
+		};
+		
+		// --------------------------------------------------------------------
+		//
 		sparse_component_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
 			// Create default values for existing entities.
@@ -225,7 +264,19 @@ namespace entity
 
 		iterator end()
 		{
-			return iterator(components_.end()-1);
+			return iterator(components_.end());
+		}
+
+		template<typename EntityListIterator>
+		entity_iterator<EntityListIterator> begin(EntityListIterator entity_iter)
+		{
+			return entity_iterator<EntityListIterator>(entity_iter, components_.begin(), components_.end());
+		}
+
+		template<typename EntityListIterator>
+		entity_iterator<EntityListIterator> end(EntityListIterator entity_iter)
+		{
+			return entity_iterator<EntityListIterator>(entity_iter, components_.end(), components_.end());
 		}
 
 		std::size_t size()
@@ -234,6 +285,9 @@ namespace entity
 		}
 
 	private:
+
+		friend class component_pool_creation_queue<sparse_component_pool<type>>;
+		friend class component_pool_destruction_queue<sparse_component_pool<type>>;
 
 		struct slot_list
 		{

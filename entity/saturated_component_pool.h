@@ -49,21 +49,6 @@ namespace entity
 				return make_entity(entity_index_);
 			}
 
-			void advance_to_target_entity(entity_index_t e)
-			{
-				entity_index_ = e;
-			}
-
-			T* maybe_extract_ptr(entity ent) const
-			{
-				return parent_->get_component(ent);
-			}
-			
-			bool is_valid() const
-			{
-				return true;
-			}
-
 		private:
 
 			friend class boost::iterator_core_access;
@@ -101,7 +86,61 @@ namespace entity
 
 		typedef T type;
 		typedef iterator_impl iterator;
-		
+
+		// --------------------------------------------------------------------
+		//
+		template<typename EntityListIterator>
+		struct entity_iterator
+			: boost::iterator_facade<
+			  entity_iterator<EntityListIterator>
+			, T&
+			, boost::forward_traversal_tag
+			>
+		{
+			entity_iterator()
+			{}
+
+			entity get_entity() const
+			{
+				return *entity_iter_;
+			}
+
+			bool is_valid() const
+			{
+				return true;
+			}
+
+		private:
+
+			friend class boost::iterator_core_access;
+			friend class saturated_component_pool;
+
+			entity_iterator(saturated_component_pool* parent, EntityListIterator entity_iter)
+				: parent_(parent)
+				, entity_iter_(std::move(entity_iter))
+			{}
+
+			void increment()
+			{
+				++entity_iter_;
+			}
+
+			bool equal(entity_iterator const& other) const
+			{
+				return entity_iter_ == other.entity_iter_;
+			}
+
+			T& dereference() const
+			{
+				return parent_->components_[get_entity().index()];
+			}
+
+			saturated_component_pool* parent_;
+			EntityListIterator entity_iter_;
+		};
+
+		// --------------------------------------------------------------------
+		//		
 		saturated_component_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
 			components_.resize(owner_pool.size(), default_value);
@@ -191,6 +230,18 @@ namespace entity
 		iterator end()
 		{
 			return iterator(this, components_.size());
+		}
+
+		template<typename EntityListIterator>
+		entity_iterator<EntityListIterator> begin(EntityListIterator i)
+		{
+			return entity_iterator<EntityListIterator>(this, i);
+		}
+
+		template<typename EntityListIterator>
+		entity_iterator<EntityListIterator> end(EntityListIterator i)
+		{
+			return entity_iterator<EntityListIterator>(this, i);
 		}
 
 		std::size_t size()
