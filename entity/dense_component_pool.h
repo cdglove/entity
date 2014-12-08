@@ -35,33 +35,80 @@ namespace entity
 	private:
 
 		struct iterator_impl
-			  : boost::iterator_facade<
-			    iterator_impl
-			  , T&
-			  , boost::forward_traversal_tag
-		  	>
+			: boost::iterator_facade<
+			  iterator_impl
+			, T&
+			, boost::forward_traversal_tag
+			>
 		{
-			entity get_entity() const
-			{
-				return make_entity(std::distance(begin_, iterator_));
-			}
-
 			iterator_impl()
 			{}
 
-			void advance_to_target_entity(entity_index_t target)
+			entity get_entity() const
 			{
-				iterator_ = begin_ + target;
+				return make_entity(entity_index_);
 			}
 
-			T* maybe_extract_ptr(entity ent) const
-			{
-				if(!parent_->is_available(ent.index()))
-				{
-					return parent_->get_component(ent);
-				}
+		private:
 
-				return nullptr;
+			friend class boost::iterator_core_access;
+			friend class dense_component_pool;
+
+			typedef typename std::vector<char>::iterator parent_iterator;
+
+			iterator_impl(dense_component_pool* parent, entity_index_t start)
+				: parent_(parent)
+				, entity_index_(start)
+			{
+				// Fast forward to the first available.
+				auto available_iterator = parent_->available_.begin() + entity_index_;
+				while(entity_index_ < parent_->available_.size() && *available_iterator)
+					++entity_index_;
+			}
+
+			void increment()
+			{
+				++entity_index_;
+			}
+
+			bool equal(iterator_impl const& other) const
+			{
+				return entity_index_ == other.entity_index_;
+			}
+
+			T& dereference() const
+			{
+				auto available_iterator = parent_->available_.begin() + entity_index_;
+				while(*available_iterator)
+					++entity_index_;
+				return *parent_->get_component(get_entity().index());
+			}
+
+			dense_component_pool* parent_;
+			mutable entity_index_t entity_index_;
+		};
+
+	public:
+
+		typedef T type;
+		typedef iterator_impl iterator;
+
+		// --------------------------------------------------------------------
+		//
+		template<typename EntityListIterator>
+		struct entity_iterator
+			: boost::iterator_facade<
+			  entity_iterator<EntityListIterator>
+			, T&
+			, boost::forward_traversal_tag
+			>
+		{
+			entity_iterator()
+			{}
+
+			entity get_entity() const
+			{
+				return *entity_iter_;
 			}
 
 			bool is_valid() const
@@ -73,23 +120,20 @@ namespace entity
 
 			friend class boost::iterator_core_access;
 			friend class dense_component_pool;
-			
-			typedef typename std::vector<char>::iterator parent_iterator;
 
-			iterator_impl(dense_component_pool* parent, parent_iterator start, parent_iterator first)
+			entity_iterator(dense_component_pool* parent, EntityListIterator entity_iter)
 				: parent_(parent)
-				, iterator_(std::move(start))
-				, begin_(std::move(first))
+				, entity_iter_(std::move(entity_iter))
 			{}
 
 			void increment()
 			{
-				++iterator_;
+				++entity_iter_;
 			}
 
-			bool equal(iterator_impl const& other) const
+			bool equal(entity_iterator const& other) const
 			{
-				return iterator_ == other.iterator_;
+				return entity_iter_ == other.entity_iter_;
 			}
 
 			T& dereference() const
@@ -98,15 +142,11 @@ namespace entity
 			}
 
 			dense_component_pool* parent_;
-			parent_iterator iterator_;
-			parent_iterator begin_;
+			EntityListIterator entity_iter_;
 		};
-
-	public:
-
-		typedef T type;
-		typedef iterator_impl iterator;
-		
+			
+		// --------------------------------------------------------------------
+		//
 		dense_component_pool(entity_pool& owner_pool, T const& default_value = T())
 			: used_count_(0)
 		{
@@ -247,12 +287,24 @@ namespace entity
 
 		iterator begin()
 		{
-			return iterator(this, available_.begin(), available_.begin());
+			return iterator(this, 0);
 		}
 
 		iterator end()
 		{
-			return iterator(this, available_.end(), available_.begin());
+			return iterator(this, available_.size());
+		}
+		
+		template<typename EntityListIterator>
+		entity_iterator<EntityListIterator> begin(EntityListIterator entity_iter)
+		{
+			return entity_iterator<EntityListIterator>(this, entity_iter);
+		}
+
+		template<typename EntityListIterator>
+		entity_iterator<EntityListIterator> end(EntityListIterator entity_iter)
+		{
+			return entity_iterator<EntityListIterator>(this, entity_iter);
 		}
 
 		std::size_t size()
