@@ -1,4 +1,4 @@
-#define DAILY_ENABLE_INSTRUMENTATION 1
+#define DAILY_ENABLE_INSTRUMENTATION 0
 
 #include "entity/dense_component_pool.h"
 #include "entity/sparse_component_pool.h"

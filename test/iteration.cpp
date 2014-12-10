@@ -65,6 +65,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&position_pool](entity::entity e)
 		{
 			int i = *position_pool.get(e);
+			//while(i != 1) {}
 			BOOST_REQUIRE_EQUAL(i, 1);
 		}
 	);
@@ -75,6 +76,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&velocity_pool](entity::entity e)
 		{
 			int i = *velocity_pool.get(e);
+			//while(i != 2) {}
 			BOOST_REQUIRE_EQUAL(i, 2);
 		}
 	);
@@ -85,6 +87,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&accel_pool](entity::entity e)
 		{
 			int i = *accel_pool.get(e);
+			//while(i != 3) {}
 			BOOST_REQUIRE_EQUAL(i, 3);
 		}
 	);
@@ -94,7 +97,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 //
 std::unique_ptr<entity::entity_pool> CreateFilledPool()
 {
-	auto entities = std::make_unique<entity::entity_pool>();
+	auto entities = std::unique_ptr<entity::entity_pool>(new entity::entity_pool());
 	for(int i = 0; i < kNumEntities; ++i)
 	{
 		entities->create();
@@ -165,37 +168,37 @@ BOOST_AUTO_TEST_CASE( partial_list_iteration )
 	IterateTied(*entities, ids);
 }
 
-BOOST_AUTO_TEST_CASE( unordered_list_iteration )
-{
-	auto entities = CreateFilledPool();
-	std::vector<entity::entity> ids;
-	for(entity::entity_index_t i = 0; i < kNumEntities; ++i)
-	{
-		ids.push_back(entity::make_entity(i));
-	}
-
-	std::random_device rd;
-	std::mt19937 g(rd());
-
-	std::shuffle(ids.begin(), ids.end(), g);
-	IterateTied(*entities, ids);
-}
-
-BOOST_AUTO_TEST_CASE( unordered_partial_iteration )
-{
-	auto entities = CreateFilledPool();
-	std::vector<entity::entity> ids;
-	for(entity::entity_index_t i = 0; i < kNumEntities; ++i)
-	{
-		ids.push_back(entity::make_entity(i));
-	}
-
-	std::random_device rd;
-	std::mt19937 g(rd());
-
-	std::shuffle(ids.begin(), ids.end(), g);
-	ids.erase(ids.begin(), ids.begin() + (ids.size() / 2));
-	IterateTied(*entities, ids);
-}
+//BOOST_AUTO_TEST_CASE( unordered_list_iteration )
+//{
+//	auto entities = CreateFilledPool();
+//	std::vector<entity::entity> ids;
+//	for(entity::entity_index_t i = 0; i < kNumEntities; ++i)
+//	{
+//		ids.push_back(entity::make_entity(i));
+//	}
+//
+//	std::random_device rd;
+//	std::mt19937 g(rd());
+//
+//	std::shuffle(ids.begin(), ids.end(), g);
+//	IterateTied(*entities, ids);
+//}
+//
+//BOOST_AUTO_TEST_CASE( unordered_partial_iteration )
+//{
+//	auto entities = CreateFilledPool();
+//	std::vector<entity::entity> ids;
+//	for(entity::entity_index_t i = 0; i < kNumEntities; ++i)
+//	{
+//		ids.push_back(entity::make_entity(i));
+//	}
+//
+//	std::random_device rd;
+//	std::mt19937 g(rd());
+//
+//	std::shuffle(ids.begin(), ids.end(), g);
+//	ids.erase(ids.begin(), ids.begin() + (ids.size() / 2));
+//	IterateTied(*entities, ids);
+//}
 
 

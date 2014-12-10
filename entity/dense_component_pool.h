@@ -61,14 +61,25 @@ namespace entity
 				, entity_index_(start)
 			{
 				// Fast forward to the first available.
-				auto available_iterator = parent_->available_.begin() + entity_index_;
+				auto available_iterator = parent_->available_.begin() + start;
 				while(entity_index_ < parent_->available_.size() && *available_iterator)
+				{
+					++available_iterator;
 					++entity_index_;
+				}
 			}
 
 			void increment()
 			{
-				++entity_index_;
+				auto available_iterator = parent_->available_.begin() + entity_index_;
+				auto end_iterator = parent_->available_.end();
+				if(available_iterator != end_iterator)
+					++entity_index_;
+				while(available_iterator != end_iterator && *available_iterator)
+				{
+					++available_iterator;
+					++entity_index_;
+				}
 			}
 
 			bool equal(iterator_impl const& other) const
@@ -78,14 +89,11 @@ namespace entity
 
 			T& dereference() const
 			{
-				auto available_iterator = parent_->available_.begin() + entity_index_;
-				while(*available_iterator)
-					++entity_index_;
 				return *parent_->get_component(get_entity().index());
 			}
 
 			dense_component_pool* parent_;
-			mutable entity_index_t entity_index_;
+			entity_index_t entity_index_;
 		};
 
 	public:
@@ -124,12 +132,7 @@ namespace entity
 			entity_iterator(dense_component_pool* parent, EntityListIterator entity_iter)
 				: parent_(parent)
 				, entity_iter_(std::move(entity_iter))
-			{
-				// Fast forward to the first available.
-				auto available_iterator = parent_->available_.begin() + *entity_iter_;
-				while(*entity_iter_ < parent_->available_.size() && *available_iterator)
-					++entity_iter_;
-			}
+			{}
 
 			void increment()
 			{

@@ -41,7 +41,7 @@ namespace entity
 		template<typename EntityList, typename ComponentPoolsTuple>
 		struct component_iterators
 		{
-			typedef typename BOOST_TYPEOF(boost::declval<const EntityList>().begin()) entity_iterator;
+			typedef decltype(boost::declval<const EntityList>().begin()) entity_iterator;
 			typedef typename
 			boost::mpl::transform<
 				ComponentPoolsTuple, 
@@ -136,9 +136,11 @@ namespace entity
 		typedef typename EntityList::const_iterator entity_iterator; 
 
 		entity_component_iterator(
-			entity_iterator ei,
+			entity_iterator ent_begin,
+			entity_iterator ent_end,
 			ComponentPoolIterators&& iterator_tuple)
-			: entity_iter_(std::move(ei))
+			: entity_iter_(std::move(ent_begin))
+			, entity_end_(std::move(ent_end))
 			, pool_iterators_(std::move(iterator_tuple))
 		{}
 
@@ -157,10 +159,13 @@ namespace entity
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(entity_component_iterator__increment);
 			++entity_iter_;
-			boost::fusion::for_each(
-				pool_iterators_,
-				detail::advance_component_iterator()
-			);
+			if(entity_iter_ != entity_end_)
+			{
+				boost::fusion::for_each(
+					pool_iterators_,
+					detail::advance_component_iterator()
+				);
+			}
 		}
 
 		bool equal(entity_component_iterator const& other) const
@@ -174,6 +179,7 @@ namespace entity
 		}
 		
 		entity_iterator entity_iter_;
+		entity_iterator entity_end_;
 		ComponentPoolIterators pool_iterators_;
 	};
 
@@ -190,7 +196,7 @@ namespace entity
 			EntityList,
 			ComponentPoolsTuple, 
 			typename detail::component_iterators<EntityList, ComponentPoolsTuple>::type
-		>(begin(entities), detail::make_component_begins<EntityList>(begin(entities), pools));
+		>(begin(entities), end(entities), detail::make_component_begins<EntityList>(begin(entities), pools));
 	}
 
 	template<typename EntityList, typename ComponentPoolsTuple>
@@ -204,7 +210,7 @@ namespace entity
 			EntityList,
 			ComponentPoolsTuple, 
 			typename detail::component_iterators<EntityList, ComponentPoolsTuple>::type
-		>(end(entities), detail::make_component_ends<EntityList>(end(entities), pools));
+		>(end(entities), end(entities), detail::make_component_ends<EntityList>(end(entities), pools));
 	}
 }
 

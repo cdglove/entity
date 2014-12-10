@@ -118,11 +118,8 @@ namespace entity
 
 			void increment()
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__entity_iterator__is_valid);
 				++entity_iter_;
-				
-				entity target = *entity_iter_;
-				while(iterator_ != end_ && iterator_->first < target)
+				while(iterator_ != end_ && iterator_->first < *entity_iter_)
 					++iterator_;
 			}
 
@@ -136,7 +133,7 @@ namespace entity
 				return iterator_->second;
 			}
 
-			mutable parent_iterator iterator_;
+			parent_iterator iterator_;
 			parent_iterator end_;
 			EntityListIterator entity_iter_;
 		};
