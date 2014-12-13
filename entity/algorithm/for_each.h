@@ -56,24 +56,9 @@ namespace entity
 			{}
 
 			template<typename ComponentPoolView>
-			void operator()(ComponentPoolView& view) const
+			bool operator()(bool result, ComponentPoolView& view) const
 			{
-				view.advance(target_);
-			}
-
-			entity target_;
-		};
-
-		struct is_valid_view
-		{
-			is_valid_view(entity target)
-				: target_(target)
-			{}
-
-			template<typename ComponentPoolView>
-			bool operator()(ComponentPoolView view) const
-			{
-				return view.is_valid(target_);
+				return view.advance(target_) && result;
 			}
 
 			entity target_;
@@ -99,8 +84,9 @@ namespace entity
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
 			entity ent = *i;
-			boost::fusion::for_each(c, detail::advance_view(ent));
-			if(boost::fusion::all(c, detail::is_valid_view(ent)))
+			bool all = true;
+			boost::fusion::fold(c, all, detail::advance_view(ent));
+			if(all)
 			{
 				boost::fusion::invoke(
 					f, 
