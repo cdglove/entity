@@ -140,6 +140,41 @@ namespace entity
 		};
 
 		// --------------------------------------------------------------------
+		//
+		struct range
+		{
+			typedef type type;
+
+			range()
+			{}
+
+			bool is_valid(entity e) const
+			{
+				return true;
+			}
+
+			bool advance(entity target)
+			{
+				return true;
+			}
+
+			type& get(entity owner)
+			{
+				return *parent_->get_component(owner);
+			}
+
+		private:
+
+			friend class saturated_component_pool;
+
+			range(saturated_component_pool* parent)
+				: parent_(parent)
+			{}
+
+			saturated_component_pool* parent_;
+		};
+
+		// --------------------------------------------------------------------
 		//		
 		saturated_component_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
@@ -242,6 +277,11 @@ namespace entity
 		entity_iterator<EntityListIterator> end(EntityListIterator i)
 		{
 			return entity_iterator<EntityListIterator>(this, i);
+		}
+
+		range view()
+		{
+			return range(this);
 		}
 
 		std::size_t size()

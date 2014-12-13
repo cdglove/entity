@@ -137,6 +137,50 @@ namespace entity
 			parent_iterator end_;
 			EntityListIterator entity_iter_;
 		};
+
+		// --------------------------------------------------------------------
+		//
+		struct range
+		{
+			typedef type type;
+
+			range()
+			{}
+
+			bool is_valid(entity e) const
+			{
+				return iterator_ != end_ && e == iterator_->first;
+			}
+
+			bool advance(entity target)
+			{
+				while(iterator_ != end_ && iterator_->first < target)
+					++iterator_;
+
+				return iterator_ != end_ && iterator_->first == target;
+			}
+
+			type& get(entity owner)
+			{
+				return iterator_->second;
+			}
+
+		private:
+
+			friend class sparse_component_pool;
+
+			typedef typename boost::container::flat_map<
+				entity, T
+			>::iterator parent_iterator;
+
+			range(parent_iterator start, parent_iterator end)
+				: iterator_(std::move(start))
+				, end_(std::move(end))
+			{}
+
+			parent_iterator iterator_;
+			parent_iterator end_;
+		};
 		
 		// --------------------------------------------------------------------
 		//
@@ -274,6 +318,11 @@ namespace entity
 		entity_iterator<EntityListIterator> end(EntityListIterator entity_iter)
 		{
 			return entity_iterator<EntityListIterator>(entity_iter, components_.end(), components_.end());
+		}
+
+		range view()
+		{
+			return range(components_.begin(), components_.end());
 		}
 
 		std::size_t size()

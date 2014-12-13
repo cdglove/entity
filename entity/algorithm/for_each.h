@@ -14,6 +14,7 @@
 #include "entity/functional/dereference.h"
 #include <boost/fusion/functional/invocation/invoke.hpp>
 #include <boost/fusion/algorithm/query/all.hpp>
+#include <boost/fusion/include/as_vector.hpp>
 #include <algorithm>
 
 // ----------------------------------------------------------------------------
@@ -22,21 +23,76 @@ namespace entity
 {
 	// ------------------------------------------------------------------------
 	//
+	namespace detail
+	{
+		struct get_view
+		{
+			template<typename ComponentPool>
+			typename ComponentPool::range operator()(ComponentPool& p) const
+			{
+				return p.view();
+			}
+		};
+
+		struct get_component
+		{
+			get_component(entity owner)
+				: owner_(owner)
+			{}
+
+			template<typename ComponentPoolView>
+			typename ComponentPoolView::type& operator()(ComponentPoolView view) const
+			{
+				return view.get(owner_);
+			}
+
+			entity owner_;
+		};
+
+		struct advance_view
+		{
+			advance_view(entity target)
+				: target_(target)
+			{}
+
+			template<typename ComponentPoolView>
+			bool operator()(bool result, ComponentPoolView& view) const
+			{
+				return view.advance(target_) && result;
+			}
+
+			entity target_;
+		};
+	};
+
+	// ------------------------------------------------------------------------
+	//
 	template<typename EntityList, typename ComponentPoolTuple, typename Fn>
 	void for_each(EntityList const& entities, ComponentPoolTuple&& p, Fn f)
 	{
-		auto i = begin(entities, std::forward<ComponentPoolTuple>(p));
-		auto e = end(entities, std::forward<ComponentPoolTuple>(p));
+		auto i = begin(entities); 
+		auto e = end(entities);
+
+		auto c = boost::fusion::as_vector(
+			boost::fusion::transform(
+				std::forward<ComponentPoolTuple>(p),
+				detail::get_view()
+			)
+		);
+
 		for(; i != e; ++i)
 		{
-			if(boost::fusion::all(*i, is_valid_component()))
+			DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
+			entity ent = *i;
+			bool all = true;
+			boost::fusion::fold(c, all, detail::advance_view(ent));
+			if(all)
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
 				boost::fusion::invoke(
 					f, 
-					boost::fusion::transform(*i, dereference())
+					boost::fusion::transform(c, detail::get_component(ent))
 				);
-			}		
+			}	
 		}
 	}
 }

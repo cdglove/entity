@@ -152,6 +152,42 @@ namespace entity
 			dense_component_pool* parent_;
 			EntityListIterator entity_iter_;
 		};
+
+		// --------------------------------------------------------------------
+		//
+		struct range
+		{
+			typedef type type;
+
+			range()
+			{}
+
+			bool is_valid(entity e) const
+			{
+				return !parent_->is_available(e.index());
+			}
+
+			bool advance(entity target)
+			{
+				return is_valid(target);
+			}
+
+			type& get(entity owner)
+			{
+				return *parent_->get_component(owner.index());
+			}
+
+		private:
+
+			friend class dense_component_pool;
+
+			range(dense_component_pool* parent)
+				: parent_(parent)
+			{}
+
+			dense_component_pool* parent_;
+
+		};
 			
 		// --------------------------------------------------------------------
 		//
@@ -313,6 +349,11 @@ namespace entity
 		entity_iterator<EntityListIterator> end(EntityListIterator entity_iter)
 		{
 			return entity_iterator<EntityListIterator>(this, entity_iter);
+		}
+
+		range view()
+		{
+			return range(this);
 		}
 
 		std::size_t size()
