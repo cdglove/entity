@@ -160,7 +160,7 @@ namespace entity
 
 			type& get(entity owner)
 			{
-				return *parent_->get_component(owner);
+				return parent_->components_[owner.index()];
 			}
 
 		private:
