@@ -10,7 +10,6 @@
 
 #include "entity/config.h"
 #include "entity/entity_pool.h"
-#include "entity/entity_component_iterator.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/assert.hpp>
@@ -141,37 +140,46 @@ namespace entity
 
 		// --------------------------------------------------------------------
 		//
-		struct range
+		struct window
 		{
 			typedef type type;
 
-			range()
+			window()
 			{}
 
-			bool is_valid(entity e) const
+			bool is_entity(entity) const
 			{
 				return true;
 			}
 
-			bool advance(entity target)
+			bool increment(entity)
 			{
+				++data_;
 				return true;
 			}
 
-			type& get(entity owner)
+			bool advance(entity e)
 			{
-				return parent_->components_[owner.index()];
+				data_ = data_begin_ + e.index();
+				return true;
+			}
+
+			type& get() const
+			{
+				return *data_;
 			}
 
 		private:
 
 			friend class saturated_component_pool;
 
-			range(saturated_component_pool* parent)
-				: parent_(parent)
+			window(saturated_component_pool* parent)
+				: data_begin_(&parent->components_[0])
+				, data_(&parent->components_[0])
 			{}
 
-			saturated_component_pool* parent_;
+			type* data_begin_;
+			type* data_;
 		};
 
 		// --------------------------------------------------------------------
@@ -267,21 +275,9 @@ namespace entity
 			return iterator(this, components_.size());
 		}
 
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> begin(EntityListIterator i)
+		window view()
 		{
-			return entity_iterator<EntityListIterator>(this, i);
-		}
-
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> end(EntityListIterator i)
-		{
-			return entity_iterator<EntityListIterator>(this, i);
-		}
-
-		range view()
-		{
-			return range(this);
+			return window(this);
 		}
 
 		std::size_t size()

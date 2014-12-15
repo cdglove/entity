@@ -10,7 +10,6 @@
 
 #include "entity/config.h"
 #include "entity/entity_pool.h"
-#include "entity/entity_component_iterator.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/assert.hpp>
@@ -103,90 +102,52 @@ namespace entity
 
 		// --------------------------------------------------------------------
 		//
-		template<typename EntityListIterator>
-		struct entity_iterator
-			: boost::iterator_facade<
-			  entity_iterator<EntityListIterator>
-			, T&
-			, boost::forward_traversal_tag
-			>
-		{
-			entity_iterator()
-			{}
-
-			entity get_entity() const
-			{
-				return *entity_iter_;
-			}
-
-			bool is_valid() const
-			{
-				return !parent_->is_available(get_entity().index());
-			}
-
-		private:
-
-			friend class boost::iterator_core_access;
-			friend class dense_component_pool;
-
-			entity_iterator(dense_component_pool* parent, EntityListIterator entity_iter)
-				: parent_(parent)
-				, entity_iter_(std::move(entity_iter))
-			{}
-
-			void increment()
-			{
-				++entity_iter_;
-			}
-
-			bool equal(entity_iterator const& other) const
-			{
-				return entity_iter_ == other.entity_iter_;
-			}
-
-			T& dereference() const
-			{
-				return *parent_->get_component(get_entity().index());
-			}
-
-			dense_component_pool* parent_;
-			EntityListIterator entity_iter_;
-		};
-
-		// --------------------------------------------------------------------
-		//
-		struct range
+		struct window
 		{
 			typedef type type;
 
-			range()
+			window()
 			{}
 
-			bool is_valid(entity e) const
+			bool is_entity(entity) const
 			{
-				return !parent_->is_available(e.index());
+				return !(*available_);
 			}
 
-			bool advance(entity target)
+			bool increment(entity)
 			{
-				return is_valid(target);
+				++data_;
+				++available_;
+				return !(*available_);
 			}
 
-			type& get(entity owner)
+			bool advance(entity e)
 			{
-				return *parent_->get_component(owner.index());
+				data_ = data_begin_ + e.index();
+				available_ = available_begin_ + e.index();
+				return !(*available_);
+			}
+
+			type& get() const
+			{
+				return *reinterpret_cast<type*>(data_);
 			}
 
 		private:
 
 			friend class dense_component_pool;
 
-			range(dense_component_pool* parent)
-				: parent_(parent)
+			window(dense_component_pool* parent)
+				: available_begin_(&parent->available_[0])
+				, available_(&parent->available_[0])
+				, data_begin_(&parent->components_[0])
+				, data_(&parent->components_[0])
 			{}
 
-			dense_component_pool* parent_;
-
+			char const* available_begin_;
+			char const* available_;
+			typename dense_component_pool<type>::element_t* data_begin_;
+			typename dense_component_pool<type>::element_t* data_;
 		};
 			
 		// --------------------------------------------------------------------
@@ -338,22 +299,10 @@ namespace entity
 		{
 			return iterator(this, available_.size());
 		}
-		
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> begin(EntityListIterator entity_iter)
-		{
-			return entity_iterator<EntityListIterator>(this, entity_iter);
-		}
 
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> end(EntityListIterator entity_iter)
+		window view()
 		{
-			return entity_iterator<EntityListIterator>(this, entity_iter);
-		}
-
-		range view()
-		{
-			return range(this);
+			return window(this);
 		}
 
 		std::size_t size()

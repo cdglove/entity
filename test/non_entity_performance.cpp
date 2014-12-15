@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE( non_entity )
 
 	// Simulate over some seconds using a fixed step.
 	{
-		daily::timer_node& simulation_node = daily::timer_map::get_default().create_node("Simulation");
-		daily::auto_timer_scope simulation_scope(simulation_node);
+		daily::cpu_timer& simulation_node = daily::timer_map::get_default().create_node("Simulation");
+		daily::cpu_timer_scope simulation_scope(simulation_node);
 
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)

@@ -1,3 +1,4 @@
+#define DAILY_INSTRUMENTATION_USE_BOOST_TIMER 1
 #define DAILY_ENABLE_INSTRUMENTATION 0
 
 #include "entity/dense_component_pool.h"
@@ -25,8 +26,8 @@ static       bool kUseCreationQueue = false;
 static const float kTestDensity = TEST_DENSITY;
 
 #define ALWAYS_TIME_NODE(name) \
-	daily::timer_node& name ## _timer = daily::timer_map::get_default().create_node(#name); \
-	daily::auto_timer_scope name ## _auto_timer_scope(name ## _timer)
+	daily::cpu_timer& name ## _timer = daily::timer_map::get_default().create_node(#name); \
+	daily::cpu_timer_scope name ## _auto_timer_scope(name ## _timer)
 
 #define BOOST_TEST_MODULE Performance
 #include <boost/test/unit_test.hpp>

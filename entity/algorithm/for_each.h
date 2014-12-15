@@ -9,11 +9,10 @@
 #define _ENTITY_ALGORITHM_FOREACH_H_INCLUDED_
 
 #include "entity/config.h"
-#include "entity/entity_component_iterator.h"
-#include "entity/functional/is_valid_component.h"
-#include "entity/functional/dereference.h"
+#include "entity/functional/window.h"
 #include <boost/fusion/functional/invocation/invoke.hpp>
 #include <boost/fusion/algorithm/query/all.hpp>
+#include <boost/fusion/algorithm/transformation/transform.hpp>
 #include <boost/fusion/include/as_vector.hpp>
 #include <algorithm>
 
@@ -23,47 +22,44 @@ namespace entity
 {
 	// ------------------------------------------------------------------------
 	//
-	namespace detail
+	template<typename ComponentPoolTuple, typename Fn>
+	void for_each(entity_pool const& entities, ComponentPoolTuple&& p, Fn f)
 	{
-		struct get_view
+		auto i = begin(entities); 
+		auto e = end(entities);
+
+		auto c = boost::fusion::as_vector(
+			boost::fusion::transform(
+				std::forward<ComponentPoolTuple>(p),
+				functional::get_window()
+			)
+		);
+
+		if(i != e)
 		{
-			template<typename ComponentPool>
-			typename ComponentPool::range operator()(ComponentPool& p) const
+			if(boost::fusion::all(c, functional::is_entity(*i)))
 			{
-				return p.view();
-			}
-		};
-
-		struct get_component
-		{
-			get_component(entity owner)
-				: owner_(owner)
-			{}
-
-			template<typename ComponentPoolView>
-			typename ComponentPoolView::type& operator()(ComponentPoolView view) const
-			{
-				return view.get(owner_);
-			}
-
-			entity owner_;
-		};
-
-		struct advance_view
-		{
-			advance_view(entity target)
-				: target_(target)
-			{}
-
-			template<typename ComponentPoolView>
-			bool operator()(bool result, ComponentPoolView& view) const
-			{
-				return view.advance(target_) && result;
+				boost::fusion::invoke(
+					f, 
+					boost::fusion::transform(c, functional::get_component())
+				);
 			}
 
-			entity target_;
-		};
-	};
+			++i;
+		}
+
+		for(; i != e; ++i)
+		{
+			if(boost::fusion::fold(c, true, functional::increment_window(*i)))
+			{
+				DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
+				boost::fusion::invoke(
+					f, 
+					boost::fusion::transform(c, functional::get_component())
+				);
+			}	
+		}
+	}
 
 	// ------------------------------------------------------------------------
 	//
@@ -75,22 +71,32 @@ namespace entity
 
 		auto c = boost::fusion::as_vector(
 			boost::fusion::transform(
-				std::forward<ComponentPoolTuple>(p),
-				detail::get_view()
+			std::forward<ComponentPoolTuple>(p),
+			functional::get_window()
 			)
 		);
 
-		for(; i != e; ++i)
+		if(i != e)
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
-			entity ent = *i;
-			bool all = true;
-			boost::fusion::fold(c, all, detail::advance_view(ent));
-			if(all)
+			if(boost::fusion::all(c, functional::is_entity(*i)))
 			{
 				boost::fusion::invoke(
 					f, 
-					boost::fusion::transform(c, detail::get_component(ent))
+					boost::fusion::transform(c, functional::get_component())
+				);
+			}
+
+			++i;
+		}
+
+		for(; i != e; ++i)
+		{
+			if(boost::fusion::fold(c, true, functional::advance_window(*i)))
+			{
+				DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
+				boost::fusion::invoke(
+					f, 
+					boost::fusion::transform(c, functional::get_component())
 				);
 			}	
 		}

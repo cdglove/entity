@@ -3,13 +3,19 @@
 #include "entity/sparse_component_pool.h"
 #include "entity/entity_pool.h"
 #include "entity/entity.h"
+#include "entity/component/zip.h"
 #include "entity/component/tie.h"
+#include "entity/entity_iterator.h"
 #include <algorithm>
 #include <boost/fusion/include/at_c.hpp>
 #include <random>
 
+
 #define BOOST_TEST_MODULE Iteration
 #include <boost/test/unit_test.hpp>
+
+//#undef BOOST_REQUIRE_EQUAL
+//#define BOOST_REQUIRE_EQUAL(a, b) assert(a == b)
 
 static int const kNumEntities = 5;
 
@@ -34,7 +40,7 @@ void IteratePool()
 
 // ----------------------------------------------------------------------------
 //
-template<typename EntityList>
+template<typename EntityList>	
 void IterateTied(entity::entity_pool& pool, EntityList& entities)
 {
 	typedef entity::sparse_component_pool<int> position_pool_type;
@@ -42,19 +48,19 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 	typedef entity::saturated_component_pool<int> accel_pool_type;
 
 	position_pool_type position_pool(pool);
-	velocity_pool_type velocity_pool(pool);
+	velocity_pool_type velocity_pool(pool);	
 	accel_pool_type accel_pool(pool);
 
-	auto b = entity::begin(entities, entity::tie(position_pool, velocity_pool, accel_pool));
-	auto e = entity::end(entities, entity::tie(position_pool, velocity_pool, accel_pool));
+	auto b = entity::begin(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
+	auto e = entity::end(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
 
 	while(b != e)
 	{
-		int& p = *boost::fusion::at_c<0>(*b);
+		int& p = boost::fusion::at_c<0>(*b).get();
 		p = 1;
-		int& v = *boost::fusion::at_c<1>(*b);
+		int& v = boost::fusion::at_c<1>(*b).get();
 		v = 2;
-		int& a = *boost::fusion::at_c<2>(*b);
+		int& a = boost::fusion::at_c<2>(*b).get();
 		a = 3;
 		++b;
 	}
@@ -65,7 +71,6 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&position_pool](entity::entity e)
 		{
 			int i = *position_pool.get(e);
-			//while(i != 1) {}
 			BOOST_REQUIRE_EQUAL(i, 1);
 		}
 	);
@@ -76,7 +81,6 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&velocity_pool](entity::entity e)
 		{
 			int i = *velocity_pool.get(e);
-			//while(i != 2) {}
 			BOOST_REQUIRE_EQUAL(i, 2);
 		}
 	);
@@ -87,7 +91,6 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&accel_pool](entity::entity e)
 		{
 			int i = *accel_pool.get(e);
-			//while(i != 3) {}
 			BOOST_REQUIRE_EQUAL(i, 3);
 		}
 	);

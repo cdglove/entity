@@ -10,7 +10,6 @@
 
 #include "entity/config.h"
 #include "entity/entity_pool.h"
-#include "entity/entity_component_iterator.h"
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/container/flat_map.hpp>
 #include <cstddef>
@@ -80,79 +79,19 @@ namespace entity
 
 		// --------------------------------------------------------------------
 		//
-		template<typename EntityListIterator>
-		struct entity_iterator
-			: boost::iterator_facade<
-			  entity_iterator<EntityListIterator>
-			, T&
-			, boost::forward_traversal_tag
-			>
-		{
-			entity_iterator()
-			{}
-
-			entity get_entity() const
-			{
-				return iterator_->first;
-			}
-
-			bool is_valid() const
-			{
-				return iterator_ != end_ && *entity_iter_ == iterator_->first;
-			}
-
-		private:
-
-			friend class boost::iterator_core_access;
-			friend class sparse_component_pool;
-
-			typedef typename boost::container::flat_map<
-				entity, T
-			>::iterator parent_iterator;
-
-			explicit entity_iterator(EntityListIterator entity_iter, parent_iterator start, parent_iterator end)
-				: entity_iter_(std::move(entity_iter))
-				, iterator_(std::move(start))
-				, end_(std::move(end))
-			{}
-
-			void increment()
-			{
-				++entity_iter_;
-				while(iterator_ != end_ && iterator_->first < *entity_iter_)
-					++iterator_;
-			}
-
-			bool equal(entity_iterator const& other) const
-			{
-				return iterator_ == other.iterator_;
-			}
-
-			T& dereference() const
-			{
-				return iterator_->second;
-			}
-
-			parent_iterator iterator_;
-			parent_iterator end_;
-			EntityListIterator entity_iter_;
-		};
-
-		// --------------------------------------------------------------------
-		//
-		struct range
+		struct window
 		{
 			typedef type type;
 
-			range()
+			window()
 			{}
 
-			bool is_valid(entity e) const
+			bool is_entity(entity e) const
 			{
 				return iterator_ != end_ && e == iterator_->first;
 			}
 
-			bool advance(entity target)
+			bool increment(entity target)
 			{
 				while(iterator_ != end_ && iterator_->first < target)
 					++iterator_;
@@ -160,7 +99,12 @@ namespace entity
 				return iterator_ != end_ && iterator_->first == target;
 			}
 
-			type& get(entity owner)
+			bool advance(entity target)
+			{
+				return increment(target);
+			}
+
+			type& get() const
 			{
 				return iterator_->second;
 			}
@@ -173,7 +117,7 @@ namespace entity
 				entity, T
 			>::iterator parent_iterator;
 
-			range(parent_iterator start, parent_iterator end)
+			window(parent_iterator start, parent_iterator end)
 				: iterator_(std::move(start))
 				, end_(std::move(end))
 			{}
@@ -308,21 +252,9 @@ namespace entity
 			return iterator(components_.end());
 		}
 
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> begin(EntityListIterator entity_iter)
+		window view()
 		{
-			return entity_iterator<EntityListIterator>(entity_iter, components_.begin(), components_.end());
-		}
-
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> end(EntityListIterator entity_iter)
-		{
-			return entity_iterator<EntityListIterator>(entity_iter, components_.end(), components_.end());
-		}
-
-		range view()
-		{
-			return range(components_.begin(), components_.end());
+			return window(components_.begin(), components_.end());
 		}
 
 		std::size_t size()
