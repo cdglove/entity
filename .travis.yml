@@ -61,4 +61,4 @@ install:
   - make VERBOSE=1
 script:
   # disable unit tests on clang because they won't run without a libc++ compiled boost.
-  - if [ "$CXX" == "g++" ]; then ctest -VV; fi
+  - ctest -VV
