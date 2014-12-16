@@ -27,6 +27,7 @@ before_install:
   - sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo apt-get update -qq
   - sudo apt-get install cmake
+  - sudo apt-get -t sid install libc6-amd64 libc6-dev libc6-dbg
   # Used foer determining the boost verion on the machine
   #- sudo apt-get install aptitude
   #- aptitude search libboost
