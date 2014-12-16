@@ -109,7 +109,7 @@ namespace entity
 		//
 		struct window
 		{
-			typedef type type;
+			typedef type value_type;
 
 			window()
 			{}
@@ -133,9 +133,9 @@ namespace entity
 				return !(*available_);
 			}
 
-			type& get() const
+			value_type& get() const
 			{
-				return *reinterpret_cast<type*>(data_);
+				return *reinterpret_cast<value_type*>(data_);
 			}
 
 		private:

@@ -81,7 +81,7 @@ namespace entity
 		//
 		struct window
 		{
-			typedef type type;
+			typedef type value_type;
 
 			window()
 			{}
@@ -104,7 +104,7 @@ namespace entity
 				return increment(target);
 			}
 
-			type& get() const
+			value_type& get() const
 			{
 				return iterator_->second;
 			}
@@ -114,7 +114,7 @@ namespace entity
 			friend class sparse_component_pool;
 
 			typedef typename boost::container::flat_map<
-				entity, T
+				entity, value_type
 			>::iterator parent_iterator;
 
 			window(parent_iterator start, parent_iterator end)
