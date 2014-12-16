@@ -142,7 +142,7 @@ namespace entity
 		//
 		struct window
 		{
-			typedef type type;
+			typedef type value_type;
 
 			window()
 			{}
@@ -164,7 +164,7 @@ namespace entity
 				return true;
 			}
 
-			type& get() const
+			value_type& get() const
 			{
 				return *data_;
 			}
@@ -178,8 +178,8 @@ namespace entity
 				, data_(&parent->components_[0])
 			{}
 
-			type* data_begin_;
-			type* data_;
+			value_type* data_begin_;
+			value_type* data_;
 		};
 
 		// --------------------------------------------------------------------

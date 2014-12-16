@@ -29,7 +29,7 @@ namespace entity { namespace functional
 	struct get_component
 	{
 		template<typename ComponentPoolWindow>
-		typename ComponentPoolWindow::type& operator()(ComponentPoolWindow view) const
+		typename ComponentPoolWindow::value_type& operator()(ComponentPoolWindow view) const
 		{
 			return view.get();
 		}
