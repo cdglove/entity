@@ -1,11 +1,11 @@
-//! \file entity/component_pool_creation_queue.h
+//! \file entity/component_creation_queue.h
 //
 // Represents a way to queue component creation in order to 
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
 // 
 #pragma once
-#ifndef _ENTITY_COMPONENTPOOLCREATIONQUEUE_H_INCLUDED_
-#define _ENTITY_COMPONENTPOOLCREATIONQUEUE_H_INCLUDED_
+#ifndef _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
+#define _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
 
 #include "entity/config.h"
 #include <vector>
@@ -16,17 +16,17 @@
 namespace entity
 {
 	template<typename ComponentPool>
-	class component_pool_creation_queue
+	class component_creation_queue
 	{
 	public:
 
 		typedef typename ComponentPool::type type;
 
-		component_pool_creation_queue(ComponentPool& p)
+		component_creation_queue(ComponentPool& p)
 			: pool_(p)
 		{}
 
-		~component_pool_creation_queue()
+		~component_creation_queue()
 		{
 			flush();
 		}
@@ -59,8 +59,8 @@ namespace entity
 	private: 
 
 		// No copying.
-		component_pool_creation_queue(component_pool_creation_queue const&);
-		component_pool_creation_queue operator=(component_pool_creation_queue);
+		component_creation_queue(component_creation_queue const&);
+		component_creation_queue operator=(component_creation_queue);
 
 		std::vector<std::pair<weak_entity, type>> created_;
 		ComponentPool& pool_;

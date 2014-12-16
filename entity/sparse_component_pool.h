@@ -20,10 +20,10 @@
 namespace entity 
 {
 	template<typename ComponentPool>
-	class component_pool_creation_queue;
+	class component_creation_queue;
 
 	template<typename ComponentPool>
-	class component_pool_destruction_queue;
+	class component_destruction_queue;
 
 	template<typename T>
 	class sparse_component_pool
@@ -264,8 +264,8 @@ namespace entity
 
 	private:
 
-		friend class component_pool_creation_queue<sparse_component_pool<type>>;
-		friend class component_pool_destruction_queue<sparse_component_pool<type>>;
+		friend class component_creation_queue<sparse_component_pool<type>>;
+		friend class component_destruction_queue<sparse_component_pool<type>>;
 
 		struct slot_list
 		{

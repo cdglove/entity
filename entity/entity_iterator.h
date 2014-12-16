@@ -139,8 +139,7 @@ namespace entity
 		return packed_entity_iterator<
 			decltype(entities.begin()),
 			ZippedComponentWindows
-		>(entities.begin(), entities.end(), windows)
-		;
+		>(entities.begin(), entities.end(), windows);
 	}
 
 	template<typename ZippedComponentWindows>
@@ -151,8 +150,7 @@ namespace entity
 		return packed_entity_iterator<
 			decltype(entities.begin()),
 			ZippedComponentWindows
-		>(entities.end(), entities.end(), windows)
-		;
+		>(entities.end(), entities.end(), windows);
 	}
 
 }
