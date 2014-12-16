@@ -33,6 +33,11 @@ namespace entity
 	{
 	private:
 
+		struct element_t
+		{
+			char mem_[sizeof(T)];
+		};
+
 		struct iterator_impl
 			: boost::iterator_facade<
 			  iterator_impl
@@ -146,8 +151,8 @@ namespace entity
 
 			char const* available_begin_;
 			char const* available_;
-			typename dense_component_pool<type>::element_t* data_begin_;
-			typename dense_component_pool<type>::element_t* data_;
+			typename dense_component_pool::element_t* data_begin_;
+			typename dense_component_pool::element_t* data_;
 		};
 			
 		// --------------------------------------------------------------------
@@ -415,11 +420,6 @@ namespace entity
 				destroy(b);
 			}
 		}
-
-		struct element_t
-		{
-			char mem_[sizeof(T)];
-		};
 
 		std::vector<element_t>			components_;
 		std::vector<char>				available_;
