@@ -74,7 +74,12 @@ namespace entity
 			: entity_iter_(begin)
 			, end_(end)
 			, windows_(windows)
-		{}
+		{
+			if(entity_iter_ != end_)
+			{
+				windows_.advance(*entity_iter_);
+			}
+		}
 
 	private:
 
