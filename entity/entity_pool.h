@@ -7,6 +7,7 @@
 #define _ENTITY_ENTITYPOOL_H_INCLUDED_
 
 #include "entity/entity.h"
+#include "entity/traits/iterator_traits.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/assert.hpp>
@@ -225,6 +226,14 @@ namespace entity
 	entity_pool::iterator end(entity_pool const& p)
 	{
 		return p.end();
+	}
+
+	// Entitiy pools are garanteed to be inremental
+	namespace iterator_traits
+	{
+		template<>
+		struct entity_list_is_incremental<entity_pool> : is_incremental_tag
+		{};
 	}
 
 }

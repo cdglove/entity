@@ -51,8 +51,8 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 	velocity_pool_type velocity_pool(pool);	
 	accel_pool_type accel_pool(pool);
 
-	auto b = entity::begin(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
-	auto e = entity::end(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
+	auto b = entity::begin_entities(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
+	auto e = entity::end_entities(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
 
 	while(b != e)
 	{
