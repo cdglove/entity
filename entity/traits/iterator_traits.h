@@ -18,8 +18,8 @@ namespace entity
 		{};
 	}
 
-	iterator_traits::is_incremental_tag const incremental;
-	iterator_traits::is_skipping_tag const skipping;
+	iterator_traits::is_incremental_tag const incremental{};
+	iterator_traits::is_skipping_tag const skipping{};
 }
 
 #endif // _ENTITY_TRAITS_ITERATORTRAITS_H_INCLUDED_
