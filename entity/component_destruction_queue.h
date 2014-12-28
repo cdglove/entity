@@ -1,11 +1,11 @@
-//! \file entity/component_pool_destruction_queue.h
+//! \file entity/component_destruction_queue.h
 //
 // Represents a way to queue component destruction in order to 
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
 // 
 #pragma once
-#ifndef _ENTITY_COMPONENTPOOLDESTRUCTIONQUEUE_H_INCLUDED_
-#define _ENTITY_COMPONENTPOOLDESTRUCTIONQUEUE_H_INCLUDED_
+#ifndef _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
+#define _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
 
 #include "entity/config.h"
 #include <vector>
@@ -16,17 +16,17 @@
 namespace entity
 {
 	template<typename ComponentPool>
-	class component_pool_destruction_queue
+	class component_destruction_queue
 	{
 	public:
 
 		typedef typename ComponentPool::type type;
 
-		component_pool_destruction_queue(ComponentPool& p)
+		component_destruction_queue(ComponentPool& p)
 			: pool_(p)
 		{}
 
-		~component_pool_destruction_queue()
+		~component_destruction_queue()
 		{
 			flush();
 		}
@@ -51,12 +51,12 @@ namespace entity
 	private: 
 
 		// No copying.
-		component_pool_destruction_queue(component_pool_destruction_queue const&);
-		component_pool_destruction_queue operator=(component_pool_destruction_queue);
+		component_destruction_queue(component_destruction_queue const&);
+		component_destruction_queue operator=(component_destruction_queue);
 
 		std::vector<weak_entity> destroyed_;
 		ComponentPool& pool_;
 	};
 }
 
-#endif // _ENTITY_COMPONENTPOOLDESTRUCTIONQUEUE_H_INCLUDED_
+#endif // _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_

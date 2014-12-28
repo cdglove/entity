@@ -10,7 +10,6 @@
 
 #include "entity/config.h"
 #include "entity/entity_pool.h"
-#include "entity/entity_component_iterator.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/assert.hpp>
@@ -24,15 +23,20 @@
 namespace entity 
 {
 	template<typename ComponentPool>
-	class component_pool_creation_queue;
+	class component_creation_queue;
 
 	template<typename ComponentPool>
-	class component_pool_destruction_queue;
+	class component_destruction_queue;
 
 	template<typename T>
 	class dense_component_pool
 	{
 	private:
+
+		struct element_t
+		{
+			char mem_[sizeof(T)];
+		};
 
 		struct iterator_impl
 			: boost::iterator_facade<
@@ -61,14 +65,25 @@ namespace entity
 				, entity_index_(start)
 			{
 				// Fast forward to the first available.
-				auto available_iterator = parent_->available_.begin() + entity_index_;
+				auto available_iterator = parent_->available_.begin() + start;
 				while(entity_index_ < parent_->available_.size() && *available_iterator)
+				{
+					++available_iterator;
 					++entity_index_;
+				}
 			}
 
 			void increment()
 			{
-				++entity_index_;
+				auto available_iterator = parent_->available_.begin() + entity_index_;
+				auto end_iterator = parent_->available_.end();
+				if(available_iterator != end_iterator)
+					++entity_index_;
+				while(available_iterator != end_iterator && *available_iterator)
+				{
+					++available_iterator;
+					++entity_index_;
+				}
 			}
 
 			bool equal(iterator_impl const& other) const
@@ -78,14 +93,11 @@ namespace entity
 
 			T& dereference() const
 			{
-				auto available_iterator = parent_->available_.begin() + entity_index_;
-				while(*available_iterator)
-					++entity_index_;
 				return *parent_->get_component(get_entity().index());
 			}
 
 			dense_component_pool* parent_;
-			mutable entity_index_t entity_index_;
+			entity_index_t entity_index_;
 		};
 
 	public:
@@ -95,54 +107,52 @@ namespace entity
 
 		// --------------------------------------------------------------------
 		//
-		template<typename EntityListIterator>
-		struct entity_iterator
-			: boost::iterator_facade<
-			  entity_iterator<EntityListIterator>
-			, T&
-			, boost::forward_traversal_tag
-			>
+		struct window
 		{
-			entity_iterator()
+			typedef type value_type;
+
+			window()
 			{}
 
-			entity get_entity() const
+			bool is_entity(entity) const
 			{
-				return *entity_iter_;
+				return !(*available_);
 			}
 
-			bool is_valid() const
+			bool increment(entity)
 			{
-				return !parent_->is_available(get_entity().index());
+				++data_;
+				++available_;
+				return !(*available_);
+			}
+
+			bool advance(entity e)
+			{
+				data_ = data_begin_ + e.index();
+				available_ = available_begin_ + e.index();
+				return !(*available_);
+			}
+
+			value_type& get() const
+			{
+				return *reinterpret_cast<value_type*>(data_);
 			}
 
 		private:
 
-			friend class boost::iterator_core_access;
 			friend class dense_component_pool;
 
-			entity_iterator(dense_component_pool* parent, EntityListIterator entity_iter)
-				: parent_(parent)
-				, entity_iter_(std::move(entity_iter))
+			window(dense_component_pool* parent)
+				: available_begin_(&parent->available_[0])
+				, available_(&parent->available_[0])
+				, data_begin_(&parent->components_[0])
+				, data_(&parent->components_[0])
 			{}
 
-			void increment()
-			{
-				++entity_iter_;
-			}
-
-			bool equal(entity_iterator const& other) const
-			{
-				return entity_iter_ == other.entity_iter_;
-			}
-
-			T& dereference() const
-			{
-				return *parent_->get_component(get_entity().index());
-			}
-
-			dense_component_pool* parent_;
-			EntityListIterator entity_iter_;
+			char const* available_begin_;
+			char const* available_;
+			typename dense_component_pool::element_t* data_begin_;
+			typename dense_component_pool::element_t* data_;
 		};
 			
 		// --------------------------------------------------------------------
@@ -294,17 +304,10 @@ namespace entity
 		{
 			return iterator(this, available_.size());
 		}
-		
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> begin(EntityListIterator entity_iter)
-		{
-			return entity_iterator<EntityListIterator>(this, entity_iter);
-		}
 
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> end(EntityListIterator entity_iter)
+		window view()
 		{
-			return entity_iterator<EntityListIterator>(this, entity_iter);
+			return window(this);
 		}
 
 		std::size_t size()
@@ -314,8 +317,8 @@ namespace entity
 
 	private:
 
-		friend class component_pool_creation_queue<dense_component_pool<type>>;
-		friend class component_pool_destruction_queue<dense_component_pool<type>>;
+		friend class component_creation_queue<dense_component_pool<type>>;
+		friend class component_destruction_queue<dense_component_pool<type>>;
 
 		struct slot_list
 		{
@@ -417,11 +420,6 @@ namespace entity
 				destroy(b);
 			}
 		}
-
-		struct element_t
-		{
-			char mem_[sizeof(T)];
-		};
 
 		std::vector<element_t>			components_;
 		std::vector<char>				available_;

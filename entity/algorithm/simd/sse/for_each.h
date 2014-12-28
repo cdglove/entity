@@ -14,8 +14,6 @@
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/algorithm/transformation/zip.hpp>
 #include <daily/timer/instrument.h>
-#include "entity/entity_component_iterator.h"
-#include "entity/functional/dereference.h"
 #include "entity/algorithm/simd/detail/invoke.h"
 
 // ----------------------------------------------------------------------------
@@ -57,53 +55,53 @@ namespace entity { namespace simd { namespace sse
 	template<typename EntityList, typename ComponentPoolTuple, typename Fn>
 	void for_each(EntityList const& entities, ComponentPoolTuple&& p, Fn f)
 	{
-		DAILY_AUTO_INSTRUMENT_NODE(for_each);
-		typedef typename boost::mpl::transform<
-			ComponentPoolTuple,
-			simd::detail::make_type<boost::mpl::_1, __m128>
-		>::type m128_holder;
+		//DAILY_AUTO_INSTRUMENT_NODE(for_each);
+		//typedef typename boost::mpl::transform<
+		//	ComponentPoolTuple,
+		//	simd::detail::make_type<boost::mpl::_1, __m128>
+		//>::type m128_holder;
 
-		typedef typename boost::mpl::transform<
-			m128_holder,
-			boost::add_reference<boost::mpl::_1>
-		>::type m128_refs;
+		//typedef typename boost::mpl::transform<
+		//	m128_holder,
+		//	boost::add_reference<boost::mpl::_1>
+		//>::type m128_refs;
 
-		m128_holder data;
-		m128_refs data_refs(data);
+		//m128_holder data;
+		//m128_refs data_refs(data);
 
-		auto i = begin(entities, std::forward<ComponentPoolTuple>(p));
-		auto e = end(entities, std::forward<ComponentPoolTuple>(p));
+		//auto i = begin(entities, std::forward<ComponentPoolTuple>(p));
+		//auto e = end(entities, std::forward<ComponentPoolTuple>(p));
 
-		while(i != e)
-		{
-			boost::fusion::for_each(
-				boost::fusion::zip(
-					boost::fusion::transform(*i, detail::iterator_to_ptr()),
-					data_refs
-				),
-				detail::loadu_ps()
-			);
+		//while(i != e)
+		//{
+		//	boost::fusion::for_each(
+		//		boost::fusion::zip(
+		//			boost::fusion::transform(*i, detail::iterator_to_ptr()),
+		//			data_refs
+		//		),
+		//		detail::loadu_ps()
+		//	);
 
-			simd::detail::invoke(f, data_refs);
+		//	simd::detail::invoke(f, data_refs);
 
-			boost::fusion::for_each(
-				boost::fusion::zip(
-					boost::fusion::transform(*i, detail::iterator_to_ptr()),
-					data_refs
-				),
-				detail::storeu_ps()
-			);
+		//	boost::fusion::for_each(
+		//		boost::fusion::zip(
+		//			boost::fusion::transform(*i, detail::iterator_to_ptr()),
+		//			data_refs
+		//		),
+		//		detail::storeu_ps()
+		//	);
 
-			for(int j = 0; j < 4; ++j)
-			{
-				DAILY_AUTO_INSTRUMENT_NODE(for_each_loop);
-				++i;
-				if(i == e)
-				{
-					break;
-				}
-			}
-		}
+		//	for(int j = 0; j < 4; ++j)
+		//	{
+		//		DAILY_AUTO_INSTRUMENT_NODE(for_each_loop);
+		//		++i;
+		//		if(i == e)
+		//		{
+		//			break;
+		//		}
+		//	}
+		//}
 	}
 }}} // namespace entity { namespace simd { namespace sse { 
 

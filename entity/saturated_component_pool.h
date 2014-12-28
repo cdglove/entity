@@ -10,7 +10,6 @@
 
 #include "entity/config.h"
 #include "entity/entity_pool.h"
-#include "entity/entity_component_iterator.h"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/assert.hpp>
@@ -24,10 +23,10 @@
 namespace entity 
 {
 	template<typename ComponentPool>
-	class component_pool_creation_queue;
+	class component_creation_queue;
 
 	template<typename ComponentPool>
-	class component_pool_destruction_queue;
+	class component_destruction_queue;
 
 	template<typename T>
 	class saturated_component_pool
@@ -140,6 +139,50 @@ namespace entity
 		};
 
 		// --------------------------------------------------------------------
+		//
+		struct window
+		{
+			typedef type value_type;
+
+			window()
+			{}
+
+			bool is_entity(entity) const
+			{
+				return true;
+			}
+
+			bool increment(entity)
+			{
+				++data_;
+				return true;
+			}
+
+			bool advance(entity e)
+			{
+				data_ = data_begin_ + e.index();
+				return true;
+			}
+
+			value_type& get() const
+			{
+				return *data_;
+			}
+
+		private:
+
+			friend class saturated_component_pool;
+
+			window(saturated_component_pool* parent)
+				: data_begin_(&parent->components_[0])
+				, data_(&parent->components_[0])
+			{}
+
+			value_type* data_begin_;
+			value_type* data_;
+		};
+
+		// --------------------------------------------------------------------
 		//		
 		saturated_component_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
@@ -232,16 +275,9 @@ namespace entity
 			return iterator(this, components_.size());
 		}
 
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> begin(EntityListIterator i)
+		window view()
 		{
-			return entity_iterator<EntityListIterator>(this, i);
-		}
-
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> end(EntityListIterator i)
-		{
-			return entity_iterator<EntityListIterator>(this, i);
+			return window(this);
 		}
 
 		std::size_t size()
@@ -251,8 +287,8 @@ namespace entity
 
 	private:
 
-		friend class component_pool_creation_queue<saturated_component_pool<type>>;
-		friend class component_pool_destruction_queue<saturated_component_pool<type>>;
+		friend class component_creation_queue<saturated_component_pool<type>>;
+		friend class component_destruction_queue<saturated_component_pool<type>>;
 
 		struct slot_list
 		{

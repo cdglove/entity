@@ -10,7 +10,6 @@
 
 #include "entity/config.h"
 #include "entity/entity_pool.h"
-#include "entity/entity_component_iterator.h"
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/container/flat_map.hpp>
 #include <cstddef>
@@ -21,10 +20,10 @@
 namespace entity 
 {
 	template<typename ComponentPool>
-	class component_pool_creation_queue;
+	class component_creation_queue;
 
 	template<typename ComponentPool>
-	class component_pool_destruction_queue;
+	class component_destruction_queue;
 
 	template<typename T>
 	class sparse_component_pool
@@ -80,65 +79,51 @@ namespace entity
 
 		// --------------------------------------------------------------------
 		//
-		template<typename EntityListIterator>
-		struct entity_iterator
-			: boost::iterator_facade<
-			  entity_iterator<EntityListIterator>
-			, T&
-			, boost::forward_traversal_tag
-			>
+		struct window
 		{
-			entity_iterator()
+			typedef type value_type;
+
+			window()
 			{}
 
-			entity get_entity() const
+			bool is_entity(entity e) const
 			{
-				return iterator_->first;
+				return iterator_ != end_ && e == iterator_->first;
 			}
 
-			bool is_valid() const
+			bool increment(entity target)
 			{
-				return iterator_ != end_ && *entity_iter_ == iterator_->first;
-			}
-
-		private:
-
-			friend class boost::iterator_core_access;
-			friend class sparse_component_pool;
-
-			typedef typename boost::container::flat_map<
-				entity, T
-			>::iterator parent_iterator;
-
-			explicit entity_iterator(EntityListIterator entity_iter, parent_iterator start, parent_iterator end)
-				: entity_iter_(std::move(entity_iter))
-				, iterator_(std::move(start))
-				, end_(std::move(end))
-			{}
-
-			void increment()
-			{
-				DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__entity_iterator__is_valid);
-				++entity_iter_;
-				
-				entity target = *entity_iter_;
 				while(iterator_ != end_ && iterator_->first < target)
 					++iterator_;
+
+				return iterator_ != end_ && iterator_->first == target;
 			}
 
-			bool equal(entity_iterator const& other) const
+			bool advance(entity target)
 			{
-				return iterator_ == other.iterator_;
+				return increment(target);
 			}
 
-			T& dereference() const
+			value_type& get() const
 			{
 				return iterator_->second;
 			}
 
-			mutable parent_iterator iterator_;
+		private:
+
+			friend class sparse_component_pool;
+
+			typedef typename boost::container::flat_map<
+				entity, value_type
+			>::iterator parent_iterator;
+
+			window(parent_iterator start, parent_iterator end)
+				: iterator_(std::move(start))
+				, end_(std::move(end))
+			{}
+
+			parent_iterator iterator_;
 			parent_iterator end_;
-			EntityListIterator entity_iter_;
 		};
 		
 		// --------------------------------------------------------------------
@@ -267,16 +252,9 @@ namespace entity
 			return iterator(components_.end());
 		}
 
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> begin(EntityListIterator entity_iter)
+		window view()
 		{
-			return entity_iterator<EntityListIterator>(entity_iter, components_.begin(), components_.end());
-		}
-
-		template<typename EntityListIterator>
-		entity_iterator<EntityListIterator> end(EntityListIterator entity_iter)
-		{
-			return entity_iterator<EntityListIterator>(entity_iter, components_.end(), components_.end());
+			return window(components_.begin(), components_.end());
 		}
 
 		std::size_t size()
@@ -286,8 +264,8 @@ namespace entity
 
 	private:
 
-		friend class component_pool_creation_queue<sparse_component_pool<type>>;
-		friend class component_pool_destruction_queue<sparse_component_pool<type>>;
+		friend class component_creation_queue<sparse_component_pool<type>>;
+		friend class component_destruction_queue<sparse_component_pool<type>>;
 
 		struct slot_list
 		{

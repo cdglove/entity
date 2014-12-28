@@ -1,4 +1,5 @@
-#define DAILY_ENABLE_INSTRUMENTATION 1
+#define DAILY_INSTRUMENTATION_USE_BOOST_TIMER 1
+#define DAILY_ENABLE_INSTRUMENTATION 0
 
 #include "entity/dense_component_pool.h"
 #include "entity/sparse_component_pool.h"
@@ -6,8 +7,8 @@
 #include "entity/algorithm/for_each.h"
 #include "entity/algorithm/for_all.h"
 #include "entity/algorithm/simd/sse/for_each.h"
-#include "entity/component_pool_creation_queue.h"
-#include "entity/component_pool_destruction_queue.h"
+#include "entity/component_creation_queue.h"
+#include "entity/component_destruction_queue.h"
 #include "entity/component/tie.h"
 #include "performance_common.h"
 #include <random>
@@ -25,8 +26,8 @@ static       bool kUseCreationQueue = false;
 static const float kTestDensity = TEST_DENSITY;
 
 #define ALWAYS_TIME_NODE(name) \
-	daily::timer_node& name ## _timer = daily::timer_map::get_default().create_node(#name); \
-	daily::auto_timer_scope name ## _auto_timer_scope(name ## _timer)
+	daily::cpu_timer& name ## _timer = daily::timer_map::get_default().create_node(#name); \
+	daily::cpu_timer_scope name ## _auto_timer_scope(name ## _timer)
 
 #define BOOST_TEST_MODULE Performance
 #include <boost/test/unit_test.hpp>
@@ -61,27 +62,27 @@ BOOST_AUTO_TEST_CASE( library_entity )
 	velocity_pool_type velocity_pool(entities);
 	accel_pool_type accel_pool(entities);
 
-	entity::component_pool_creation_queue<
+	entity::component_creation_queue<
 		position_pool_type
 	> position_creation_queue(position_pool);
 
-	entity::component_pool_creation_queue<
+	entity::component_creation_queue<
 		velocity_pool_type
 	> velocity_creation_queue(velocity_pool);
 
-	entity::component_pool_creation_queue<
+	entity::component_creation_queue<
 		accel_pool_type
 	> accel_creation_queue(accel_pool);
 
-	entity::component_pool_destruction_queue<
+	entity::component_destruction_queue<
 		position_pool_type
 	> position_destruction_queue(position_pool);
 
-	entity::component_pool_destruction_queue<
+	entity::component_destruction_queue<
 		velocity_pool_type
 	> velocity_destruction_queue(velocity_pool);
 
-	entity::component_pool_destruction_queue<
+	entity::component_destruction_queue<
 		accel_pool_type
 	> accel_destruction_queue(accel_pool);
 
