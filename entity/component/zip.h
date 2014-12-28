@@ -131,6 +131,8 @@ namespace entity
 		windows_type windows_;
 	};
 
+	// ------------------------------------------------------------------------
+	//
 	template<typename T>
 	struct is_zipped_component_tuple
 	{
@@ -143,6 +145,8 @@ namespace entity
 		static const bool value = true;
 	};
 
+	// ------------------------------------------------------------------------
+	//
 	template<std::size_t idx, typename ZippedComponentWindows>
 	typename std::enable_if<
 		is_zipped_component_tuple<ZippedComponentWindows>::value,
