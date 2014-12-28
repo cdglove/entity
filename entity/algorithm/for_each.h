@@ -10,7 +10,7 @@
 
 #include "entity/config.h"
 #include "entity/component/zip.h"
-#include "entity/entity_iterator.h"
+#include "entity/entity_range.h"
 #include "entity/functional/window.h"
 #include "entity/traits/iterator_traits.h"
 #include <boost/fusion/functional/invocation/invoke.hpp>

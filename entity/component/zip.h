@@ -14,6 +14,8 @@
 #include <boost/fusion/algorithm/transformation/transform.hpp>
 #include <boost/fusion/algorithm/query/count.hpp>
 #include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/sequence/intrinsic/at.hpp>
+#include <boost/fusion/include/at.hpp>
 #include "entity/functional/window.h"
 
 // ----------------------------------------------------------------------------
@@ -128,6 +130,29 @@ namespace entity
 
 		windows_type windows_;
 	};
+
+	template<typename T>
+	struct is_zipped_component_tuple
+	{
+		static const bool value = false;
+	};
+
+	template<typename ComponentTuple>
+	struct is_zipped_component_tuple<zipped_component_windows<ComponentTuple>>
+	{
+		static const bool value = true;
+	};
+
+	template<std::size_t idx, typename ZippedComponentWindows>
+	typename std::enable_if<
+		is_zipped_component_tuple<ZippedComponentWindows>::value,
+		typename boost::fusion::result_of::value_at_c<
+			typename ZippedComponentWindows::windows_type, idx
+		>::type::value_type&
+	>::type get(ZippedComponentWindows const& windows)
+	{
+		return boost::fusion::at_c<idx>(windows.get()).get();
+	}
 
 	template<typename ComponentPoolTuple>
 	zipped_component_windows<ComponentPoolTuple> zip(ComponentPoolTuple&& pools)

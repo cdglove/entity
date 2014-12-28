@@ -5,7 +5,7 @@
 #include "entity/entity.h"
 #include "entity/component/zip.h"
 #include "entity/component/tie.h"
-#include "entity/entity_iterator.h"
+#include "entity/entity_range.h"
 #include <algorithm>
 #include <boost/fusion/include/at_c.hpp>
 #include <random>
@@ -51,18 +51,15 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 	velocity_pool_type velocity_pool(pool);	
 	accel_pool_type accel_pool(pool);
 
-	auto b = entity::begin_entities(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
-	auto e = entity::end_entities(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
-
-	while(b != e)
+	auto range = entity::make_entity_range(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
+	for(auto i = range.begin(); i != range.end(); ++i)
 	{
-		int& p = boost::fusion::at_c<0>(*b).get();
+		int& p = entity::get<0>(*i);
 		p = 1;
-		int& v = boost::fusion::at_c<1>(*b).get();
+		int& v = entity::get<1>(*i);
 		v = 2;
-		int& a = boost::fusion::at_c<2>(*b).get();
+		int& a = entity::get<2>(*i);
 		a = 3;
-		++b;
 	}
 
 	std::for_each(

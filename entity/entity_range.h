@@ -21,9 +21,9 @@ namespace entity
 	class entity_incremental_iterator
 		: public boost::iterator_facade<
 		    entity_incremental_iterator<EntityListIterator, ZippedComponentWindows>
-		,	typename ZippedComponentWindows::windows_type
+		,	ZippedComponentWindows
 		,	boost::forward_traversal_tag
-		,	typename ZippedComponentWindows::windows_type
+		,	ZippedComponentWindows
 		>
 	{
 	public:
@@ -57,9 +57,9 @@ namespace entity
 			return entity_iter_ == other.entity_iter_;
 		}
 
-		typename ZippedComponentWindows::windows_type dereference() const
+		ZippedComponentWindows dereference() const
 		{
-			return windows_.get();
+			return windows_;
 		}
 
 		EntityListIterator entity_iter_;
@@ -74,9 +74,9 @@ namespace entity
 	class entity_skipping_iterator
 		: public boost::iterator_facade<
 		    entity_skipping_iterator<EntityListIterator, ZippedComponentWindows>
-		,	typename ZippedComponentWindows::windows_type
+		,	ZippedComponentWindows
 		,	boost::forward_traversal_tag
-		,	typename ZippedComponentWindows::windows_type
+		,	ZippedComponentWindows
 		>
 	{
 	public:
@@ -115,9 +115,9 @@ namespace entity
 			return entity_iter_ == other.entity_iter_;
 		}
 
-		typename ZippedComponentWindows::windows_type dereference() const
+		ZippedComponentWindows dereference() const
 		{
-			return windows_.get();
+			return windows_;
 		}
 
 		EntityListIterator entity_iter_;
@@ -128,68 +128,127 @@ namespace entity
 
 	// ------------------------------------------------------------------------
 	//
+	template<typename Iterator, typename EndIterator = Iterator>
+	class entity_range
+	{
+	public:
+
+		entity_range(Iterator begin, EndIterator end)
+			: begin_(std::move(begin))
+			, end_(std::move(end))
+		{}
+
+		Iterator begin()
+		{
+			return begin_;
+		}
+
+		EndIterator end()
+		{
+			return end_;
+		}
+
+	private:
+
+		Iterator begin_;
+		EndIterator end_;
+	};
+
+	template<typename Iterator, typename EndIterator>
+	Iterator begin(entity_range<Iterator, EndIterator>& r)
+	{
+		return r.begin();
+	}
+
+	template<typename Iterator, typename EndIterator>
+	EndIterator end(entity_range<Iterator, EndIterator>& r)
+	{
+		return r.end();
+	}
+
+	// ------------------------------------------------------------------------
+	//
 	template<typename EntityList, typename ZippedComponentWindows>
-	auto begin_entities(EntityList const& entities, ZippedComponentWindows windows, iterator_traits::is_skipping_tag) -> entity_skipping_iterator<
+	auto make_entity_begin(iterator_traits::is_skipping_tag, EntityList const& entities, ZippedComponentWindows windows) -> entity_skipping_iterator<
 		decltype(begin(entities)),
 		ZippedComponentWindows>
 	{
 		return entity_skipping_iterator<
 			decltype(begin(entities)),
 			ZippedComponentWindows
-		>(begin(entities), end(entities), windows);
+		>(begin(entities), end(entities), std::move(windows));
 	}
 
 	template<typename EntityList, typename ZippedComponentWindows>
-	auto end_entities(EntityList const& entities, ZippedComponentWindows windows, iterator_traits::is_skipping_tag) -> entity_skipping_iterator<
+	auto make_entity_end(iterator_traits::is_skipping_tag, EntityList const& entities, ZippedComponentWindows windows) -> entity_skipping_iterator<
 		decltype(end(entities)),
 		ZippedComponentWindows>
 	{
 		return entity_skipping_iterator<
 			decltype(begin(entities)),
 			ZippedComponentWindows
-		>(end(entities), end(entities), windows);
+		>(end(entities), end(entities), std::move(windows));
 	}
 
 	// --------------------------------------------------------------------
 	//
 	template<typename EntityList, typename ZippedComponentWindows>
-	auto begin_entities(EntityList const& entities, ZippedComponentWindows windows, iterator_traits::is_incremental_tag) -> entity_incremental_iterator<
+	auto make_entity_begin(iterator_traits::is_incremental_tag, EntityList const& entities, ZippedComponentWindows windows) -> entity_incremental_iterator<
 		decltype(entities.begin()),
 		ZippedComponentWindows>
 	{
 		return entity_incremental_iterator<
 			decltype(entities.begin()),
 			ZippedComponentWindows
-		>(entities.begin(), entities.end(), windows);
+		>(entities.begin(), entities.end(), std::move(windows));
 	}
 
 	template<typename EntityList, typename ZippedComponentWindows>
-	auto end_entities(EntityList& entities, ZippedComponentWindows windows, iterator_traits::is_incremental_tag) -> entity_incremental_iterator<
+	auto make_entity_end(iterator_traits::is_incremental_tag, EntityList& entities, ZippedComponentWindows windows) -> entity_incremental_iterator<
 		decltype(entities.end()),
 		ZippedComponentWindows>
 	{
 		return entity_incremental_iterator<
 			decltype(entities.begin()),
 			ZippedComponentWindows
-		>(entities.end(), entities.end(), windows);
+		>(entities.end(), entities.end(), std::move(windows));
 	}
 
 	// --------------------------------------------------------------------
 	//
 	template<typename EntityList, typename ZippedComponentWindows>
-	auto begin_entities(EntityList const& list, ZippedComponentWindows windows) -> decltype(begin_entities(list, windows, iterator_traits::entity_list_is_incremental<EntityList>()))
+	auto make_entity_begin(EntityList const& list, ZippedComponentWindows windows) -> decltype(make_entity_begin(iterator_traits::entity_list_is_incremental<EntityList>(), list, windows))
 	{
-		return begin_entities(list, windows, iterator_traits::entity_list_is_incremental<EntityList>());
+		return make_entity_begin(
+			iterator_traits::entity_list_is_incremental<EntityList>(),
+			list, 
+			std::move(windows)
+		);
 	}
 
 	template<typename EntityList, typename ZippedComponentWindows>
-	auto end_entities(EntityList const& list, ZippedComponentWindows windows) -> decltype(end_entities(list, windows, iterator_traits::entity_list_is_incremental<EntityList>()))
+	auto make_entity_end(EntityList const& list, ZippedComponentWindows windows) -> decltype(make_entity_end(iterator_traits::entity_list_is_incremental<EntityList>(), list, windows))
 	{
-		return end_entities(list, windows, iterator_traits::entity_list_is_incremental<EntityList>());
+		return make_entity_end(
+			iterator_traits::entity_list_is_incremental<EntityList>(),
+			list,
+			std::move(windows)
+		);
 	}
 
-	iterator_traits::is_incremental_tag incremental;
-	iterator_traits::is_skipping_tag skipping;
+	// --------------------------------------------------------------------
+	//
+	template<typename EntityList, typename ZippedComponentWindows>
+	auto make_entity_range(EntityList const& list, ZippedComponentWindows windows) -> entity_range<decltype(make_entity_begin(list, windows)), decltype(make_entity_end(list, windows))>
+	{
+		return entity_range<
+			decltype(make_entity_begin(list, windows)), 
+			decltype(make_entity_end(list, windows))>(
+				make_entity_begin(list, windows),
+				make_entity_end(list, windows)
+			)
+		;
+	}
 }
 
 #endif // _ENTITY_ENTITYITERATOR_H_INCLUDED_
