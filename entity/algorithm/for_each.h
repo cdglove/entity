@@ -117,22 +117,6 @@ namespace entity
 	void for_each(EntityList const& entities, ComponentPoolTuple&& p, Fn f)
 	{
 		for_each(entities, p, iterator_traits::entity_list_is_incremental<EntityList>(), f);
-		//auto i = begin_entities(entities, zip(std::forward<ComponentPoolTuple>(p))); 
-		//auto e = end_entities(entities, zip(std::forward<ComponentPoolTuple>(p))); 
-
-		//for(; i != e; ++i)
-		//{
-		//	//entity e = i.get_entity();
-		//	//auto w = *i;
-		//	if(boost::fusion::all(*i, functional::is_entity(i.get_entity())))
-		//	{
-		//		DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
-		//		boost::fusion::invoke(
-		//			f, 
-		//			boost::fusion::transform(*i, functional::get_component())
-		//		);
-		//	}	
-		//}	
 	}
 }
 

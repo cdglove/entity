@@ -63,7 +63,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 	velocity_pool_type velocity_pool(pool);	
 	accel_pool_type accel_pool(pool);
 
-	auto range = entity::make_entity_range(entities, entity::zip(entity::tie(position_pool, velocity_pool, accel_pool)));
+	auto range = entity::make_entity_range(entities, entity::zip(position_pool, velocity_pool, accel_pool));
 	for(auto i = range.begin(); i != range.end(); ++i)
 	{
 		int& p = entity::get<0>(*i);

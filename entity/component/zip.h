@@ -167,11 +167,19 @@ namespace entity
 	}
 
 	template<typename ComponentPoolTuple>
-	zipped_component_windows<ComponentPoolTuple> zip(ComponentPoolTuple&& pools)
+	zipped_component_windows<ComponentPoolTuple> zip_from_tuple(ComponentPoolTuple pools)
 	{
 		return zipped_component_windows<
 			ComponentPoolTuple
-		>(std::forward<ComponentPoolTuple>(pools));
+		>(std::move(pools));
+	}
+
+	// ------------------------------------------------------------------------
+	//
+	template<typename... Pools>
+	auto zip(Pools&... pools) -> decltype(zip_from_tuple(tie(pools...)))
+	{
+		return zip_from_tuple(tie(pools...));
 	}
 }
 
