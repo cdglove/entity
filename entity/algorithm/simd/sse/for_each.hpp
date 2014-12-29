@@ -14,7 +14,7 @@
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/algorithm/transformation/zip.hpp>
 #include <daily/timer/instrument.h>
-#include "entity/algorithm/simd/detail/invoke.h"
+#include "entity/algorithm/simd/detail/invoke.hpp"
 
 // ----------------------------------------------------------------------------
 //

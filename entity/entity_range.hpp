@@ -9,7 +9,7 @@
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <type_traits>
-#include "entity/traits/iterator_traits.h"
+#include "entity/traits/iterator_traits.hpp"
 
 // ----------------------------------------------------------------------------
 //

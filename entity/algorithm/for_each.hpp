@@ -8,11 +8,11 @@
 #ifndef _ENTITY_ALGORITHM_FOREACH_H_INCLUDED_
 #define _ENTITY_ALGORITHM_FOREACH_H_INCLUDED_
 
-#include "entity/config.h"
-#include "entity/component/zip.h"
-#include "entity/entity_range.h"
-#include "entity/functional/window.h"
-#include "entity/traits/iterator_traits.h"
+#include "entity/config.hpp"
+#include "entity/component/zip.hpp"
+#include "entity/entity_range.hpp"
+#include "entity/functional/window.hpp"
+#include "entity/traits/iterator_traits.hpp"
 #include <boost/fusion/functional/invocation/invoke.hpp>
 #include <boost/fusion/algorithm/query/all.hpp>
 #include <boost/fusion/algorithm/transformation/transform.hpp>

@@ -1,6 +1,6 @@
-#include "entity/saturated_component_pool.h"
-#include "entity/entity_pool.h"
-#include "entity/entity.h"
+#include "entity/saturated_component_pool.hpp"
+#include "entity/entity_pool.hpp"
+#include "entity/entity.hpp"
 
 #define BOOST_TEST_MODULE Lifetimes
 #include <boost/test/unit_test.hpp>

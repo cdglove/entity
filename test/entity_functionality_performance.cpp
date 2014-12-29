@@ -1,22 +1,22 @@
 #define DAILY_INSTRUMENTATION_USE_BOOST_TIMER 1
 #define DAILY_ENABLE_INSTRUMENTATION 0
 
-#include "entity/dense_component_pool.h"
-#include "entity/sparse_component_pool.h"
-#include "entity/saturated_component_pool.h"
-#include "entity/algorithm/for_each.h"
-#include "entity/algorithm/for_all.h"
-#include "entity/algorithm/simd/sse/for_each.h"
-#include "entity/component_creation_queue.h"
-#include "entity/component_destruction_queue.h"
-#include "entity/component/tie.h"
-#include "performance_common.h"
+#include "entity/dense_component_pool.hpp"
+#include "entity/sparse_component_pool.hpp"
+#include "entity/saturated_component_pool.hpp"
+#include "entity/algorithm/for_each.hpp"
+#include "entity/algorithm/for_all.hpp"
+#include "entity/algorithm/simd/sse/for_each.hpp"
+#include "entity/component_creation_queue.hpp"
+#include "entity/component_destruction_queue.hpp"
+#include "entity/component/tie.hpp"
+#include "performance_common.hpp"
 #include <random>
 #include <iostream>
 #include <daily/timer/timer.h>
 
 #if ENTITY_SUPPORT_AVX
-#  include "entity/algorithm/simd/avx/for_each.h"
+#  include "entity/algorithm/simd/avx/for_each.hpp"
 #endif
 
 static const std::size_t kNumEntities = TEST_SIZE;

@@ -6,7 +6,7 @@
 #ifndef _ENTITY_ENTITYINDEX_H_INCLUDED_
 #define _ENTITY_ENTITYINDEX_H_INCLUDED_
 
-#include "entity/config.h"
+#include "entity/config.hpp"
 #include <cstdint>
 
 // ----------------------------------------------------------------------------

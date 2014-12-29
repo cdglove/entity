@@ -7,7 +7,7 @@
 #ifndef _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
 #define _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
 
-#include "entity/config.h"
+#include "entity/config.hpp"
 #include <vector>
 #include <utility>
 

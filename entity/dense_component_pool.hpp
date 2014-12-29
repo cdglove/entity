@@ -1,4 +1,4 @@
-//! \file entity/dense_component_pool.h
+//! \file entity/dense_component_pool.hpp
 //
 // Represents a component pool where the number of components
 // approaches the number of entitys on those components.
@@ -8,8 +8,8 @@
 #ifndef _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
 #define _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
 
-#include "entity/config.h"
-#include "entity/entity_pool.h"
+#include "entity/config.hpp"
+#include "entity/entity_pool.hpp"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/assert.hpp>
@@ -17,6 +17,7 @@
 #include <memory>
 #include <vector>
 #include <daily/timer/instrument.h>
+#include <list>
 
 // ----------------------------------------------------------------------------
 //

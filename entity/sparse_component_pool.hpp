@@ -8,8 +8,8 @@
 #ifndef _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
 #define _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
 
-#include "entity/config.h"
-#include "entity/entity_pool.h"
+#include "entity/config.hpp"
+#include "entity/entity_pool.hpp"
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/container/flat_map.hpp>
 #include <cstddef>

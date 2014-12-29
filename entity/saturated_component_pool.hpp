@@ -8,8 +8,8 @@
 #ifndef _ENTITY_SATURATEDCOMPONENTPOOL_H_INCLUDED_
 #define _ENTITY_SATURATEDCOMPONENTPOOL_H_INCLUDED_
 
-#include "entity/config.h"
-#include "entity/entity_pool.h"
+#include "entity/config.hpp"
+#include "entity/entity_pool.hpp"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/assert.hpp>

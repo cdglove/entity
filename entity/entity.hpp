@@ -7,8 +7,8 @@
 #ifndef _ENTITY_ENTITY_H_INCLUDED_
 #define _ENTITY_ENTITY_H_INCLUDED_
 
-#include "entity/config.h"
-#include "entity/entity_index.h"
+#include "entity/config.hpp"
+#include "entity/entity_index.hpp"
 #include <boost/operators.hpp>
 #include <memory>
 #include <functional>

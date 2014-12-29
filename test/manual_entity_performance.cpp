@@ -3,7 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <daily/timer/instrument.h>
-#include "performance_common.h"
+#include "performance_common.hpp"
 
 static const int kNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;

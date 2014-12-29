@@ -16,7 +16,7 @@
 #include <boost/fusion/container/vector.hpp>
 #include <boost/fusion/sequence/intrinsic/at.hpp>
 #include <boost/fusion/include/at.hpp>
-#include "entity/functional/window.h"
+#include "entity/functional/window.hpp"
 
 // ----------------------------------------------------------------------------
 //

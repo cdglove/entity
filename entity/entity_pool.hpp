@@ -6,8 +6,8 @@
 #ifndef _ENTITY_ENTITYPOOL_H_INCLUDED_
 #define _ENTITY_ENTITYPOOL_H_INCLUDED_
 
-#include "entity/entity.h"
-#include "entity/traits/iterator_traits.h"
+#include "entity/entity.hpp"
+#include "entity/traits/iterator_traits.hpp"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/assert.hpp>

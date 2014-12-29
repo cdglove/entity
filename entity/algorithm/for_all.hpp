@@ -8,7 +8,7 @@
 #ifndef _ENTITY_FORALL_H_INCLUDED_
 #define _ENTITY_FORALL_H_INCLUDED_
 
-#include "entity/config.h"
+#include "entity/config.hpp"
 #include <algorithm>
 
 // ----------------------------------------------------------------------------
