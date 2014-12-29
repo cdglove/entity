@@ -46,7 +46,7 @@ namespace entity
 			created_.push_back(std::make_pair(e, type(std::forward<Args>(args)...)));
 		}
 	#else
-		void push(entity e, type&& original)
+		void push(weak_entity e, type&& original)
 		{
 			created_.push_back(std::make_pair(e, std::move(original)));
 		}

@@ -15,6 +15,7 @@
 #ifndef _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 #define _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 
+#include "entity/config.h"
 #include <boost/mpl/transform.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/include/mpl.hpp>
@@ -176,11 +177,31 @@ namespace entity
 
 	// ------------------------------------------------------------------------
 	//
+#if ENTITY_SUPPORT_VARIADICS
 	template<typename... Pools>
 	auto zip(Pools&... pools) -> decltype(zip_from_tuple(tie(pools...)))
 	{
 		return zip_from_tuple(tie(pools...));
 	}
+#else
+	template<typename Pool>
+	auto zip(Pool& pool) -> decltype(zip_from_tuple(tie(pool)))
+	{
+		return zip_from_tuple(tie(pool));
+	}
+
+	template<typename Pool1, typename Pool2>
+	auto zip(Pool1& pool_1, Pool2& pool_2) -> decltype(zip_from_tuple(tie(pool_1, pool_2)))
+	{
+		return zip_from_tuple(tie(pool_1, pool_2));
+	}
+
+	template<typename Pool1, typename Pool2, typename Pool3>
+	auto zip(Pool1& pool_1, Pool2& pool_2, Pool3& pool_3) -> decltype(zip_from_tuple(tie(pool_1, pool_2, pool_3)))
+	{
+		return zip_from_tuple(tie(pool_1, pool_2, pool_3));
+	}
+#endif
 }
 
 #endif // _ENTITY_COMPONENT_ZIP_H_INCLUDED_

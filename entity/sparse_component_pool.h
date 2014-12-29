@@ -138,12 +138,18 @@ namespace entity
 		//
 		sparse_component_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
+		#if ENTITY_SUPPORT_VARIADICS
+			auto create_func = &sparse_component_pool::create<T const&>;
+		#else
+			auto create_func = &sparse_component_pool::create;
+		#endif
+
 			// Create default values for existing entities.
 			std::for_each(
 				owner_pool.begin(),
 				owner_pool.end(),
 				boost::bind(
-					&sparse_component_pool::create<T const&>,
+					create_func,
 					this,
 					::_1,
 					boost::ref(default_value)
@@ -212,7 +218,7 @@ namespace entity
 			return &(r.first->second);
 		}
 	#else
-		T* create(entity e, type&& original)
+		T* create(entity e, type original)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(sparse_component_pool__create);
 			auto r = components_.emplace(e, std::move(original));

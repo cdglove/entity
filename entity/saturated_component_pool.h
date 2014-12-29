@@ -249,6 +249,7 @@ namespace entity
 		}
 	#endif
 
+	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
@@ -256,6 +257,14 @@ namespace entity
 			components_.emplace(components_.begin() + e.index(), std::forward<Args>(args)...);
 			return &components_[e.index()];
 		}	
+	#else
+		T* create(entity e, type original)
+		{
+			DAILY_AUTO_INSTRUMENT_NODE(saturated_component_pool__create);
+			components_.emplace(components_.begin() + e.index(), std::move(original));
+			return &components_[e.index()];
+		}	
+	#endif
 
 		void destroy(entity e)
 		{

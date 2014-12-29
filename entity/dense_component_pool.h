@@ -170,13 +170,19 @@ namespace entity
 		{
 			components_.resize(owner_pool.size());
 			available_.resize(owner_pool.size(), true);
+
+		#if ENTITY_SUPPORT_VARIADICS
+			auto create_func = &dense_component_pool::create<T const&>;
+		#else
+			auto create_func = &dense_component_pool::create;
+		#endif
 			
 			// Create default values for existing entities.
 			std::for_each(
 				owner_pool.begin(),
 				owner_pool.end(),
 				boost::bind(
-					&dense_component_pool::create<T const&>,
+					create_func,
 					this,
 					::_1,
 					boost::ref(default_value)
@@ -259,11 +265,11 @@ namespace entity
 			return ret_val;
 		}	
 	#else
-		T* create(entity e, type&& original)
+		T* create(entity e, type original)
 		{
 			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__create);
 			set_available(e.index(), false);
-			T* ret_val = get_component(e);
+			T* ret_val = get_component(e.index());
 			new(ret_val) T(std::move(original));
 			return ret_val;
 		}	

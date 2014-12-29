@@ -23,6 +23,13 @@ namespace entity
 {
 	// ------------------------------------------------------------------------
 	//
+#if ENTITY_SUPPORT_VARIADICS
+	template<typename... Pools>
+	boost::fusion::vector<Pools&...> tie(Pools&... pools)
+	{
+		return boost::fusion::vector<Pools&...>(pools...);
+	}
+#else
 	template<typename Pool>
 	boost::fusion::vector<Pool&> tie(Pool& pool)
 	{
@@ -40,4 +47,5 @@ namespace entity
 	{
 		return boost::fusion::vector<Pool1&, Pool2&, Pool3&>(pool_1, pool_2, pool_3);
 	}
+#endif
 }
