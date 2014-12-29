@@ -8,6 +8,8 @@
 #define _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
 
 #include "entity/config.hpp"
+#include "entity/entity.hpp"
+#include <algorithm>
 #include <vector>
 #include <utility>
 

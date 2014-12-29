@@ -18,6 +18,7 @@
 #include <boost/fusion/algorithm/transformation/transform.hpp>
 #include <boost/fusion/include/as_vector.hpp>
 #include <algorithm>
+#include <daily/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //
