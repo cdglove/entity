@@ -1,9 +1,17 @@
-//! \file entity/dense_component_pool.h
+// ****************************************************************************
+// entity/dense_component_pool.h
 //
 // Represents a component pool where the number of components
 // approaches the number of entitys on those components.
 // Basically trades space for run time efficiency.
 // 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
 #define _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_

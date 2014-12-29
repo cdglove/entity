@@ -1,3 +1,15 @@
+// ****************************************************************************
+// test/entity_functionality_performance.cpp
+//
+// Part of the test harness for entity.
+// 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #define DAILY_INSTRUMENTATION_USE_BOOST_TIMER 1
 #define DAILY_ENABLE_INSTRUMENTATION 0
 
@@ -5,7 +17,6 @@
 #include "entity/sparse_component_pool.h"
 #include "entity/saturated_component_pool.h"
 #include "entity/algorithm/for_each.h"
-#include "entity/algorithm/for_all.h"
 #include "entity/algorithm/simd/sse/for_each.h"
 #include "entity/component_creation_queue.h"
 #include "entity/component_destruction_queue.h"

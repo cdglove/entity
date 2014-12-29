@@ -1,9 +1,17 @@
-//! \file entity/sparse_component_pool.h
+// ****************************************************************************
+// entity/sparse_component_pool.h
 //
 // Represents a component pool where the number of components
 // is significantly less than the number of entities with those components.
 // Uses less space and will be faster to iterate under these conditions.
 // 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
 #define _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_

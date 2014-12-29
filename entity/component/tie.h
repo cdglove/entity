@@ -1,4 +1,5 @@
-//! \file entity/component/tie.h
+// ****************************************************************************
+// entity/component/tie.h
 //
 // Ties component poos together to be used with algorithms
 // iterators etc.  
@@ -6,6 +7,13 @@
 // possibly makes client code more readable by explicitly
 // tieing component pools together.
 // 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 
 #include <boost/fusion/container/vector.hpp>
 

@@ -1,8 +1,10 @@
-//! \file entity/algorithm/simd/detail/invoke.h
+// ****************************************************************************
+// entity/algorithm/simd/detail/invoke.h
 //
 // Invoker helper function for simd to workaround limitations
 // of boost::fusion::invoke
 // 
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_ALGORITHM_SIMD_DETAIL_INVOKE_H_INCLUDED_
 #define _ENTITY_ALGORITHM_SIMD_DETAIL_INVOKE_H_INCLUDED_

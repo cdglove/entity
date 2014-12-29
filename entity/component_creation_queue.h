@@ -1,8 +1,16 @@
-//! \file entity/component_creation_queue.h
+// ****************************************************************************
+// entity/component_creation_queue.h
 //
 // Represents a way to queue component creation in order to 
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
-// 
+//
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
 #define _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_

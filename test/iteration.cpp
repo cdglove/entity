@@ -1,3 +1,15 @@
+// ****************************************************************************
+// test/iteration.cpp
+//
+// Part of the test harness for entity.
+// 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #include "entity/saturated_component_pool.h"
 #include "entity/dense_component_pool.h"
 #include "entity/sparse_component_pool.h"
@@ -167,7 +179,7 @@ BOOST_AUTO_TEST_CASE( partial_list_iteration )
 	std::sort(ids.begin(), ids.end());
 	IterateTied(*entities, ids);
 }
-
+// Unordered currently unsupported.
 //BOOST_AUTO_TEST_CASE( unordered_list_iteration )
 //{
 //	auto entities = CreateFilledPool();

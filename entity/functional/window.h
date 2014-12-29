@@ -1,9 +1,17 @@
-//! \file entity/for_each.h
+// ****************************************************************************
+// entity/for_each.h
 //
 // Algorithm to call a functor for an entity with the supplied component
 // types.  If the entity does not have all of the supplied compnent types
 // f is not called.
 // 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_FUNCTIONAL_WINDOW_H_INCLUDED_
 #define _ENTITY_FUNCTIONAL_WINDOW_H_INCLUDED_

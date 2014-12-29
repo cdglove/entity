@@ -1,9 +1,19 @@
-//! \file entity/algorithm/simd/avx.h
+// ****************************************************************************
+// entity/algotithm/simd/avx/for_each.h
 //
 // Algorithm to call a functor for an entity with the supplied component
 // types.  If the entity does not have all of the supplied compnent types
 // f is not called.
+// This version is optimized for sse such that the functor f will be supplied
+// _m256s filled with floats. Clearly, this implies float components.
 // 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_ALGORITHM_SIMD_AVX_FOREACH_H_INCLUDED_
 #define _ENTITY_ALGORITHM_SIMD_AVX_FOREACH_H_INCLUDED_

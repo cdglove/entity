@@ -1,8 +1,16 @@
-//! \file entity/entity.h
+// ****************************************************************************
+// entity/entity.h
 //
 // Represents an entity which is made up of components.
 // Essentially an ID but not incrementable, etc.
 // 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_ENTITY_H_INCLUDED_
 #define _ENTITY_ENTITY_H_INCLUDED_

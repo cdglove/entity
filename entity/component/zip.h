@@ -1,8 +1,16 @@
-//! \file entity/component/zip.h
+// ****************************************************************************
+// entity/component/zip.h
 //
 // Creates a tuple of component views such that we
 // can iterate over them as one iterator.
 // 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 #define _ENTITY_COMPONENT_ZIP_H_INCLUDED_

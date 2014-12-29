@@ -1,7 +1,15 @@
-//! \file entity/traits/iterator_traits.h
+// ****************************************************************************
+// entity/traits/iterator_traits.h
 //
 // Traits about various pool types, etc.
 // 
+// Copyright Chris Glover 2014
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
+// ****************************************************************************
 #pragma once
 #ifndef _ENTITY_TRAITS_ITERATORTRAITS_H_INCLUDED_
 #define _ENTITY_TRAITS_ITERATORTRAITS_H_INCLUDED_
