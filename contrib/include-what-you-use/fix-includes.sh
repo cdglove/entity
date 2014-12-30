@@ -1,5 +1,5 @@
 #!/bin/sh
-CMD='/usr/bin/include-what-you-use -stdlib=libstdc++ -std=c++11 -O3 -DNDEBUG -I/home/chris/src/local/entity/_target/clang/test -I/home/chris/src/local/entity -I/home/chris/src/local/entity/_target/clang -I/home/chris/src/cmn/boost -I/home/chris/src/local/entity/contrib/daily'
+CMD='/usr/bin/include-what-you-use -Xiwyu --mapping_file=boost-mappings/boost.imp -stdlib=libstdc++ -std=c++11 -O3 -DNDEBUG -I/home/chris/src/local/entity/_target/clang/test -I/home/chris/src/local/entity -I/home/chris/src/local/entity/_target/clang -isystem/home/chris/src/cmn/boost -I/home/chris/src/local/entity/contrib/daily'
 echo "" > iwyu.txt
 for f in `find ../../ -name "*.hpp"`; do
 	CPP=${f%.*}.cpp

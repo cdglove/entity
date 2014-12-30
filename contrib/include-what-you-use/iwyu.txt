@@ -7,6 +7,11 @@
 /home/chris/src/local/entity/_target/clang/../../entity/dense_component_pool.hpp should add these lines:
 #include <algorithm>                    // for swap, for_each, forward
 #include <array>                        // for swap
+#include <boost/bind/bind.hpp>          // for bind
+#include <boost/bind/placeholders.hpp>  // for _1, _2
+#include <boost/core/ref.hpp>           // for ref
+#include <boost/signals2.hpp>           // for signal
+#include <boost/signals2/connection.hpp>  // for scoped_connection
 #include <deque>                        // for swap
 #include <functional>                   // for function, swap
 #include <map>                          // for swap
@@ -15,12 +20,6 @@
 #include <string>                       // for swap
 #include <tuple>                        // for swap
 #include <utility>                      // for swap
-#include "boost/bind/bind.hpp"          // for bind
-#include "boost/bind/placeholders.hpp"  // for _1, _2
-#include "boost/core/ref.hpp"           // for ref
-#include "boost/signals2/connection.hpp"  // for scoped_connection
-#include "boost/signals2/detail/signal_template.hpp"
-#include "boost/signals2/detail/signals_common_macros.hpp"  // for signal
 #include "entity/entity.hpp"            // for entity, make_entity
 #include "entity/entity_index.hpp"      // for entity_index_t
 namespace boost { namespace iterators { struct forward_traversal_tag; } }
@@ -33,7 +32,12 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <algorithm>                    // for swap, for_each, forward
 #include <array>                        // for swap
 #include <boost/assert.hpp>             // for BOOST_ASSERT
-#include <boost/iterator/iterator_facade.hpp>  // for iterator_facade
+#include <boost/bind/bind.hpp>          // for bind
+#include <boost/bind/placeholders.hpp>  // for _1, _2
+#include <boost/core/ref.hpp>           // for ref
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/signals2.hpp>           // for signal
+#include <boost/signals2/connection.hpp>  // for scoped_connection
 #include <cstddef>                      // for size_t
 #include <deque>                        // for swap
 #include <functional>                   // for function, swap
@@ -46,12 +50,6 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <tuple>                        // for swap
 #include <utility>                      // for swap
 #include <vector>                       // for swap, vector, etc
-#include "boost/bind/bind.hpp"          // for bind
-#include "boost/bind/placeholders.hpp"  // for _1, _2
-#include "boost/core/ref.hpp"           // for ref
-#include "boost/signals2/connection.hpp"  // for scoped_connection
-#include "boost/signals2/detail/signal_template.hpp"
-#include "boost/signals2/detail/signals_common_macros.hpp"  // for signal
 #include "entity/config.hpp"            // for ENTITY_SUPPORT_VARIADICS
 #include "entity/entity.hpp"            // for entity, make_entity
 #include "entity/entity_index.hpp"      // for entity_index_t
@@ -90,7 +88,7 @@ namespace boost { namespace iterators { struct forward_traversal_tag; } }
 - #include <type_traits>  // lines 11-11
 
 The full include-list for /home/chris/src/local/entity/_target/clang/../../entity/entity_range.hpp:
-#include <boost/iterator/iterator_facade.hpp>  // for iterator_facade
+#include <boost/iterator/iterator_facade.hpp>
 #include "entity/entity.hpp"            // for entity
 #include "entity/traits/iterator_traits.hpp"
 namespace boost { namespace iterators { struct forward_traversal_tag; } }
@@ -119,6 +117,10 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <ext/alloc_traits.h>
 #include <algorithm>                    // for swap, move
 #include <array>                        // for swap
+#include <boost/function/function_template.hpp>  // for function
+#include <boost/signals2.hpp>           // for mutex, signal
+#include <boost/signals2/optional_last_value.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>  // for shared_ptr
 #include <cstddef>                      // for size_t
 #include <deque>                        // for swap
 #include <functional>                   // for swap
@@ -132,13 +134,6 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <type_traits>                  // for remove_reference<>::type
 #include <utility>                      // for swap
 #include <vector>                       // for vector, swap
-#include "boost/function/function_template.hpp"  // for function
-#include "boost/signals2/detail/lwm_pthreads.hpp"  // for mutex
-#include "boost/signals2/detail/signal_template.hpp"
-#include "boost/signals2/detail/signals_common_macros.hpp"  // for signal
-#include "boost/signals2/detail/slot_template.hpp"
-#include "boost/signals2/optional_last_value.hpp"
-#include "boost/smart_ptr/shared_ptr.hpp"  // for shared_ptr
 #include "entity/entity_index.hpp"      // for entity_index_t
 namespace boost { namespace iterators { struct forward_traversal_tag; } }
 namespace entity { namespace iterator_traits { template <typename EntityList> struct entity_list_is_incremental; } }
@@ -155,8 +150,12 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <ext/alloc_traits.h>
 #include <algorithm>                    // for swap, move
 #include <array>                        // for swap
+#include <boost/function/function_template.hpp>  // for function
 #include <boost/iterator/iterator_facade.hpp>  // for operator!=, etc
 #include <boost/pool/pool.hpp>          // for pool
+#include <boost/signals2.hpp>           // for mutex, signal
+#include <boost/signals2/optional_last_value.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>  // for shared_ptr
 #include <cstddef>                      // for size_t
 #include <deque>                        // for swap
 #include <functional>                   // for swap
@@ -170,13 +169,6 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <type_traits>                  // for remove_reference<>::type
 #include <utility>                      // for swap
 #include <vector>                       // for vector, swap
-#include "boost/function/function_template.hpp"  // for function
-#include "boost/signals2/detail/lwm_pthreads.hpp"  // for mutex
-#include "boost/signals2/detail/signal_template.hpp"
-#include "boost/signals2/detail/signals_common_macros.hpp"  // for signal
-#include "boost/signals2/detail/slot_template.hpp"
-#include "boost/signals2/optional_last_value.hpp"
-#include "boost/smart_ptr/shared_ptr.hpp"  // for shared_ptr
 #include "entity/entity.hpp"            // for make_entity, entity, etc
 #include "entity/entity_index.hpp"      // for entity_index_t
 namespace boost { namespace iterators { struct forward_traversal_tag; } }
@@ -188,6 +180,14 @@ namespace entity { namespace iterator_traits { template <typename EntityList> st
 /home/chris/src/local/entity/_target/clang/../../entity/sparse_component_pool.hpp should add these lines:
 #include <algorithm>                    // for swap, for_each, forward, etc
 #include <array>                        // for swap
+#include <boost/bind/bind.hpp>          // for bind
+#include <boost/bind/placeholders.hpp>  // for _1, _2
+#include <boost/container/container_fwd.hpp>
+#include <boost/container/detail/std_fwd.hpp>  // for pair
+#include <boost/core/ref.hpp>           // for ref
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/signals2.hpp>           // for signal
+#include <boost/signals2/connection.hpp>  // for scoped_connection
 #include <deque>                        // for swap
 #include <functional>                   // for function, swap
 #include <iterator>                     // for back_inserter
@@ -199,15 +199,6 @@ namespace entity { namespace iterator_traits { template <typename EntityList> st
 #include <tuple>                        // for swap
 #include <utility>                      // for make_pair, swap
 #include <vector>                       // for swap, vector
-#include "boost/bind/bind.hpp"          // for bind
-#include "boost/bind/placeholders.hpp"  // for _1, _2
-#include "boost/container/container_fwd.hpp"
-#include "boost/container/detail/std_fwd.hpp"  // for pair
-#include "boost/core/ref.hpp"           // for ref
-#include "boost/iterator/iterator_facade.hpp"
-#include "boost/signals2/connection.hpp"  // for scoped_connection
-#include "boost/signals2/detail/signal_template.hpp"
-#include "boost/signals2/detail/signals_common_macros.hpp"  // for signal
 #include "entity/entity.hpp"            // for entity, etc
 namespace boost { namespace iterators { struct forward_traversal_tag; } }
 
@@ -218,7 +209,15 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <daily/timer/instrument.h>     // for DAILY_AUTO_INSTRUMENT_NODE
 #include <algorithm>                    // for swap, for_each, forward, etc
 #include <array>                        // for swap
+#include <boost/bind/bind.hpp>          // for bind
+#include <boost/bind/placeholders.hpp>  // for _1, _2
+#include <boost/container/container_fwd.hpp>
+#include <boost/container/detail/std_fwd.hpp>  // for pair
 #include <boost/container/flat_map.hpp>  // for flat_map
+#include <boost/core/ref.hpp>           // for ref
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/signals2.hpp>           // for signal
+#include <boost/signals2/connection.hpp>  // for scoped_connection
 #include <cstddef>                      // for size_t
 #include <deque>                        // for swap
 #include <functional>                   // for function, swap
@@ -231,15 +230,6 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <tuple>                        // for swap
 #include <utility>                      // for make_pair, swap
 #include <vector>                       // for swap, vector
-#include "boost/bind/bind.hpp"          // for bind
-#include "boost/bind/placeholders.hpp"  // for _1, _2
-#include "boost/container/container_fwd.hpp"
-#include "boost/container/detail/std_fwd.hpp"  // for pair
-#include "boost/core/ref.hpp"           // for ref
-#include "boost/iterator/iterator_facade.hpp"
-#include "boost/signals2/connection.hpp"  // for scoped_connection
-#include "boost/signals2/detail/signal_template.hpp"
-#include "boost/signals2/detail/signals_common_macros.hpp"  // for signal
 #include "entity/config.hpp"            // for ENTITY_SUPPORT_VARIADICS
 #include "entity/entity.hpp"            // for entity, etc
 #include "entity/entity_pool.hpp"       // for entity_pool, etc
@@ -252,48 +242,38 @@ namespace entity { template <typename ComponentPool> class component_destruction
 
 ../../entity/component/../../entity/component/zip.hpp should add these lines:
 #include <algorithm>                    // for forward
+#include <boost/fusion/container/vector/convert.hpp>  // for as_vector
+#include <boost/fusion/sequence/intrinsic/value_at.hpp>  // for value_at_c
+#include <boost/mpl/aux_/preprocessed/gcc/placeholders.hpp>  // for _1
 #include <cstddef>                      // for size_t
 #include <type_traits>                  // for decay, enable_if
-#include "boost/fusion/algorithm/iteration/detail/preprocessed/fold.hpp"
-#include "boost/fusion/container/vector/convert.hpp"  // for as_vector
-#include "boost/fusion/sequence/intrinsic/value_at.hpp"  // for value_at_c
-#include "boost/mpl/aux_/preprocessed/gcc/placeholders.hpp"  // for _1
 #include "entity/entity.hpp"            // for entity
 
 ../../entity/component/../../entity/component/zip.hpp should remove these lines:
 - #include <boost/fusion/adapted/mpl.hpp>  // lines 11-11
-- #include <boost/fusion/algorithm/iteration/fold.hpp>  // lines 13-13
 - #include <boost/fusion/container/vector.hpp>  // lines 16-16
 - #include <boost/fusion/include/at.hpp>  // lines 18-18
 - #include <boost/fusion/include/mpl.hpp>  // lines 12-12
 
 The full include-list for ../../entity/component/../../entity/component/zip.hpp:
 #include <algorithm>                    // for forward
+#include <boost/fusion/algorithm/iteration/fold.hpp>  // for fold
 #include <boost/fusion/algorithm/query/count.hpp>  // for count
 #include <boost/fusion/algorithm/transformation/transform.hpp>
+#include <boost/fusion/container/vector/convert.hpp>  // for as_vector
 #include <boost/fusion/sequence/intrinsic/at.hpp>  // for at_c
+#include <boost/fusion/sequence/intrinsic/value_at.hpp>  // for value_at_c
+#include <boost/mpl/aux_/preprocessed/gcc/placeholders.hpp>  // for _1
 #include <boost/mpl/transform.hpp>      // for transform
 #include <cstddef>                      // for size_t
 #include <type_traits>                  // for decay, enable_if
-#include "boost/fusion/algorithm/iteration/detail/preprocessed/fold.hpp"
-#include "boost/fusion/container/vector/convert.hpp"  // for as_vector
-#include "boost/fusion/sequence/intrinsic/value_at.hpp"  // for value_at_c
-#include "boost/mpl/aux_/preprocessed/gcc/placeholders.hpp"  // for _1
 #include "entity/entity.hpp"            // for entity
 #include "entity/functional/window.hpp"  // for get_window
 ---
 
 (../../entity/component/zip.cpp has correct #includes/fwd-decls)
 
-../../entity/component/../../entity/component/tie.hpp should add these lines:
-#include "boost/fusion/container/vector/detail/preprocessed/vvector10.hpp"
-
-../../entity/component/../../entity/component/tie.hpp should remove these lines:
-- #include <boost/fusion/container/vector.hpp>  // lines 10-10
-
-The full include-list for ../../entity/component/../../entity/component/tie.hpp:
-#include "boost/fusion/container/vector/detail/preprocessed/vvector10.hpp"
----
+(../../entity/component/../../entity/component/tie.hpp has correct #includes/fwd-decls)
 
 (../../entity/component/tie.cpp has correct #includes/fwd-decls)
 
@@ -318,6 +298,10 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 /home/chris/src/local/entity/_target/clang/../../entity/saturated_component_pool.hpp should add these lines:
 #include <algorithm>                    // for swap, forward
 #include <array>                        // for swap
+#include <boost/bind/bind.hpp>          // for bind
+#include <boost/bind/placeholders.hpp>  // for _1, _2
+#include <boost/signals2.hpp>           // for signal
+#include <boost/signals2/connection.hpp>  // for scoped_connection
 #include <deque>                        // for swap
 #include <functional>                   // for function, swap
 #include <list>                         // for swap
@@ -326,11 +310,6 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <string>                       // for swap
 #include <tuple>                        // for swap
 #include <utility>                      // for swap
-#include "boost/bind/bind.hpp"          // for bind
-#include "boost/bind/placeholders.hpp"  // for _1, _2
-#include "boost/signals2/connection.hpp"  // for scoped_connection
-#include "boost/signals2/detail/signal_template.hpp"
-#include "boost/signals2/detail/signals_common_macros.hpp"  // for signal
 #include "entity/entity.hpp"            // for entity, make_entity
 #include "entity/entity_index.hpp"      // for entity_index_t
 namespace boost { namespace iterators { struct forward_traversal_tag; } }
@@ -343,7 +322,11 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <daily/timer/instrument.h>     // for DAILY_AUTO_INSTRUMENT_NODE
 #include <algorithm>                    // for swap, forward
 #include <array>                        // for swap
-#include <boost/iterator/iterator_facade.hpp>  // for iterator_facade
+#include <boost/bind/bind.hpp>          // for bind
+#include <boost/bind/placeholders.hpp>  // for _1, _2
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/signals2.hpp>           // for signal
+#include <boost/signals2/connection.hpp>  // for scoped_connection
 #include <cstddef>                      // for size_t
 #include <deque>                        // for swap
 #include <functional>                   // for function, swap
@@ -355,11 +338,6 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 #include <tuple>                        // for swap
 #include <utility>                      // for swap
 #include <vector>                       // for swap, vector
-#include "boost/bind/bind.hpp"          // for bind
-#include "boost/bind/placeholders.hpp"  // for _1, _2
-#include "boost/signals2/connection.hpp"  // for scoped_connection
-#include "boost/signals2/detail/signal_template.hpp"
-#include "boost/signals2/detail/signals_common_macros.hpp"  // for signal
 #include "entity/config.hpp"            // for ENTITY_SUPPORT_VARIADICS
 #include "entity/entity.hpp"            // for entity, make_entity
 #include "entity/entity_index.hpp"      // for entity_index_t
@@ -395,8 +373,8 @@ The full include-list for ../../entity/algorithm/../../entity/algorithm/for_all.
 
 /home/chris/src/local/entity/_target/clang/../../entity/algorithm/simd/sse/for_each.hpp should add these lines:
 #include <xmmintrin.h>                  // for __m128, _mm_loadu_ps, etc
-#include "boost/fusion/container/vector/detail/preprocessed/vvector10.hpp"
-#include "boost/fusion/sequence/intrinsic/at.hpp"  // for at_c
+#include <boost/fusion/container/vector.hpp>  // for vector
+#include <boost/fusion/sequence/intrinsic/at.hpp>  // for at_c
 
 /home/chris/src/local/entity/_target/clang/../../entity/algorithm/simd/sse/for_each.hpp should remove these lines:
 - #include <daily/timer/instrument.h>  // lines 16-16
@@ -409,28 +387,28 @@ The full include-list for ../../entity/algorithm/../../entity/algorithm/for_all.
 
 The full include-list for /home/chris/src/local/entity/_target/clang/../../entity/algorithm/simd/sse/for_each.hpp:
 #include <xmmintrin.h>                  // for __m128, _mm_loadu_ps, etc
-#include "boost/fusion/container/vector/detail/preprocessed/vvector10.hpp"
-#include "boost/fusion/sequence/intrinsic/at.hpp"  // for at_c
+#include <boost/fusion/container/vector.hpp>  // for vector
+#include <boost/fusion/sequence/intrinsic/at.hpp>  // for at_c
 ---
 
 (../../entity/algorithm/simd/sse/for_each.cpp has correct #includes/fwd-decls)
 
 /home/chris/src/local/entity/_target/clang/../../entity/algorithm/simd/detail/invoke.hpp should add these lines:
-#include "boost/fusion/sequence/intrinsic/at.hpp"  // for at_c
+#include <boost/fusion/sequence/intrinsic/at.hpp>  // for at_c
 
 /home/chris/src/local/entity/_target/clang/../../entity/algorithm/simd/detail/invoke.hpp should remove these lines:
 - #include <immintrin.h>  // lines 10-10
 - #include <boost/fusion/sequence/intrinsic/at_c.hpp>  // lines 11-11
 
 The full include-list for /home/chris/src/local/entity/_target/clang/../../entity/algorithm/simd/detail/invoke.hpp:
-#include "boost/fusion/sequence/intrinsic/at.hpp"  // for at_c
+#include <boost/fusion/sequence/intrinsic/at.hpp>  // for at_c
 ---
 
 (../../entity/algorithm/simd/detail/invoke.cpp has correct #includes/fwd-decls)
 
 ../../entity/algorithm/../../entity/algorithm/for_each.hpp should add these lines:
-#include "boost/fusion/algorithm/iteration/detail/preprocessed/fold.hpp"
-#include "boost/fusion/container/vector/convert.hpp"  // for as_vector
+#include <boost/fusion/algorithm/iteration/fold.hpp>  // for fold
+#include <boost/fusion/container/vector/convert.hpp>  // for as_vector
 
 ../../entity/algorithm/../../entity/algorithm/for_each.hpp should remove these lines:
 - #include <boost/fusion/include/as_vector.hpp>  // lines 19-19
@@ -440,11 +418,11 @@ The full include-list for /home/chris/src/local/entity/_target/clang/../../entit
 The full include-list for ../../entity/algorithm/../../entity/algorithm/for_each.hpp:
 #include <daily/timer/instrument.h>     // for DAILY_AUTO_INSTRUMENT_NODE
 #include <algorithm>                    // for forward
+#include <boost/fusion/algorithm/iteration/fold.hpp>  // for fold
 #include <boost/fusion/algorithm/query/all.hpp>  // for all
 #include <boost/fusion/algorithm/transformation/transform.hpp>
+#include <boost/fusion/container/vector/convert.hpp>  // for as_vector
 #include <boost/fusion/functional/invocation/invoke.hpp>  // for invoke
-#include "boost/fusion/algorithm/iteration/detail/preprocessed/fold.hpp"
-#include "boost/fusion/container/vector/convert.hpp"  // for as_vector
 #include "entity/entity_range.hpp"      // for begin, end
 #include "entity/functional/window.hpp"  // for get_component, get_window, etc
 #include "entity/traits/iterator_traits.hpp"
