@@ -8,6 +8,7 @@
 #ifndef _ENTITY_ALGORITHM_SIMD_SSE_FOREACH_H_INCLUDED_
 #define _ENTITY_ALGORITHM_SIMD_SSE_FOREACH_H_INCLUDED_
 
+#include "entity/config.hpp" //IWYU pragma: keep
 #include <algorithm>
 #include <immintrin.h>
 #include <boost/fusion/container/generation/make_vector.hpp>

@@ -8,7 +8,7 @@
 #ifndef _ENTITY_FUNCTIONAL_WINDOW_H_INCLUDED_
 #define _ENTITY_FUNCTIONAL_WINDOW_H_INCLUDED_
 
-#include "entity/config.hpp"
+#include "entity/config.hpp" //IWYU pragma: keep
 #include "entity/entity.hpp"
 
 // ----------------------------------------------------------------------------

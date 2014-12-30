@@ -7,6 +7,7 @@
 #ifndef _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 #define _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 
+#include "entity/config.hpp" //IWYU pragma: keep
 #include <boost/mpl/transform.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/include/mpl.hpp>

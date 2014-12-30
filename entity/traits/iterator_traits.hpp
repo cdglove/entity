@@ -6,6 +6,8 @@
 #ifndef _ENTITY_TRAITS_ITERATORTRAITS_H_INCLUDED_
 #define _ENTITY_TRAITS_ITERATORTRAITS_H_INCLUDED_
 
+#include "entity/config.hpp" //IWYU pragma: keep
+
 namespace entity
 {
 	namespace iterator_traits
