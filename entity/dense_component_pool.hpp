@@ -8,7 +8,7 @@
 #ifndef _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
 #define _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
 
-#include "entity/config.hpp" //IWYU pragma: keep
+#include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity_pool.hpp"
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/aligned_storage.hpp>

@@ -7,7 +7,7 @@
 #ifndef _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
 #define _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
 
-#include "entity/config.hpp" //IWYU pragma: keep
+#include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity.hpp"
 #include <algorithm>
 #include <vector>

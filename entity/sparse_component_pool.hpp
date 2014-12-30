@@ -8,7 +8,7 @@
 #ifndef _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
 #define _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
 
-#include "entity/config.hpp" //IWYU pragma: keep
+#include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity_pool.hpp"
 #include <boost/type_traits/aligned_storage.hpp>
 #include <boost/container/flat_map.hpp>

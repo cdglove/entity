@@ -7,7 +7,7 @@
 #ifndef _ENTITY_ENTITY_H_INCLUDED_
 #define _ENTITY_ENTITY_H_INCLUDED_
 
-#include "entity/config.hpp" //IWYU pragma: keep
+#include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity_index.hpp"
 #include <boost/operators.hpp>
 #include <memory>

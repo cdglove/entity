@@ -7,7 +7,7 @@
 #ifndef _ENTITY_ALGORITHM_SIMD_DETAIL_INVOKE_H_INCLUDED_
 #define _ENTITY_ALGORITHM_SIMD_DETAIL_INVOKE_H_INCLUDED_
 
-#include "entity/config.hpp" //IWYU pragma: keep
+#include "entity/config.hpp" // IWYU pragma: keep
 #include <immintrin.h>
 #include <boost/fusion/sequence/intrinsic/at_c.hpp>
 

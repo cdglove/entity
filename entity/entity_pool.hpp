@@ -6,7 +6,7 @@
 #ifndef _ENTITY_ENTITYPOOL_H_INCLUDED_
 #define _ENTITY_ENTITYPOOL_H_INCLUDED_
 
-#include "entity/config.hpp" //IWYU pragma: keep
+#include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity.hpp"
 #include "entity/traits/iterator_traits.hpp"
 #include <boost/iterator/iterator_facade.hpp>

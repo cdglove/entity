@@ -8,7 +8,7 @@
 #ifndef _ENTITY_ALGORITHM_FOREACH_H_INCLUDED_
 #define _ENTITY_ALGORITHM_FOREACH_H_INCLUDED_
 
-#include "entity/config.hpp" //IWYU pragma: keep
+#include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/component/zip.hpp"
 #include "entity/entity_range.hpp"
 #include "entity/functional/window.hpp"
