@@ -11,7 +11,6 @@
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
 #include <boost/container/container_fwd.hpp>
-#include <boost/container/detail/std_fwd.hpp>
 #include <boost/container/flat_map.hpp>
 #include <boost/ref.hpp>
 #include <boost/iterator/iterator_facade.hpp>
