@@ -8,14 +8,12 @@
 #ifndef _ENTITY_ALGORITHM_SIMD_SSE_FOREACH_H_INCLUDED_
 #define _ENTITY_ALGORITHM_SIMD_SSE_FOREACH_H_INCLUDED_
 
-#include "entity/config.hpp" // IWYU pragma: keep
-#include <algorithm>
-#include <immintrin.h>
-#include <boost/fusion/container/generation/make_vector.hpp>
-#include <boost/fusion/algorithm/iteration/for_each.hpp>
-#include <boost/fusion/algorithm/transformation/zip.hpp>
-#include <daily/timer/instrument.h>
+#include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/sequence/intrinsic/at.hpp>
+#include <xmmintrin.h>
+
 #include "entity/algorithm/simd/detail/invoke.hpp"
+#include "entity/config.hpp" // IWYU pragma: keep
 
 // ----------------------------------------------------------------------------
 //

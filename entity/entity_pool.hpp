@@ -6,16 +6,34 @@
 #ifndef _ENTITY_ENTITYPOOL_H_INCLUDED_
 #define _ENTITY_ENTITYPOOL_H_INCLUDED_
 
+#include <boost/function.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/pool/pool.hpp>
+#include <boost/signals2.hpp>
+#include <boost/signals2/optional_last_value.hpp>
+#include <boost/smart_ptr/shared_ptr.hpp>
+#include <ext/alloc_traits.h>
+#include <algorithm>
+#include <cstddef>
+#include <new>
+#include <type_traits>
+#include <vector>
+
 #include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity.hpp"
+#include "entity/entity_index.hpp"
 #include "entity/traits/iterator_traits.hpp"
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/signals2/signal.hpp>
-#include <boost/assert.hpp>
-#include <boost/pool/pool.hpp>
-#include <daily/timer/instrument.h>
-#include <daily/memory/boost_pool_allocator.h>
-#include <boost/shared_ptr.hpp>
+
+namespace boost {
+namespace iterators {
+struct forward_traversal_tag;
+}  // namespace iterators
+}  // namespace boost
+namespace entity {
+namespace iterator_traits {
+template <typename EntityList> struct entity_list_is_incremental;
+}  // namespace iterator_traits
+}  // namespace entity
 
 // ----------------------------------------------------------------------------
 //

@@ -7,11 +7,13 @@
 #ifndef _ENTITY_ENTITY_H_INCLUDED_
 #define _ENTITY_ENTITY_H_INCLUDED_
 
+#include <boost/operators.hpp>
+#include <algorithm>
+#include <functional>
+#include <memory>
+
 #include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity_index.hpp"
-#include <boost/operators.hpp>
-#include <memory>
-#include <functional>
 
 // ----------------------------------------------------------------------------
 //
@@ -116,11 +118,6 @@ namespace entity
 		std::swap(a.ref_, b.ref_);
 	}
 
-	// ------------------------------------------------------------------------
-	//
-	class weak_entity;
-	class shared_entity;
-	
 	class shared_entity : boost::totally_ordered<shared_entity>
 	{
 	public:

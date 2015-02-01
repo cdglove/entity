@@ -8,17 +8,18 @@
 #ifndef _ENTITY_ALGORITHM_FOREACH_H_INCLUDED_
 #define _ENTITY_ALGORITHM_FOREACH_H_INCLUDED_
 
+#include <boost/fusion/algorithm/iteration/fold.hpp>
+#include <boost/fusion/algorithm/query/all.hpp>
+#include <boost/fusion/algorithm/transformation/transform.hpp>
+#include <boost/fusion/container/vector/convert.hpp>
+#include <boost/fusion/functional/invocation/invoke.hpp>
+#include <daily/timer/instrument.h>
+#include <algorithm>
+
 #include "entity/config.hpp" // IWYU pragma: keep
-#include "entity/component/zip.hpp"
 #include "entity/entity_range.hpp"
 #include "entity/functional/window.hpp"
 #include "entity/traits/iterator_traits.hpp"
-#include <boost/fusion/functional/invocation/invoke.hpp>
-#include <boost/fusion/algorithm/query/all.hpp>
-#include <boost/fusion/algorithm/transformation/transform.hpp>
-#include <boost/fusion/include/as_vector.hpp>
-#include <algorithm>
-#include <daily/timer/instrument.h>
 
 // ----------------------------------------------------------------------------
 //

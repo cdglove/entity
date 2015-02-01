@@ -7,11 +7,12 @@
 #ifndef _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
 #define _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
 
+#include <algorithm>
+#include <functional>
+#include <vector>
+
 #include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity.hpp"
-#include <algorithm>
-#include <vector>
-#include <utility>
 
 // ----------------------------------------------------------------------------
 //

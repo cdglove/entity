@@ -9,7 +9,6 @@
 #define _ENTITY_FORALL_H_INCLUDED_
 
 #include "entity/config.hpp" // IWYU pragma: keep
-#include <algorithm>
 
 // ----------------------------------------------------------------------------
 //

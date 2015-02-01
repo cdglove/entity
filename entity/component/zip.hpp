@@ -7,16 +7,20 @@
 #ifndef _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 #define _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 
-#include "entity/config.hpp" // IWYU pragma: keep
-#include <boost/mpl/transform.hpp>
-#include <boost/fusion/adapted/mpl.hpp>
-#include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/algorithm/iteration/fold.hpp>
-#include <boost/fusion/algorithm/transformation/transform.hpp>
 #include <boost/fusion/algorithm/query/count.hpp>
-#include <boost/fusion/container/vector.hpp>
+#include <boost/fusion/algorithm/transformation/transform.hpp>
+#include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/sequence/intrinsic/at.hpp>
-#include <boost/fusion/include/at.hpp>
+#include <boost/fusion/sequence/intrinsic/value_at.hpp>
+#include <boost/mpl/aux_/preprocessed/gcc/placeholders.hpp>
+#include <boost/mpl/transform.hpp>
+#include <algorithm>
+#include <cstddef>
+#include <type_traits>
+
+#include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/entity.hpp"
 #include "entity/functional/window.hpp"
 
 // ----------------------------------------------------------------------------

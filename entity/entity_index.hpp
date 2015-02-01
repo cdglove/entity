@@ -6,8 +6,9 @@
 #ifndef _ENTITY_ENTITYINDEX_H_INCLUDED_
 #define _ENTITY_ENTITYINDEX_H_INCLUDED_
 
+#include <cstddef>
+
 #include "entity/config.hpp" // IWYU pragma: keep
-#include <cstdint>
 
 // ----------------------------------------------------------------------------
 //

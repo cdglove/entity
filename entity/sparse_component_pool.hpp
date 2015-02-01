@@ -8,22 +8,42 @@
 #ifndef _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
 #define _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
 
-#include "entity/config.hpp" // IWYU pragma: keep
-#include "entity/entity_pool.hpp"
-#include <boost/type_traits/aligned_storage.hpp>
+#include <boost/bind/bind.hpp>
+#include <boost/bind/placeholders.hpp>
+#include <boost/container/container_fwd.hpp>
+#include <boost/container/detail/std_fwd.hpp>
 #include <boost/container/flat_map.hpp>
-#include <cstddef>
+#include <boost/core/ref.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/signals2.hpp>
+#include <boost/signals2/connection.hpp>
 #include <daily/timer/instrument.h>
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <iterator>
+#include <mutex>
+#include <utility>
+#include <vector>
+
+#include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/entity.hpp"
+#include "entity/entity_pool.hpp"
+
+namespace boost {
+namespace iterators {
+struct forward_traversal_tag;
+}  // namespace iterators
+}  // namespace boost
 
 // ----------------------------------------------------------------------------
 //
 namespace entity 
 {
 	template<typename ComponentPool>
-	class component_destruction_queue;
-	
-	template<typename ComponentPool>
 	class component_creation_queue;
+	template<typename ComponentPool>
+	class component_destruction_queue;
 
 	template<typename T>
 	class sparse_component_pool

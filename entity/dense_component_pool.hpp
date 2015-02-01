@@ -8,26 +8,40 @@
 #ifndef _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
 #define _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
 
-#include "entity/config.hpp" // IWYU pragma: keep
-#include "entity/entity_pool.hpp"
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/type_traits/aligned_storage.hpp>
 #include <boost/assert.hpp>
-#include <cstddef>
-#include <memory>
-#include <vector>
+#include <boost/bind/bind.hpp>
+#include <boost/bind/placeholders.hpp>
+#include <boost/core/ref.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/signals2.hpp>
+#include <boost/signals2/connection.hpp>
 #include <daily/timer/instrument.h>
-#include <list>
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <mutex>
+#include <new>
+#include <vector>
+
+#include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/entity.hpp"
+#include "entity/entity_index.hpp"
+#include "entity/entity_pool.hpp"
+
+namespace boost {
+namespace iterators {
+struct forward_traversal_tag;
+}  // namespace iterators
+}  // namespace boost
 
 // ----------------------------------------------------------------------------
 //
 namespace entity 
 {
 	template<typename ComponentPool>
-	class component_destruction_queue;
-	
-	template<typename ComponentPool>
 	class component_creation_queue;
+	template<typename ComponentPool>
+	class component_destruction_queue;
 
 	template<typename T>
 	class dense_component_pool
