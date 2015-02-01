@@ -13,7 +13,7 @@
 #include <boost/container/container_fwd.hpp>
 #include <boost/container/detail/std_fwd.hpp>
 #include <boost/container/flat_map.hpp>
-#include <boost/core/ref.hpp>
+#include <boost/ref.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2.hpp>
 #include <boost/signals2/connection.hpp>

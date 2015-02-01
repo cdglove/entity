@@ -12,7 +12,6 @@
 #include <boost/signals2.hpp>
 #include <boost/signals2/optional_last_value.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
-#include <ext/alloc_traits.h>
 #include <algorithm>
 #include <cstddef>
 #include <new>

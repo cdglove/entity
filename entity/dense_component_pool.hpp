@@ -11,7 +11,7 @@
 #include <boost/assert.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
-#include <boost/core/ref.hpp>
+#include <boost/ref.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2.hpp>
 #include <boost/signals2/connection.hpp>
