@@ -50,7 +50,7 @@ find_package(daily)
 #
 ###############################################################################
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
-file(GLOB_RECURSE PROJECT_HEADERS entity/*.h)
+file(GLOB_RECURSE PROJECT_HEADERS entity/*.hpp)
 add_library( ${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS} )
 target_include_directories( ${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIR} ${DAILY_INCLUDE_DIRS})
 
