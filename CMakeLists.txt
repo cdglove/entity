@@ -9,8 +9,8 @@ set(ENTITY_VERSION_STRING ${ENTITY_VERSION_MAJOR}.${ENTITY_VERSION_MINOR}.${ENTI
 option( ENTITY_BUILD_TESTS "Build the daily project tests." ON)
 
 configure_file (
-  "${PROJECT_SOURCE_DIR}/config/config.h.in"
-  "${PROJECT_BINARY_DIR}/entity/config.h")
+  "${PROJECT_SOURCE_DIR}/config/config.hpp.in"
+  "${PROJECT_BINARY_DIR}/entity/config.hpp")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
@@ -50,7 +50,7 @@ find_package(daily)
 #
 ###############################################################################
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
-file(GLOB_RECURSE PROJECT_HEADERS entity/*.h)
+file(GLOB_RECURSE PROJECT_HEADERS entity/*.hpp)
 add_library( ${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS} )
 target_include_directories( ${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIR} ${DAILY_INCLUDE_DIRS})
 

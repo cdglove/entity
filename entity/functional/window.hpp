@@ -16,8 +16,8 @@
 #ifndef _ENTITY_FUNCTIONAL_WINDOW_H_INCLUDED_
 #define _ENTITY_FUNCTIONAL_WINDOW_H_INCLUDED_
 
-#include "entity/config.h"
-#include "entity/entity.h"
+#include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/entity.hpp"
 
 // ----------------------------------------------------------------------------
 //

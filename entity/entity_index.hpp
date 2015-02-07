@@ -14,8 +14,9 @@
 #ifndef _ENTITY_ENTITYINDEX_H_INCLUDED_
 #define _ENTITY_ENTITYINDEX_H_INCLUDED_
 
-#include "entity/config.h"
-#include <cstdint>
+#include <cstddef>
+
+#include "entity/config.hpp" // IWYU pragma: keep
 
 // ----------------------------------------------------------------------------
 //

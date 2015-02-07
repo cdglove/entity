@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/entity.h
+// entity/entity.hpp
 //
 // Represents an entity which is made up of components.
 // Essentially an ID but not incrementable, etc.
@@ -15,11 +15,13 @@
 #ifndef _ENTITY_ENTITY_H_INCLUDED_
 #define _ENTITY_ENTITY_H_INCLUDED_
 
-#include "entity/config.h"
-#include "entity/entity_index.h"
 #include <boost/operators.hpp>
-#include <memory>
+#include <algorithm>
 #include <functional>
+#include <memory>
+
+#include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/entity_index.hpp"
 
 // ----------------------------------------------------------------------------
 //
@@ -124,11 +126,6 @@ namespace entity
 		std::swap(a.ref_, b.ref_);
 	}
 
-	// ------------------------------------------------------------------------
-	//
-	class weak_entity;
-	class shared_entity;
-	
 	class shared_entity : boost::totally_ordered<shared_entity>
 	{
 	public:

@@ -15,9 +15,12 @@
 #ifndef _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
 #define _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
 
-#include "entity/config.h"
+#include <algorithm>
+#include <functional>
 #include <vector>
-#include <utility>
+
+#include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/entity.hpp"
 
 // ----------------------------------------------------------------------------
 //

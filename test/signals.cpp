@@ -10,11 +10,11 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#include "entity/dense_component_pool.h"
-#include "entity/sparse_component_pool.h"
-#include "entity/saturated_component_pool.h"
-#include "entity/entity_pool.h"
-#include "entity/entity.h"
+#include "entity/dense_component_pool.hpp"
+#include "entity/sparse_component_pool.hpp"
+#include "entity/saturated_component_pool.hpp"
+#include "entity/entity_pool.hpp"
+#include "entity/entity.hpp"
 #include <algorithm>
 
 #define BOOST_TEST_MODULE Signals

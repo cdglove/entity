@@ -16,8 +16,16 @@
 #define _ENTITY_ENTITYITERATOR_H_INCLUDED_
 
 #include <boost/iterator/iterator_facade.hpp>
-#include <type_traits>
-#include "entity/traits/iterator_traits.h"
+
+#include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/entity.hpp"
+#include "entity/traits/iterator_traits.hpp"
+
+namespace boost {
+namespace iterators {
+struct forward_traversal_tag;
+}  // namespace iterators
+}  // namespace boost
 
 // ----------------------------------------------------------------------------
 //
