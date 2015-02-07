@@ -17,7 +17,6 @@
 #include "entity/sparse_component_pool.hpp"
 #include "entity/saturated_component_pool.hpp"
 #include "entity/algorithm/for_each.hpp"
-#include "entity/algorithm/for_all.hpp"
 #include "entity/algorithm/simd/sse/for_each.hpp"
 #include "entity/component_creation_queue.hpp"
 #include "entity/component_destruction_queue.hpp"
