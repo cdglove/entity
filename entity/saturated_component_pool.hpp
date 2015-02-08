@@ -21,7 +21,6 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2.hpp>
 #include <boost/signals2/connection.hpp>
-#include <daily/timer/instrument.h>
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -265,14 +264,12 @@ namespace entity
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(saturated_component_pool__create);
 			components_.emplace(components_.begin() + e.index(), std::forward<Args>(args)...);
 			return &components_[e.index()];
 		}	
 	#else
 		T* create(entity e, type original)
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(saturated_component_pool__create);
 			components_.emplace(components_.begin() + e.index(), std::move(original));
 			return &components_[e.index()];
 		}	
@@ -280,7 +277,6 @@ namespace entity
 
 		void destroy(entity e)
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(saturated_component_pool__destroy);
 			components_.erase(components_.begin() + e.index());
 		}
 

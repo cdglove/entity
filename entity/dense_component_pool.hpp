@@ -23,7 +23,6 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2.hpp>
 #include <boost/signals2/connection.hpp>
-#include <daily/timer/instrument.h>
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -272,7 +271,6 @@ namespace entity
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__create);
 			set_available(e.index(), false);
 			T* ret_val = get_component(e.index());
 			new(ret_val) T(std::forward<Args>(args)...);
@@ -282,7 +280,6 @@ namespace entity
 	#else
 		T* create(entity e, type original)
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__create);
 			set_available(e.index(), false);
 			T* ret_val = get_component(e.index());
 			new(ret_val) T(std::move(original));
@@ -292,8 +289,6 @@ namespace entity
 
 		void destroy(entity e)
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__destroy);
-
 			BOOST_ASSERT(!is_available(e.index()) && "Trying to destroy un-allocated component.");
 			--used_count_;
 			T* p = get_component(e.index());
@@ -304,7 +299,6 @@ namespace entity
 
 		T* get(entity e)
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__get);
 			if(is_available(e.index()))	
 			{
 				return nullptr;
@@ -315,7 +309,6 @@ namespace entity
 
 		T const* get(entity e) const
 		{
-			DAILY_AUTO_INSTRUMENT_NODE(dense_component_pool__get);
 			if(is_available(e.index()))
 			{
 				return nullptr;

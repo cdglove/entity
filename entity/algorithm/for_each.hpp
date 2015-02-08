@@ -21,7 +21,6 @@
 #include <boost/fusion/algorithm/transformation/transform.hpp>
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/functional/invocation/invoke.hpp>
-#include <daily/timer/instrument.h>
 #include <algorithm>
 
 #include "entity/config.hpp" // IWYU pragma: keep
@@ -65,7 +64,6 @@ namespace entity
 		{
 			if(boost::fusion::fold(c, true, functional::increment_window(*i)))
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
 				boost::fusion::invoke(
 					f, 
 					boost::fusion::transform(c, functional::get_component())
@@ -106,7 +104,6 @@ namespace entity
 		{
 			if(boost::fusion::fold(c, true, functional::advance_window(*i)))
 			{
-				DAILY_AUTO_INSTRUMENT_NODE(foreach_invoke);
 				boost::fusion::invoke(
 					f, 
 					boost::fusion::transform(c, functional::get_component())
