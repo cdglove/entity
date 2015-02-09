@@ -4,7 +4,7 @@
 // Creates a tuple of component views such that we
 // can iterate over them as one iterator.
 // 
-// Copyright Chris Glover 2014
+// Copyright Chris Glover 2014-2015
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE_1_0.txt or copy at

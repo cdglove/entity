@@ -7,7 +7,7 @@
 // This version is optimized for sse such that the functor f will be supplied
 // _m128s filled with floats. Clearly, this implies float components.
 // 
-// Copyright Chris Glover 2014
+// Copyright Chris Glover 2014-2015
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE_1_0.txt or copy at

@@ -4,7 +4,7 @@
 // Represents an entity which is made up of components.
 // Essentially an ID but not incrementable, etc.
 // 
-// Copyright Chris Glover 2014
+// Copyright Chris Glover 2014-2015
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE_1_0.txt or copy at

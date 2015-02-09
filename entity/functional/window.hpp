@@ -5,7 +5,7 @@
 // types.  If the entity does not have all of the supplied compnent types
 // f is not called.
 // 
-// Copyright Chris Glover 2014
+// Copyright Chris Glover 2014-2015
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE_1_0.txt or copy at

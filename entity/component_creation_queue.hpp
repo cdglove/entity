@@ -4,7 +4,7 @@
 // Represents a way to queue component creation in order to 
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
 //
-// Copyright Chris Glover 2014
+// Copyright Chris Glover 2014-2015
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE_1_0.txt or copy at
