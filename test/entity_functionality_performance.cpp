@@ -22,6 +22,7 @@
 #include "entity/component_destruction_queue.hpp"
 #include "entity/component/tie.hpp"
 #include "performance_common.hpp"
+#include <daily/timer/instrument.h>
 #include <random>
 #include <iostream>
 #include <daily/timer/timer.h>
@@ -103,15 +104,13 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 	std::vector<entity::shared_entity> shuffled_entitys;
 
-	if(kTestDensity < 1.f)
+	if(true || kTestDensity < 1.f)
 	{
 		kUseCreationQueue = true;
 	}
 	
 	// ------------------------------------------------------------------------
 	{
-		// The foloowing code, even when not active is causing visual c++
-		// to generate a very slow executable.  I have no ida why at this tine.
 		if(kUseCreationQueue)
 		{
 			// Create entities and components.
@@ -126,12 +125,24 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 				std::random_device rd;
 				std::mt19937 g(rd());
+				std::uniform_int_distribution<> dis(0,1);
 
-				std::shuffle(
-					shuffled_entitys.begin(),
-					shuffled_entitys.end(),
-					g
-				);
+				for(int i = 0; i < kNumEntities; ++i)
+				{
+					if(dis(g))
+					{
+						std::swap(
+							shuffled_entitys[i],
+							shuffled_entitys[kNumEntities-i-1]
+						);
+					}
+				}
+
+				// std::shuffle(
+				// 	shuffled_entitys.begin(),
+				// 	shuffled_entitys.end(),
+				// 	g
+				// );
 
 				std::size_t actual_size_to_use = std::size_t(kTestDensity * kNumEntities);
 				shuffled_entitys.resize(actual_size_to_use);

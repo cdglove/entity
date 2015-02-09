@@ -27,6 +27,8 @@
 //
 namespace entity
 {
+	// ------------------------------------------------------------------------
+	//
 	class entity : boost::totally_ordered<entity>
 	{
 	public:

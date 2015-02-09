@@ -14,8 +14,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
-#include <daily/timer/instrument.h>
 #include "performance_common.hpp"
+#include <daily/timer/instrument.h>
 
 static const int kNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
