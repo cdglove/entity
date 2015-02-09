@@ -188,6 +188,11 @@ namespace entity
 				return *data_;
 			}
 
+			bool is_end() const
+			{
+				return false;
+			}
+
 		private:
 
 			friend class saturated_component_pool;

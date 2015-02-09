@@ -135,6 +135,11 @@ namespace entity
 				return iterator_->second;
 			}
 
+			bool is_end() const
+			{
+				return iterator_ == end_;
+			}
+
 		private:
 
 			friend class sparse_component_pool;

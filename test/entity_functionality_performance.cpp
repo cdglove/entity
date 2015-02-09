@@ -10,7 +10,7 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#define DAILY_INSTRUMENTATION_USE_BOOST_TIMER 1
+//#define DAILY_INSTRUMENTATION_USE_BOOST_TIMER 1
 #define DAILY_ENABLE_INSTRUMENTATION 0
 
 #include "entity/dense_component_pool.hpp"

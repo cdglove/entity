@@ -160,6 +160,11 @@ namespace entity
 				return *reinterpret_cast<value_type*>(data_);
 			}
 
+			bool is_end() const
+			{
+				return false;
+			}
+
 		private:
 
 			friend class dense_component_pool;

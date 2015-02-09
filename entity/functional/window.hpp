@@ -80,12 +80,21 @@ namespace entity { namespace functional
 		{}
 
 		template<typename ComponentPoolWindow>
-		bool operator()(ComponentPoolWindow& view) const
+		bool operator()(ComponentPoolWindow const& view) const
 		{
 			return view.is_entity(target_);
 		}
 
 		entity target_;
+	};
+	
+	struct is_end
+	{
+		template<typename ComponentPoolWindow>
+		bool operator()(ComponentPoolWindow const& view) const
+		{
+			return view.is_end();
+		}
 	};
 }}
 
