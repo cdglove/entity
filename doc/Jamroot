@@ -1,0 +1,22 @@
+project entity/doc ;
+import boostbook : boostbook ;
+import os ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+
+boostbook doc
+    :
+    entity.xml
+    :
+    <xsl:param>boost.libraries=$(BOOST_ROOT)/libs/libraries.htm
+    <dependency>images
+    <dependency>callouts
+    <dependency>css
+    ;
+
+install images : [ glob $(BOOST_ROOT)/doc/src/images/*.png ] : <location>html/images ;
+explicit images ;
+install callouts : [ glob $(BOOST_ROOT)/doc/src/images/callouts/*.png ] : <location>html/images/callouts ;
+explicit callouts ;
+install css : [ glob $(BOOST_ROOT)/doc/src/*.css ] : <location>html ;
+explicit css ;

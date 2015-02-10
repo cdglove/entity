@@ -1,0 +1,42 @@
+[/
+    Copyright 2014-2015, Chris Glover
+
+    Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+]
+
+[chapter Overview
+    [quickbook 1.6]
+    [id entity.overview]
+    [source-mode teletype]
+]
+
+'entity' is the realization of a bet made with a co-worker that it would be
+possible to adequately abstract away the concept of entity/component
+relationships in a way that doesn't impose a large runtime performance
+penalty.  The result is this library, where, if used correclty can handle all
+sorts of entity/component arrangements with little or no peformance overhead
+depending on compiler optiomzations.
+
+This library takes a different approach to the entity/component concept than
+other libraries where the entity usually contains a list of components.  In
+this library, the entity is simply an identifier used to retrieve components
+from various pools.  The library makes no attempt to manage those pools; that's up to 
+programmer using the library.  Instead, this library focuses on managing the comunication
+between the various pools and entitys for lifetime management such that the programmer is freed
+from having to worry about this.  The idea is similar to that of constructors and destructors.
+
+[tip For more details of what and Entity/Component system is, you can read
+about it on Wikipedia under __ecs__ 
+]
+
+Features include:
+
+* generate __boostbook__ xml, to generate HTML, PostScript and PDF
+* simple markup to link to Doxygen-generated entities
+* macro system for simple text substitution
+* simple markup for italics, bold, preformatted, blurbs, code samples,
+  tables, URLs, anchors, images, etc.
+* automatic syntax coloring of code samples
+* CSS support

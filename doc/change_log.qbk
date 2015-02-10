@@ -1,0 +1,21 @@
+[/
+    Copyright 2014-2015, Chris Glover
+
+    Distributed under the Boost Software License, Version 1.0.
+    (See accompanying file LICENSE_1_0.txt or copy at
+    http://www.boost.org/LICENSE_1_0.txt)
+]
+
+[chapter Change Log
+    [quickbook 1.6]
+    [id entity.change_log]
+    [source-mode teletype]
+]
+
+[heading:version_0_1 Version 0.1]
+
+* First published version.
+
+[heading:version_0_0 Version 0.0]
+
+* Initial experimentation, performance profiling, interface noodling.
