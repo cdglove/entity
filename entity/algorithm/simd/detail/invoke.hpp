@@ -4,8 +4,13 @@
 // Invoker helper function for simd to workaround limitations
 // of boost::fusion::invoke
 // 
+// Copyright Chris Glover 2014-2015
+//
+// Distributed under the Boost Software License, Version 1.0.
+// See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt
+//
 // ****************************************************************************
-#pragma once
 #ifndef _ENTITY_ALGORITHM_SIMD_DETAIL_INVOKE_H_INCLUDED_
 #define _ENTITY_ALGORITHM_SIMD_DETAIL_INVOKE_H_INCLUDED_
 

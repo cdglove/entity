@@ -10,7 +10,6 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#pragma once
 #ifndef _ENTITY_ENTITYPOOL_H_INCLUDED_
 #define _ENTITY_ENTITYPOOL_H_INCLUDED_
 

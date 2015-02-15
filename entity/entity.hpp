@@ -11,7 +11,6 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#pragma once
 #ifndef _ENTITY_ENTITY_H_INCLUDED_
 #define _ENTITY_ENTITY_H_INCLUDED_
 
@@ -50,7 +49,7 @@ namespace entity
 
 	private:
 
-		friend entity make_entity(entity_index_t) noexcept;
+		friend entity make_entity(entity_index_t) BOOST_NOEXCEPT_OR_NOTHROW;
 
 		// Only make_entity can construct entities.
 		// Can consider impicit conversion here, but
@@ -62,7 +61,7 @@ namespace entity
 		entity_index_t idx_;
 	};
 
-	inline entity make_entity(entity_index_t idx) noexcept
+	inline entity make_entity(entity_index_t idx) BOOST_NOEXCEPT_OR_NOTHROW
 	{
 		return entity(idx);
 	}

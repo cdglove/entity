@@ -11,7 +11,6 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#pragma once
 #ifndef _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
 #define _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
 
