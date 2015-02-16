@@ -12,12 +12,13 @@ env:
     - BUILD_TYPE=Release
     - ASAN=On
     - GCC_VERSION="4.9"
-    - GCC_VERSION="4.8"
 
 matrix:
   exclude:
     - compiler: gcc
       env: ASAN=On
+    - compiler: clang
+      env: GCC_VERSION="4.9"
 
 # Install dependencies
 before_install:
