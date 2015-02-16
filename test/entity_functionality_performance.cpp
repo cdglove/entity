@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 	std::vector<entity::shared_entity> shuffled_entitys;
 
-	if(true || kTestDensity < 1.f)
+	if(kTestDensity < 1.f)
 	{
 		kUseCreationQueue = true;
 	}
