@@ -260,11 +260,12 @@ namespace entity
 		{
 			slots_.entity_create_handler = 
 				owner_pool.signals().on_entity_create.connect(
-					boost::bind(
-						&dense_component_pool::create,
-						this,
-						::_1,
-						default_value
+					std::function<void(entity)>(
+						[this, default_value](entity e)
+						{
+							create_entity_slot(e);
+							create(e, default_value);
+						}
 					)
 				)
 			;
@@ -287,6 +288,7 @@ namespace entity
 			set_available(e.index(), false);
 			T* ret_val = get_component(e.index());
 			new(ret_val) T(std::move(original));
+			++used_count_;
 			return ret_val;
 		}	
 	#endif
