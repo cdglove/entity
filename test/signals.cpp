@@ -48,9 +48,10 @@ BOOST_AUTO_TEST_CASE( auto_component_creation )
 	dense_pool.auto_create_components(entities, 2.f);
 	sparse_pool.auto_create_components(entities, 3.f);
 
-	entities.create();
-	entities.create();
-	entities.create();
+	std::vector<entity::entity> entity_list;
+	entity_list.push_back(entities.create());
+	entity_list.push_back(entities.create());
+	entity_list.push_back(entities.create());
 
 	BOOST_CHECK_EQUAL(entities.size(), 3);
 	BOOST_CHECK_EQUAL(sat_pool.size(), 3);
@@ -60,4 +61,41 @@ BOOST_AUTO_TEST_CASE( auto_component_creation )
 	BOOST_CHECK_EQUAL(*sat_pool.get(entity::make_entity(0)), 1.f);
 	BOOST_CHECK_EQUAL(*dense_pool.get(entity::make_entity(0)), 2.f);
 	BOOST_CHECK_EQUAL(*sparse_pool.get(entity::make_entity(0)), 3.f);
+
+	for(auto&& e : entity_list)
+	{
+		entities.destroy(e);
+	}
+
+	BOOST_CHECK_EQUAL(entities.size(), 0);
+	BOOST_CHECK_EQUAL(sat_pool.size(), 0);
+	BOOST_CHECK_EQUAL(dense_pool.size(), 0);
+	BOOST_CHECK_EQUAL(sparse_pool.size(), 0);
+}
+
+BOOST_AUTO_TEST_CASE( component_destruction )
+{
+	entity::entity_pool entities;
+	entity::saturated_component_pool<float> sat_pool(entities);
+	entity::dense_component_pool<float> dense_pool(entities);
+	entity::sparse_component_pool<float> sparse_pool(entities);
+
+	sat_pool.auto_create_components(entities, 1.f);
+	dense_pool.auto_create_components(entities, 2.f);
+	sparse_pool.auto_create_components(entities, 3.f);
+
+	std::vector<entity::entity> entity_list;
+	entity_list.push_back(entities.create());
+	entity_list.push_back(entities.create());
+	entity_list.push_back(entities.create());
+
+	for(auto&& e : entity_list)
+	{
+		entities.destroy(e);
+	}
+
+	BOOST_CHECK_EQUAL(entities.size(), 0);
+	BOOST_CHECK_EQUAL(sat_pool.size(), 0);
+	BOOST_CHECK_EQUAL(dense_pool.size(), 0);
+	BOOST_CHECK_EQUAL(sparse_pool.size(), 0);
 }
