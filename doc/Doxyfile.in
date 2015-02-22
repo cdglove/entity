@@ -12,7 +12,8 @@ ENABLED_SECTIONS        =
 
 # Resources
 OUTPUT_DIRECTORY        =
-INPUT                   = @PROJECT_SOURCE_DIR@/entity
+INPUT                   = @PROJECT_SOURCE_DIR@/entity \
+						  @PROJECT_SOURCE_DIR@/doc/index.md
 FILE_PATTERNS           = *.hpp *.md
 RECURSIVE               = YES
 EXCLUDE                 = 
@@ -82,7 +83,7 @@ EXPAND_ONLY_PREDEF      = NO
 SEARCH_INCLUDES         = YES
 INCLUDE_PATH            = @PROJECT_INCLUDE_DIR@
 INCLUDE_FILE_PATTERNS   =
-PREDEFINED              = 
+PREDEFINED              = ENTITY_DOXYGEN_INVOKED=1
 SKIP_FUNCTION_MACROS    = NO
 
 # Source browsing
