@@ -33,7 +33,16 @@ namespace entity { namespace functional
 		}
 	};
 
-	struct get_component
+	struct get_component_ptr
+	{
+		template<typename ComponentPoolWindow>
+		typename ComponentPoolWindow::value_type* operator()(ComponentPoolWindow view) const
+		{
+			return &view.get();
+		}
+	};
+
+	struct get_component_ref
 	{
 		template<typename ComponentPoolWindow>
 		typename ComponentPoolWindow::value_type& operator()(ComponentPoolWindow view) const
@@ -42,9 +51,9 @@ namespace entity { namespace functional
 		}
 	};
 
-	struct increment_window
+	struct increment_window_and
 	{
-		increment_window(entity target)
+		increment_window_and(entity target)
 			: target_(target)
 		{}
 
@@ -57,9 +66,9 @@ namespace entity { namespace functional
 		entity target_;
 	};
 
-	struct advance_window
+	struct advance_window_and
 	{
-		advance_window(entity target)
+		advance_window_and(entity target)
 			: target_(target)
 		{}
 
@@ -67,6 +76,36 @@ namespace entity { namespace functional
 		bool operator()(bool result, ComponentPoolWindow& view) const
 		{
 			return view.increment(target_) && result;
+		}
+
+		entity target_;
+	};
+
+	struct increment_window_or
+	{
+		increment_window_or(entity target)
+			: target_(target)
+		{}
+
+		template<typename ComponentPoolWindow>
+		bool operator()(bool result, ComponentPoolWindow& view) const
+		{
+			return view.increment(target_) || result;
+		}
+
+		entity target_;
+	};
+
+	struct advance_window_or
+	{
+		advance_window_or(entity target)
+			: target_(target)
+		{}
+
+		template<typename ComponentPoolWindow>
+		bool operator()(bool result, ComponentPoolWindow& view) const
+		{
+			return view.increment(target_) || result;
 		}
 
 		entity target_;
