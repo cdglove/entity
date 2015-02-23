@@ -3,10 +3,11 @@ entity
 
 Entity/Component System for C++
 
-'entity' implements a method to compose object-like things from component-link
+'entity' implements a method to compose object-like things from component-like
 things in a dynamic, yet typesafe fashion.  Such a system is usually refered
 to as en Entity-Component system.  Several interesting properties can come from
-such a design such as increased performance and reduced memory usage.
+such a design such as increased performance, reduced memory usage, looser coupling
+and cleaner code.
 
 ## Documentation
 
