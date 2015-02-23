@@ -64,7 +64,7 @@ The code is known to work on the following compilers:
 - GCC 4.9.0
 - MSVC 2015
 
-\section tutorial-quick-start Quick Start
+\section tutorial-what-is-entity What is entity?
 
 --------------------------------------------
 
