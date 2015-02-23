@@ -2,6 +2,9 @@ language: cpp
 
 script: cmake
 
+git:
+    submodules: false
+
 compiler:
  - clang
  - gcc
