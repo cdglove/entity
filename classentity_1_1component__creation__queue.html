@@ -115,8 +115,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a84ab130da890cfc582da856a92bf1c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4391651ad6b4069bdd06beb47db57c85"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classentity_1_1component__creation__queue.html#a4391651ad6b4069bdd06beb47db57c85">flush</a> ()</td></tr>
 <tr class="separator:a4391651ad6b4069bdd06beb47db57c85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfb83af59f241d101be1abe58e313728"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classentity_1_1component__creation__queue.html#acfb83af59f241d101be1abe58e313728">push</a> (<a class="el" href="classentity_1_1weak__entity.html">weak_entity</a> e, <a class="el" href="classentity_1_1component__creation__queue.html#a94759a3fbbcb29efc3deb06593c034aa">type</a> &amp;&amp;original)</td></tr>
-<tr class="separator:acfb83af59f241d101be1abe58e313728"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abadcda1abb2a444fda885e959dce31cd"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:abadcda1abb2a444fda885e959dce31cd"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classentity_1_1component__creation__queue.html#abadcda1abb2a444fda885e959dce31cd">push</a> (<a class="el" href="classentity_1_1weak__entity.html">weak_entity</a> e, Args &amp;&amp;...args)</td></tr>
+<tr class="separator:abadcda1abb2a444fda885e959dce31cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9dc719305049ef45f64ea00885b49d0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classentity_1_1component__creation__queue.html#ae9dc719305049ef45f64ea00885b49d0">~component_creation_queue</a> ()</td></tr>
 <tr class="separator:ae9dc719305049ef45f64ea00885b49d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -174,11 +175,13 @@ template&lt;typename ComponentPool &gt; </div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="acfb83af59f241d101be1abe58e313728"></a>
+<a class="anchor" id="abadcda1abb2a444fda885e959dce31cd"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename ComponentPool &gt; </div>
+<div class="memtemplate">
+template&lt;typename... Args&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classentity_1_1component__creation__queue.html">entity::component_creation_queue</a>&lt; ComponentPool &gt;::push </td>
@@ -189,8 +192,8 @@ template&lt;typename ComponentPool &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classentity_1_1component__creation__queue.html#a94759a3fbbcb29efc3deb06593c034aa">type</a> &amp;&amp;&#160;</td>
-          <td class="paramname"><em>original</em>&#160;</td>
+          <td class="paramtype">Args &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -200,10 +203,11 @@ template&lt;typename ComponentPool &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="component__creation__queue_8hpp_source.html#l00050">50</a> of file <a class="el" href="component__creation__queue_8hpp_source.html">component_creation_queue.hpp</a>.</p>
-<div class="fragment"><div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        {</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;            created_.push_back(std::make_pair(e, std::move(original)));</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        }</div>
+<p>Definition at line <a class="el" href="component__creation__queue_8hpp_source.html#l00045">45</a> of file <a class="el" href="component__creation__queue_8hpp_source.html">component_creation_queue.hpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;        {</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;            created_.push_back(std::make_pair(e, <a class="code" href="classentity_1_1component__creation__queue.html#a94759a3fbbcb29efc3deb06593c034aa">type</a>(std::forward&lt;Args&gt;(args)...)));</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        }</div>
+<div class="ttc" id="classentity_1_1component__creation__queue_html_a94759a3fbbcb29efc3deb06593c034aa"><div class="ttname"><a href="classentity_1_1component__creation__queue.html#a94759a3fbbcb29efc3deb06593c034aa">entity::component_creation_queue::type</a></div><div class="ttdeci">ComponentPool::type type</div><div class="ttdef"><b>Definition:</b> <a href="component__creation__queue_8hpp_source.html#l00032">component_creation_queue.hpp:32</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>

@@ -118,32 +118,32 @@ $(document).ready(function(){initNavTree('tie_8hpp_source.html','');});
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="comment">//</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="preprocessor">#if ENTITY_SUPPORT_VARIADICS</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span>... Pools&gt;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    boost::fusion::vector&lt;Pools&amp;...&gt; <a class="code" href="namespaceentity.html#aa9b2b26ba5e6d3f18848c9a90e6448d1">tie</a>(Pools&amp;... pools)</div>
+<div class="line"><a name="l00028"></a><span class="lineno"><a class="line" href="namespaceentity.html#ac5290bc91a080c006c83dc80ea6f9f24">   28</a></span>&#160;    boost::fusion::vector&lt;Pools&amp;...&gt; <a class="code" href="namespaceentity.html#ac5290bc91a080c006c83dc80ea6f9f24">tie</a>(Pools&amp;... pools)</div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    {</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        <span class="keywordflow">return</span> boost::fusion::vector&lt;Pools&amp;...&gt;(pools...);</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    }</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="preprocessor">#else</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Pool&gt;</div>
-<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="namespaceentity.html#aa9b2b26ba5e6d3f18848c9a90e6448d1">   34</a></span>&#160;    boost::fusion::vector&lt;Pool&amp;&gt; <a class="code" href="namespaceentity.html#aa9b2b26ba5e6d3f18848c9a90e6448d1">tie</a>(Pool&amp; pool)</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    boost::fusion::vector&lt;Pool&amp;&gt; <a class="code" href="namespaceentity.html#ac5290bc91a080c006c83dc80ea6f9f24">tie</a>(Pool&amp; pool)</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    {</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="keywordflow">return</span> boost::fusion::vector&lt;Pool&amp;&gt;(pool);</div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    }</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Pool1, <span class="keyword">typename</span> Pool2&gt;</div>
-<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="namespaceentity.html#a4f401747f14753fecf6037111aa6f55b">   40</a></span>&#160;    boost::fusion::vector&lt;Pool1&amp;, Pool2&amp;&gt; <a class="code" href="namespaceentity.html#aa9b2b26ba5e6d3f18848c9a90e6448d1">tie</a>(Pool1&amp; pool_1, Pool2&amp; pool_2)</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    boost::fusion::vector&lt;Pool1&amp;, Pool2&amp;&gt; <a class="code" href="namespaceentity.html#ac5290bc91a080c006c83dc80ea6f9f24">tie</a>(Pool1&amp; pool_1, Pool2&amp; pool_2)</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    {</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        <span class="keywordflow">return</span> boost::fusion::vector&lt;Pool1&amp;, Pool2&amp;&gt;(pool_1, pool_2);</div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    }</div>
 <div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;</div>
 <div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    <span class="keyword">template</span>&lt;<span class="keyword">typename</span> Pool1, <span class="keyword">typename</span> Pool2, <span class="keyword">typename</span> Pool3&gt;</div>
-<div class="line"><a name="l00046"></a><span class="lineno"><a class="line" href="namespaceentity.html#a2b0725d18501d0aec4f0da03d9e5b973">   46</a></span>&#160;    boost::fusion::vector&lt;Pool1&amp;, Pool2&amp;, Pool3&amp;&gt; <a class="code" href="namespaceentity.html#aa9b2b26ba5e6d3f18848c9a90e6448d1">tie</a>(Pool1&amp; pool_1, Pool2&amp; pool_2, Pool3&amp; pool_3)</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    boost::fusion::vector&lt;Pool1&amp;, Pool2&amp;, Pool3&amp;&gt; <a class="code" href="namespaceentity.html#ac5290bc91a080c006c83dc80ea6f9f24">tie</a>(Pool1&amp; pool_1, Pool2&amp; pool_2, Pool3&amp; pool_3)</div>
 <div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    {</div>
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordflow">return</span> boost::fusion::vector&lt;Pool1&amp;, Pool2&amp;, Pool3&amp;&gt;(pool_1, pool_2, pool_3);</div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;    }</div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="preprocessor">}</span></div>
 <div class="ttc" id="namespaceentity_html"><div class="ttname"><a href="namespaceentity.html">entity</a></div><div class="ttdef"><b>Definition:</b> <a href="for__each_8hpp_source.html#l00032">for_each.hpp:32</a></div></div>
-<div class="ttc" id="namespaceentity_html_aa9b2b26ba5e6d3f18848c9a90e6448d1"><div class="ttname"><a href="namespaceentity.html#aa9b2b26ba5e6d3f18848c9a90e6448d1">entity::tie</a></div><div class="ttdeci">boost::fusion::vector&lt; Pool &amp; &gt; tie(Pool &amp;pool)</div><div class="ttdef"><b>Definition:</b> <a href="tie_8hpp_source.html#l00034">tie.hpp:34</a></div></div>
+<div class="ttc" id="namespaceentity_html_ac5290bc91a080c006c83dc80ea6f9f24"><div class="ttname"><a href="namespaceentity.html#ac5290bc91a080c006c83dc80ea6f9f24">entity::tie</a></div><div class="ttdeci">boost::fusion::vector&lt; Pools &amp;...&gt; tie(Pools &amp;...pools)</div><div class="ttdef"><b>Definition:</b> <a href="tie_8hpp_source.html#l00028">tie.hpp:28</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

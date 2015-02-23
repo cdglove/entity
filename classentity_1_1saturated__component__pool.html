@@ -127,12 +127,14 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a39c3a3ae7b532154bd9d0f01ab857fe7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classentity_1_1saturated__component__pool.html#a39c3a3ae7b532154bd9d0f01ab857fe7">auto_create_components</a> (<a class="el" href="classentity_1_1entity__pool.html">entity_pool</a> &amp;owner_pool, T const &amp;default_value)</td></tr>
-<tr class="separator:a39c3a3ae7b532154bd9d0f01ab857fe7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22263baff737dfc9ef7e8d267cc97136"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a22263baff737dfc9ef7e8d267cc97136"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classentity_1_1saturated__component__pool.html#a22263baff737dfc9ef7e8d267cc97136">auto_create_components</a> (<a class="el" href="classentity_1_1entity__pool.html">entity_pool</a> &amp;owner_pool, Args...constructor_args)</td></tr>
+<tr class="separator:a22263baff737dfc9ef7e8d267cc97136"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa48fcc68262b7ebc3b04c8e8573fa857"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classentity_1_1saturated__component__pool.html#ab3e8dcd2242147c3a3f67133778f1764">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classentity_1_1saturated__component__pool.html#aa48fcc68262b7ebc3b04c8e8573fa857">begin</a> ()</td></tr>
 <tr class="separator:aa48fcc68262b7ebc3b04c8e8573fa857"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a378504ec0e3eca3fa96215f82d408139"><td class="memItemLeft" align="right" valign="top">T *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classentity_1_1saturated__component__pool.html#a378504ec0e3eca3fa96215f82d408139">create</a> (<a class="el" href="classentity_1_1entity.html">entity</a> e, <a class="el" href="classentity_1_1saturated__component__pool.html#adce919d5a3584cbaea41418dbd9d86af">type</a> original)</td></tr>
-<tr class="separator:a378504ec0e3eca3fa96215f82d408139"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a524f201f772b7302e88a044de7c1c658"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a524f201f772b7302e88a044de7c1c658"><td class="memTemplItemLeft" align="right" valign="top">T *&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classentity_1_1saturated__component__pool.html#a524f201f772b7302e88a044de7c1c658">create</a> (<a class="el" href="classentity_1_1entity.html">entity</a> e, Args &amp;&amp;...args)</td></tr>
+<tr class="separator:a524f201f772b7302e88a044de7c1c658"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58a10d4ea0cabaf9b69b6aaebdc82189"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classentity_1_1saturated__component__pool.html#a58a10d4ea0cabaf9b69b6aaebdc82189">destroy</a> (<a class="el" href="classentity_1_1entity.html">entity</a> e)</td></tr>
 <tr class="separator:a58a10d4ea0cabaf9b69b6aaebdc82189"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a043cc953d1a677fc566b09c2cbf91c55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classentity_1_1saturated__component__pool.html#ab3e8dcd2242147c3a3f67133778f1764">iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classentity_1_1saturated__component__pool.html#a043cc953d1a677fc566b09c2cbf91c55">end</a> ()</td></tr>
@@ -198,11 +200,13 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a class="anchor" id="a39c3a3ae7b532154bd9d0f01ab857fe7"></a>
+<a class="anchor" id="a22263baff737dfc9ef7e8d267cc97136"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename T &gt; </div>
+<div class="memtemplate">
+template&lt;typename... Args&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void <a class="el" href="classentity_1_1saturated__component__pool.html">entity::saturated_component_pool</a>&lt; T &gt;::auto_create_components </td>
@@ -213,8 +217,8 @@ template&lt;typename T &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">T const &amp;&#160;</td>
-          <td class="paramname"><em>default_value</em>&#160;</td>
+          <td class="paramtype">Args...&#160;</td>
+          <td class="paramname"><em>constructor_args</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -224,22 +228,22 @@ template&lt;typename T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="saturated__component__pool_8hpp_source.html#l00252">252</a> of file <a class="el" href="saturated__component__pool_8hpp_source.html">saturated_component_pool.hpp</a>.</p>
+<p>Definition at line <a class="el" href="saturated__component__pool_8hpp_source.html#l00238">238</a> of file <a class="el" href="saturated__component__pool_8hpp_source.html">saturated_component_pool.hpp</a>.</p>
 
-<p>References <a class="el" href="saturated__component__pool_8hpp_source.html#l00275">entity::saturated_component_pool&lt; T &gt;::create()</a>, <a class="el" href="entity__pool_8hpp_source.html#l00092">entity::entity_pool::signal_list::on_entity_create</a>, and <a class="el" href="entity__pool_8hpp_source.html#l00184">entity::entity_pool::signals()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;        {</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;            slots_.entity_create_handler = </div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;                owner_pool.signals().on_entity_create.connect(</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;                    boost::bind(</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;                        &amp;<a class="code" href="classentity_1_1saturated__component__pool.html#a378504ec0e3eca3fa96215f82d408139">saturated_component_pool::create</a>,</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;                        <span class="keyword">this</span>,</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;                        ::_1,</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;                        default_value</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;                    )</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;                )</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;            ;</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;        }</div>
-<div class="ttc" id="classentity_1_1saturated__component__pool_html_a378504ec0e3eca3fa96215f82d408139"><div class="ttname"><a href="classentity_1_1saturated__component__pool.html#a378504ec0e3eca3fa96215f82d408139">entity::saturated_component_pool::create</a></div><div class="ttdeci">T * create(entity e, type original)</div><div class="ttdef"><b>Definition:</b> <a href="saturated__component__pool_8hpp_source.html#l00275">saturated_component_pool.hpp:275</a></div></div>
+<p>References <a class="el" href="entity__pool_8hpp_source.html#l00092">entity::entity_pool::signal_list::on_entity_create</a>, and <a class="el" href="entity__pool_8hpp_source.html#l00184">entity::entity_pool::signals()</a>.</p>
+<div class="fragment"><div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;        {</div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;            slots_.entity_create_handler = </div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;                owner_pool.signals().on_entity_create.connect(</div>
+<div class="line"><a name="l00242"></a><span class="lineno">  242</span>&#160;                    std::function&lt;<span class="keywordtype">void</span>(<a class="code" href="namespaceentity.html">entity</a>)&gt;(</div>
+<div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;                        [<span class="keyword">this</span>, constructor_args...](<a class="code" href="namespaceentity.html">entity</a> e) </div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;                        {</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;                            create(e, constructor_args...);</div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;                        }</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;                    )</div>
+<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;                )</div>
+<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;            ;</div>
+<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;        }</div>
+<div class="ttc" id="namespaceentity_html"><div class="ttname"><a href="namespaceentity.html">entity</a></div><div class="ttdef"><b>Definition:</b> <a href="for__each_8hpp_source.html#l00032">for_each.hpp:32</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -266,11 +270,13 @@ template&lt;typename T &gt; </div>
 </div><!-- fragment -->
 </div>
 </div>
-<a class="anchor" id="a378504ec0e3eca3fa96215f82d408139"></a>
+<a class="anchor" id="a524f201f772b7302e88a044de7c1c658"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
 template&lt;typename T &gt; </div>
+<div class="memtemplate">
+template&lt;typename... Args&gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">T* <a class="el" href="classentity_1_1saturated__component__pool.html">entity::saturated_component_pool</a>&lt; T &gt;::create </td>
@@ -281,8 +287,8 @@ template&lt;typename T &gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classentity_1_1saturated__component__pool.html#adce919d5a3584cbaea41418dbd9d86af">type</a>&#160;</td>
-          <td class="paramname"><em>original</em>&#160;</td>
+          <td class="paramtype">Args &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -292,13 +298,11 @@ template&lt;typename T &gt; </div>
       </table>
 </div><div class="memdoc">
 
-<p>Definition at line <a class="el" href="saturated__component__pool_8hpp_source.html#l00275">275</a> of file <a class="el" href="saturated__component__pool_8hpp_source.html">saturated_component_pool.hpp</a>.</p>
-
-<p>Referenced by <a class="el" href="saturated__component__pool_8hpp_source.html#l00252">entity::saturated_component_pool&lt; T &gt;::auto_create_components()</a>.</p>
-<div class="fragment"><div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;        {</div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;            components_.emplace(components_.begin() + e.index(), std::move(original));</div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;            <span class="keywordflow">return</span> &amp;components_[e.index()];</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;        }   </div>
+<p>Definition at line <a class="el" href="saturated__component__pool_8hpp_source.html#l00269">269</a> of file <a class="el" href="saturated__component__pool_8hpp_source.html">saturated_component_pool.hpp</a>.</p>
+<div class="fragment"><div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;        {</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;            components_.emplace(components_.begin() + e.index(), std::forward&lt;Args&gt;(args)...);</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;            <span class="keywordflow">return</span> &amp;components_[e.index()];</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;        }   </div>
 </div><!-- fragment -->
 </div>
 </div>
