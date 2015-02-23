@@ -3,8 +3,15 @@ entity
 
 Entity/Component System for C++
 
-There are several entity/component systems out there for C++.  They all suffer from the same issue:  The component list is carried with the entity which creates a performance issue in code trying to get components.
+'entity' implements a method to compose object-like things from component-link
+things in a dynamic, yet typesafe fashion.  Such a system is usually refered
+to as en Entity-Component system.  Several interesting properties can come from
+such a design such as increased performance and reduced memory usage.
 
-'entity' takes a different approache.  Here, an entity is basically an int and a component is a corresponding entry in an array somewhere.  This simple approach leads to a near zero performance penalty for the abstraction with the only caveat being that the code must have access to the pools as well as the entity in order to do any work.  This can actually lead to better codee because not all code will be able to access all components because the pools themselves may be private.
+## Documentation
 
-**Build status (on Travis-CI):** [![Build Status](https://travis-ci.org/cdglove/entity.svg?branch=master)](https://travis-ci.org/cdglove/entity)
+Incomplete, but evolving, documentation is available [here](http://cdglove.github.io/entity).
+
+## Build Status
+
+**Travis-CI:** [![Build Status](https://travis-ci.org/cdglove/entity.svg?branch=master)](https://travis-ci.org/cdglove/entity)
