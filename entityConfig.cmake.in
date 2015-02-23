@@ -1,0 +1,18 @@
+# - Config file for the daily package
+# It defines the following variables
+#  ENTITY_INCLUDE_DIRS	  - include directories for entity
+#  ENTITY_LIBRARIES    	  - libraries to link against (full path)
+ 
+# Compute paths
+get_filename_component(ENTITY_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(ENTITY_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
+ 
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(    NOT TARGET daily
+   AND NOT ENTITY_BINARY_DIR)
+  include("${ENTITY_CMAKE_DIR}/entityTargets.cmake")
+endif()
+ 
+# These are IMPORTED targets created by dailyTargets.cmake
+set(ENTITY_LIBRARIES entity)
+
