@@ -12,8 +12,6 @@ find_package( Boost
     chrono
 )
 
-message("entity includes: " ${ENTITY_INCLUDE_DIRS})
-
 function(create_test test_name test_source test_defines)
 	add_executable(${test_name} ${test_source})
 	#set_target_properties(${test_name} PROPERTIES COMPILE_DEFINITIONS ${test_defines})
