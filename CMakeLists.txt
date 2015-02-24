@@ -48,7 +48,6 @@ configure_file (
   "${PROJECT_BINARY_DIR}/entity/config.hpp")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -86,8 +85,17 @@ find_package(daily)
 ###############################################################################
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
 file(GLOB_RECURSE PROJECT_HEADERS entity/*.hpp)
+
+set(ENTITY_INCLUDE_DIRS 
+	${Boost_INCLUDE_DIR} 
+	${DAILY_INCLUDE_DIRS} 
+	${PROJECT_SOURCE_DIR}
+	${PROJECT_BINARY_DIR}
+)
+set(ENTITY_LIBRARIES entity ${DAILY_LIBRARIES})
+
 add_library( ${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS} )
-target_include_directories( ${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIR} ${DAILY_INCLUDE_DIRS})
+target_include_directories( ${PROJECT_NAME} PUBLIC ${ENTITY_INCLUDE_DIRS})
 
 enable_testing()
 
@@ -105,6 +113,7 @@ endif()
 #
 # (so entity can be easily used by other CMake projects)
 # [see http://www.cmake.org/Wiki/CMake/Tutorials/How_to_create_a_ProjectConfig.cmake_file]
+#
 ###############################################################################
 
 # Add all targets to the build-tree export set
@@ -116,11 +125,9 @@ export(PACKAGE entity)
 # Create the entityConfig.cmake and entityConfigVersion files
 file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${CMAKE_INSTALL_FULL_INCLUDEDIR}")
 # ... for the build tree
-set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}")
 configure_file(entityConfig.cmake.in
 	"${PROJECT_BINARY_DIR}/entityConfig.cmake" @ONLY)
 # ... for the install tree
-set(CONF_INCLUDE_DIRS "\${ENTITY_CMAKE_DIR}/${REL_INCLUDE_DIR}")
 configure_file(entityConfig.cmake.in
 	"${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/entityConfig.cmake" @ONLY)
 # ... for both

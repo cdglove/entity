@@ -12,17 +12,13 @@ find_package( Boost
     chrono
 )
 
-include_directories("${PROJECT_INCLUDE_DIR}")
-include_directories("${PROJECT_BINARY_DIR}")
-
-## --- Unit Testing --- ##
-enable_testing()
+message("entity includes: " ${ENTITY_INCLUDE_DIRS})
 
 function(create_test test_name test_source test_defines)
 	add_executable(${test_name} ${test_source})
 	#set_target_properties(${test_name} PROPERTIES COMPILE_DEFINITIONS ${test_defines})
-	target_include_directories( ${test_name} PUBLIC ${Boost_INCLUDE_DIR} ${DAILY_INCLUDE_DIRS})
-	target_link_libraries(${test_name} ${Boost_LIBRARIES})
+	target_include_directories( ${test_name} PUBLIC ${ENTITY_INCLUDE_DIRS})
+	target_link_libraries(${test_name} ${Boost_LIBRARIES} ${ENTITY_LIBRARIES})
 	add_test(${test_name} ${test_name})
 	set_property(TARGET ${test_name} APPEND PROPERTY COMPILE_DEFINITIONS ${test_defines})	
 	if(MSVC)
