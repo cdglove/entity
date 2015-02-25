@@ -59,6 +59,16 @@ include(contrib/cmaketools/external_git.cmake)
 
 ###############################################################################
 #
+# Find Boost
+#
+###############################################################################
+find_package( Boost
+	REQUIRED
+    system
+)
+
+###############################################################################
+#
 # Find daily
 #
 ###############################################################################
@@ -83,7 +93,7 @@ set(ENTITY_INCLUDE_DIRS
 	${PROJECT_SOURCE_DIR}
 	${PROJECT_BINARY_DIR}
 )
-set(ENTITY_LIBRARIES entity ${DAILY_LIBRARIES})
+set(ENTITY_LIBRARIES entity ${DAILY_LIBRARIES} ${Boost_LIBRARIES})
 
 add_library( ${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS} )
 target_include_directories( ${PROJECT_NAME} PUBLIC ${ENTITY_INCLUDE_DIRS})
