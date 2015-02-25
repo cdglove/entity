@@ -8,7 +8,7 @@ get_filename_component(ENTITY_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 set(ENTITY_INCLUDE_DIRS "@ENTITY_INCLUDE_DIRS@")
  
 # Our library dependencies (contains definitions for IMPORTED targets)
-if(    NOT TARGET daily
+if(    NOT TARGET entity
    AND NOT ENTITY_BINARY_DIR)
   include("${ENTITY_CMAKE_DIR}/entityTargets.cmake")
 endif()
