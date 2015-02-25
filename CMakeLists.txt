@@ -48,16 +48,7 @@ configure_file (
   "${PROJECT_BINARY_DIR}/entity/config.hpp")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-if(COMPILER_SUPPORTS_CXX11)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-else()
-	if(NOT MSVC)
-		message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has may not support Please use a different C++ compiler if building fails.")
-	endif()
-endif()
+include(contrib/cmaketools/enable_cpp11.cmake)
 
 ###############################################################################
 #
@@ -65,13 +56,13 @@ endif()
 #
 ###############################################################################
 include(contrib/cmaketools/external_git.cmake)
-set(DAILY_BUILD_TESTS OFF CACHE BOOL "Disable libdaily tests" FORCE)
 
 ###############################################################################
 #
 # Find daily
 #
 ###############################################################################
+set(DAILY_BUILD_TESTS OFF CACHE BOOL "Disable libdaily tests" FORCE)
 add_external_git_repo(
   "https://github.com/cdglove/daily.git"
   "master"
