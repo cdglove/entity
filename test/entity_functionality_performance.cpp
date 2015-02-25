@@ -13,14 +13,7 @@
 //#define DAILY_INSTRUMENTATION_USE_BOOST_TIMER 1
 #define DAILY_ENABLE_INSTRUMENTATION 0
 
-#include "entity/dense_component_pool.hpp"
-#include "entity/sparse_component_pool.hpp"
-#include "entity/saturated_component_pool.hpp"
-#include "entity/algorithm/for_each.hpp"
-#include "entity/algorithm/simd/sse/for_each.hpp"
-#include "entity/component_creation_queue.hpp"
-#include "entity/component_destruction_queue.hpp"
-#include "entity/component/tie.hpp"
+#include "entity/all.hpp"
 #include "performance_common.hpp"
 #include <daily/timer/instrument.h>
 #include <random>
