@@ -1,5 +1,7 @@
 var NAVTREEINDEX1 =
 {
+"structentity_1_1functional_1_1is__entity.html#ab9bcdd2804a95eeede96e2f1ce624e36":[1,1,1,1,5,0],
+"structentity_1_1is__zipped__component__tuple.html":[1,1,1,12],
 "structentity_1_1is__zipped__component__tuple_3_01zipped__component__windows_3_01ComponentTuple_01_4_01_4.html":[1,1,1,13],
 "structentity_1_1iterator__traits_1_1entity__list__is__incremental.html":[1,1,1,2,0],
 "structentity_1_1iterator__traits_1_1entity__list__is__incremental_3_01entity__pool_01_4.html":[1,1,1,2,1],
