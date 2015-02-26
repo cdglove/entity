@@ -31,7 +31,7 @@ create_test(test.compilation instantiate_pools.cpp "")
 create_test(test.entity_lifetimes entity_lifetimes.cpp "")
 create_test(test.iterator iteration.cpp "")
 create_test(test.signals signals.cpp "")
-create_test(test.pools entity_functionality_performance.cpp "TEST_MIXED_POOLS=1;TEST_DENSITY=(0.0001f)")
+create_test(test.pools entity_functionality_performance.cpp "TEST_MIXED_POOLS=1;TEST_SIZE=1024")
 
 if(ENTITY_ENABLE_PERFORMANCE_TESTS)
 	create_test(test.perf.saturated_pool.for_each entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1")
