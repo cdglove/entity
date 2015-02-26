@@ -21,31 +21,52 @@ refinement.
 
 --------------------------------------------
 
-This library is currently header-only but depends on boost 1.55 or higher.
-The easiest installation is to get the source from the [entity
-repository](https://github.com/cdglove/entity) on github and then point your
-compiler at it via -I, /I, et al. Alternatively, if you use cmake, you can
-auto configure it using my handy [cmake
-tools](https://github.com/cdglove/cmaketools) by placing it somewhere in your
-project and adding the following to your CMakeLists.txt
+This library is currently header-only but depends on boost 1.55 or higher. The
+easiest installation is, if you use cmake, to auto configure it using my handy
+[cmake tools](https://github.com/cdglove/cmaketools).  An example might look
+like this;
 
+> Download cmaketools to project folder
+~~~~~~~{.sh}
+mkdir my_program
+cd my_program
+git clone https://github.com/cdglove/cmaketools contrib/cmaketools
+~~~~~~~
+
+> Add the following to a CMakeLists.txt
 ~~~~~~~{.cmake}
 include(contrib/cmaketools/external_git.cmake)
+include(contrib/cmaketools/enable_cpp11.cmake)
+
+set(ENTITY_BUILD_TESTS OFF CACHE BOOL "Disable libentity tests" FORCE)
 add_external_git_repo(
-  "https://github.com/cdglove/entity.git"
-  "master"
-  "contrib/entity")
+	"https://github.com/cdglove/entity.git"
+	"master" # master breach at HEAD.  Or a specific commit.
+	"contrib/entity")
 find_package(entity)
+
+add_executable(my_executable main.cpp)
+target_include_directories( my_executable PUBLIC ${ENTITY_INCLUDE_DIRS})
+target_link_libraries( my_executable ${ENTITY_LIBRARIES})
 ~~~~~~~
 
-If you don't want to be on master, you can specify a particular commit instead.
-
-Or you can `#%include` only the core, and then the individual headers you want:
+That's all that's required.  entity will autoconfigure itself and your project
+with the appropriate dependencies.  To get started,
 
 ~~~~~~~{.cpp}
-#include <range/v3/core.hpp>
-#include <range/v3/....
+#include <entity/all.hpp>
 ~~~~~~~
+
+or each individual component;
+
+~~~~~~~{.cpp}
+#include <entity/dense_component_pool.hpp>
+#include <entity/....hpp>
+~~~~~~~
+
+Alternatively, you can get the source from the [entity
+repository](https://github.com/cdglove/entity) on github and then point your
+compiler at it via -I, /I, et al.
 
 \subsection tutorial-license License
 
