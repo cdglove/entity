@@ -55,7 +55,7 @@ install:
   - cd $CHECKOUT_PATH
   - if [ ! -d build ]; then mkdir build; fi
   - cd build
-  - export CXX_FLAGS="-DTEST_SIZE=1024"
+  - export CXX_FLAGS=""
   - export CXX_LINKER_FLAGS=""
   - if [ -z "$BUILD_TYPE" ]; then export BUILD_TYPE=Release; fi
   - if [ -n "$ASAN" ]; then export CXX_FLAGS="${CXX_FLAGS} -fsanitize=address,undefined,integer -fno-omit-frame-pointer -fno-sanitize=unsigned-integer-overflow"; fi
@@ -63,7 +63,7 @@ install:
   - if [ -n "$LIBCXX" ]; then CXX_FLAGS="${CXX_FLAGS} -stdlib=libc++ -I/usr/include/c++/v1/"; fi
   - if [ -n "$LIBCXX" ]; then CXX_LINKER_FLAGS="${CXX_FLAGS} -L/usr/lib/ -lc++"; fi
 
-  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--no-as-needed ${CXX_LINKER_FLAGS} -lrt"
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENTITY_ENABLE_PERFORMANCE_TESTS=OFF -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--no-as-needed ${CXX_LINKER_FLAGS} -lrt"
   - make VERBOSE=1
 script:
   # disable unit tests on clang because they won't run without a libc++ compiled boost.
