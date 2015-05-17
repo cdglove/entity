@@ -57,11 +57,11 @@ with the appropriate dependencies.  To get started,
 #include <entity/all.hpp>
 ~~~~~~~
 
-or each individual component;
+or each individual file as necessary;
 
 ~~~~~~~{.cpp}
-#include <entity/dense_component_pool.hpp>
-#include <entity/....hpp>
+#include <entity/component/dense_pool.hpp>
+#include <entity/**/*.hpp>
 ~~~~~~~
 
 Alternatively, you can get the source from the [entity
