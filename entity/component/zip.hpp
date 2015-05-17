@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/component/zip.h
+// entity/component/zip.hpp
 //
 // Creates a tuple of component views such that we
 // can iterate over them as one iterator.

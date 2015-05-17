@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/algotithm/simd/sse/for_each.h
+// entity/algotithm/simd/sse/for_each.hpp
 //
 // Algorithm to call a functor for an entity with the supplied component
 // types.  If the entity does not have all of the supplied compnent types

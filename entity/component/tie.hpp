@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/component/tie.h
+// entity/component/tie.hpp
 //
 // Ties component poos together to be used with algorithms
 // iterators etc.  

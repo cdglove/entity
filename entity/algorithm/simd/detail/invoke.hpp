@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/algorithm/simd/detail/invoke.h
+// entity/algorithm/simd/detail/invoke.hpp
 //
 // Invoker helper function for simd to workaround limitations
 // of boost::fusion::invoke

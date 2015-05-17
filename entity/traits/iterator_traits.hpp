@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/traits/iterator_traits.h
+// entity/traits/iterator_traits.hpp
 //
 // Traits about various pool types, etc.
 // 

@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/algotithm/for_each.h
+// entity/algotithm/for_each.hpp
 //
 // Algorithm to call a functor for an entity with the supplied component
 // types.  If the entity does not have all of the supplied compnent types
