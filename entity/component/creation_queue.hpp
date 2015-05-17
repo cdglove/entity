@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/component_creation_queue.h
+// entity/component/creation_queue.h
 //
 // Represents a way to queue component creation in order to 
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
@@ -11,8 +11,9 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
-#define _ENTITY_COMPONENTCREATIONQUEUE_H_INCLUDED_
+#pragma once
+#ifndef _ENTITY_COMPONENT_CREATIONQUEUE_H_INCLUDED_
+#define _ENTITY_COMPONENT_CREATIONQUEUE_H_INCLUDED_
 
 #include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity.hpp"
@@ -22,20 +23,20 @@
 
 // ----------------------------------------------------------------------------
 //
-namespace entity
+namespace entity { namespace component
 {
 	template<typename ComponentPool>
-	class component_creation_queue
+	class creation_queue
 	{
 	public:
 
 		typedef typename ComponentPool::type type;
 
-		component_creation_queue(ComponentPool& p)
+		creation_queue(ComponentPool& p)
 			: pool_(p)
 		{}
 
-		~component_creation_queue()
+		~creation_queue()
 		{
 			flush();
 		}
@@ -68,12 +69,12 @@ namespace entity
 	private: 
 
 		// No copying.
-		component_creation_queue(component_creation_queue const&);
-		component_creation_queue operator=(component_creation_queue);
+		creation_queue(creation_queue const&);
+		creation_queue operator=(creation_queue);
 
 		std::vector<std::pair<weak_entity, type>> created_;
 		ComponentPool& pool_;
 	};
-}
+} } // namespace entity { namespace component
 
-#endif // _ENTITY_COMPONENTPOOLCREATIONQUEUE_H_INCLUDED_
+#endif // _ENTITY_COMPONENT_CREATIONQUEUE_H_INCLUDED_

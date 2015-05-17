@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/dense_component_pool.hpp
+// entity/component/dense_pool.hpp
 //
 // Represents a component pool where the number of components
 // approaches the number of entitys on those components.
@@ -12,8 +12,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
-#define _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
+#ifndef _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
+#define _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
 
 #include <boost/assert.hpp>
 #include <boost/bind/bind.hpp>
@@ -42,15 +42,15 @@ struct forward_traversal_tag;
 
 // ----------------------------------------------------------------------------
 //
-namespace entity 
+namespace entity { namespace component
 {
 	template<typename ComponentPool>
-	class component_creation_queue;
+	class creation_queue;
 	template<typename ComponentPool>
-	class component_destruction_queue;
+	class destruction_queue;
 
 	template<typename T>
-	class dense_component_pool
+	class dense_pool
 	{
 	private:
 
@@ -77,11 +77,11 @@ namespace entity
 		private:
 
 			friend class boost::iterator_core_access;
-			friend class dense_component_pool;
+			friend class dense_pool;
 
 			typedef typename std::vector<char>::iterator parent_iterator;
 
-			iterator_impl(dense_component_pool* parent, entity_index_t start)
+			iterator_impl(dense_pool* parent, entity_index_t start)
 				: parent_(parent)
 				, entity_index_(start)
 			{
@@ -117,7 +117,7 @@ namespace entity
 				return *parent_->get_component(get_entity().index());
 			}
 
-			dense_component_pool* parent_;
+			dense_pool* parent_;
 			entity_index_t entity_index_;
 		};
 
@@ -166,9 +166,9 @@ namespace entity
 
 		private:
 
-			friend class dense_component_pool;
+			friend class dense_pool;
 
-			window(dense_component_pool* parent)
+			window(dense_pool* parent)
 				: available_begin_(&parent->available_[0])
 				, available_(&parent->available_[0])
 				, data_begin_(&parent->components_[0])
@@ -177,22 +177,22 @@ namespace entity
 
 			char const* available_begin_;
 			char const* available_;
-			typename dense_component_pool::element_t* data_begin_;
-			typename dense_component_pool::element_t* data_;
+			typename dense_pool::element_t* data_begin_;
+			typename dense_pool::element_t* data_;
 		};
 			
 		// --------------------------------------------------------------------
 		//
-		dense_component_pool(entity_pool& owner_pool, T const& default_value = T())
+		dense_pool(entity_pool& owner_pool, T const& default_value = T())
 			: used_count_(0)
 		{
 			components_.resize(owner_pool.size());
 			available_.resize(owner_pool.size(), true);
 
 		#if ENTITY_SUPPORT_VARIADICS
-			auto create_func = &dense_component_pool::create<T const&>;
+			auto create_func = &dense_pool::create<T const&>;
 		#else
-			auto create_func = &dense_component_pool::create;
+			auto create_func = &dense_pool::create;
 		#endif
 			
 			// Create default values for existing entities.
@@ -210,7 +210,7 @@ namespace entity
 			slots_.entity_create_handler = 
 				owner_pool.signals().on_entity_create.connect(
 					boost::bind(
-						&dense_component_pool::handle_create_entity,
+						&dense_pool::handle_create_entity,
 						this,
 						::_1
 					)
@@ -220,7 +220,7 @@ namespace entity
 			slots_.entity_destroy_handler = 
 				owner_pool.signals().on_entity_destroy.connect(
 					boost::bind(
-						&dense_component_pool::handle_destroy_entity,
+						&dense_pool::handle_destroy_entity,
 						this,
 						::_1
 					)
@@ -230,7 +230,7 @@ namespace entity
 			slots_.entity_swap_handler = 
 				owner_pool.signals().on_entity_swap.connect(
 					boost::bind(
-						&dense_component_pool::handle_swap_entity,
+						&dense_pool::handle_swap_entity,
 						this,
 						::_1,
 						::_2
@@ -345,8 +345,12 @@ namespace entity
 
 	private:
 
-		friend class component_creation_queue<dense_component_pool<T>>;
-		friend class component_destruction_queue<dense_component_pool<T>>;
+		// No copying
+		dense_pool(dense_pool const&);
+		dense_pool operator=(dense_pool);
+
+		friend class creation_queue<dense_pool<T>>;
+		friend class destruction_queue<dense_pool<T>>;
 
 		struct slot_list
 		{
@@ -454,6 +458,6 @@ namespace entity
 		std::size_t						used_count_;
 		slot_list						slots_;
 	};
-}
+} } // namespace entity { namespace component
 	
-#endif // _ENTITY_DENSECOMPONENTPOOL_H_INCLUDED_
+#endif // _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_

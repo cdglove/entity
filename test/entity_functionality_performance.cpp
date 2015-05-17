@@ -11,7 +11,7 @@
 //
 // ****************************************************************************
 //#define DAILY_INSTRUMENTATION_USE_BOOST_TIMER 1
-#define DAILY_ENABLE_INSTRUMENTATION 0
+//#define DAILY_ENABLE_INSTRUMENTATION 1
 
 #include "entity/all.hpp"
 #include "performance_common.hpp"
@@ -45,49 +45,49 @@ BOOST_AUTO_TEST_CASE( library_entity )
 	entity::entity_pool entities;
 
 #if TEST_DENSE_POOLS
-	typedef entity::dense_component_pool<float> position_pool_type;
-	typedef entity::dense_component_pool<float> velocity_pool_type;
-	typedef entity::dense_component_pool<float> accel_pool_type;
+	typedef entity::component::dense_pool<float> position_pool_type;
+	typedef entity::component::dense_pool<float> velocity_pool_type;
+	typedef entity::component::dense_pool<float> accel_pool_type;
 #elif TEST_SPARSE_POOLS
-	typedef entity::sparse_component_pool<float> position_pool_type;
-	typedef entity::sparse_component_pool<float> velocity_pool_type;
-	typedef entity::sparse_component_pool<float> accel_pool_type;
+	typedef entity::component::sparse_pool<float> position_pool_type;
+	typedef entity::component::sparse_pool<float> velocity_pool_type;
+	typedef entity::component::sparse_pool<float> accel_pool_type;
 #elif TEST_SATURATED_POOLS
 	assert(kTestDensity == 1.f);
-	typedef entity::saturated_component_pool<float> position_pool_type;
-	typedef entity::saturated_component_pool<float> velocity_pool_type;
-	typedef entity::saturated_component_pool<float> accel_pool_type;
+	typedef entity::component::saturated_pool<float> position_pool_type;
+	typedef entity::component::saturated_pool<float> velocity_pool_type;
+	typedef entity::component::saturated_pool<float> accel_pool_type;
 #elif TEST_MIXED_POOLS
-	typedef entity::sparse_component_pool<float> position_pool_type;
-	typedef entity::dense_component_pool<float> velocity_pool_type;
-	typedef entity::sparse_component_pool<float> accel_pool_type;
+	typedef entity::component::sparse_pool<float> position_pool_type;
+	typedef entity::component::dense_pool<float> velocity_pool_type;
+	typedef entity::component::sparse_pool<float> accel_pool_type;
 #endif
 
 	position_pool_type position_pool(entities);
 	velocity_pool_type velocity_pool(entities);
 	accel_pool_type accel_pool(entities);
 
-	entity::component_creation_queue<
+	entity::component::creation_queue<
 		position_pool_type
 	> position_creation_queue(position_pool);
 
-	entity::component_creation_queue<
+	entity::component::creation_queue<
 		velocity_pool_type
 	> velocity_creation_queue(velocity_pool);
 
-	entity::component_creation_queue<
+	entity::component::creation_queue<
 		accel_pool_type
 	> accel_creation_queue(accel_pool);
 
-	entity::component_destruction_queue<
+	entity::component::destruction_queue<
 		position_pool_type
 	> position_destruction_queue(position_pool);
 
-	entity::component_destruction_queue<
+	entity::component::destruction_queue<
 		velocity_pool_type
 	> velocity_destruction_queue(velocity_pool);
 
-	entity::component_destruction_queue<
+	entity::component::destruction_queue<
 		accel_pool_type
 	> accel_destruction_queue(accel_pool);
 
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 		{
 		#if USE_SSE
 			__m128 increment = _mm_set1_ps(0.001f);
-			entity::simd::sse::for_each(entities, entity::tie(accel_pool), [&increment](__m128& a)
+			entity::simd::sse::for_each(entities, entity::component::tie(accel_pool), [&increment](__m128& a)
 			{
 				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Accel);
 				// Add a little to accel each frame.
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 			// Compute new velocity.
 			__m128 divisor = _mm_set1_ps(2.f);
 			__m128 frame_time_sq = _mm_set1_ps(kFrameTime * kFrameTime);
-			entity::simd::sse::for_each(entities, entity::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m128 const& a, __m128& v)
+			entity::simd::sse::for_each(entities, entity::component::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m128 const& a, __m128& v)
 			{
 				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Velocity);
 				v = _mm_add_ps(
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 			});
 
 			__m128 frame_time = _mm_set1_ps(kFrameTime);
-			entity::simd::sse::for_each(entities, entity::tie(velocity_pool, position_pool), [&frame_time](__m128 const& v, __m128& p)
+			entity::simd::sse::for_each(entities, entity::component::tie(velocity_pool, position_pool), [&frame_time](__m128 const& v, __m128& p)
 			{
 				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Position);
 				// Compute new position.
@@ -228,7 +228,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 			});
 		#elif USE_AVX && ENTITY_SUPPORT_AVX
 			__m256 increment = _mm256_set1_ps(0.001f);
-			entity::simd::avx::for_each(entities, entity::tie(accel_pool), [&increment](__m256& a)
+			entity::simd::avx::for_each(entities, entity::component::tie(accel_pool), [&increment](__m256& a)
 			{
 				// Add a little to accel each frame.
 				a = _mm256_add_ps(increment, a);
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 			// Compute new velocity.
 			__m256 divisor = _mm256_set1_ps(2.f);
 			__m256 frame_time_sq = _mm256_set1_ps(kFrameTime * kFrameTime);
-			entity::simd::avx::for_each(entities, entity::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m256 a, __m256& v)
+			entity::simd::avx::for_each(entities, entity::component::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m256 a, __m256& v)
 			{
 				// Compute new velocity.
 				v = _mm256_add_ps(
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 			});
 
 			__m256 frame_time = _mm256_set1_ps(kFrameTime);
-			entity::simd::avx::for_each(entities, entity::tie(velocity_pool, position_pool), [&frame_time](__m256 v, __m256& p)
+			entity::simd::avx::for_each(entities, entity::component::tie(velocity_pool, position_pool), [&frame_time](__m256 v, __m256& p)
 			{
 				// Compute new position.
 				// Compute new position.
@@ -283,19 +283,19 @@ BOOST_AUTO_TEST_CASE( library_entity )
 				p[i] += v[i] * kFrameTime;
 			}
 		#else
-			entity::for_each(entities, entity::tie(accel_pool), [](float& a)
+			entity::for_each(entities, entity::component::tie(accel_pool), [](float& a)
 			{
 				// Add a little to accel each frame.
 				a += 0.001f;
 			});
 
-			entity::for_each(entities, entity::tie(accel_pool, velocity_pool), [](float a, float& v)
+			entity::for_each(entities, entity::component::tie(accel_pool, velocity_pool), [](float a, float& v)
 			{
 				// Compute new velocity.
 				v += (a/2.f) * (kFrameTime * kFrameTime);
 			});
 
-			entity::for_each(entities, entity::tie(velocity_pool, position_pool), [](float v, float& p)
+			entity::for_each(entities, entity::component::tie(velocity_pool, position_pool), [](float v, float& p)
 			{
 				// Compute new position.
 				p += v * kFrameTime;

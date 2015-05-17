@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/component_destruction_queue.h
+// entity/component/destruction_queue.h
 //
 // Represents a way to queue component destruction in order to 
 // reduce creation complexity from O(m*nlog(n)) to O(m+n)
@@ -11,8 +11,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
-#define _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
+#ifndef _ENTITY_COMPONENT_DESTRUCTIONQUEUE_H_INCLUDED_
+#define _ENTITY_COMPONENT_DESTRUCTIONQUEUE_H_INCLUDED_
 
 #include <algorithm>
 #include <functional>
@@ -23,20 +23,20 @@
 
 // ----------------------------------------------------------------------------
 //
-namespace entity
+namespace entity { namespace component 
 {
 	template<typename ComponentPool>
-	class component_destruction_queue
+	class destruction_queue
 	{
 	public:
 
 		typedef typename ComponentPool::type type;
 
-		component_destruction_queue(ComponentPool& p)
+		destruction_queue(ComponentPool& p)
 			: pool_(p)
 		{}
 
-		~component_destruction_queue()
+		~destruction_queue()
 		{
 			flush();
 		}
@@ -61,12 +61,12 @@ namespace entity
 	private: 
 
 		// No copying.
-		component_destruction_queue(component_destruction_queue const&);
-		component_destruction_queue operator=(component_destruction_queue);
+		destruction_queue(destruction_queue const&);
+		destruction_queue operator=(destruction_queue);
 
 		std::vector<weak_entity> destroyed_;
 		ComponentPool& pool_;
 	};
-}
+} } // namespace entity { namespace component {
 
-#endif // _ENTITY_COMPONENTDESTRUCTIONQUEUE_H_INCLUDED_
+#endif // _ENTITY_COMPONENT_DESTRUCTIONQUEUE_H_INCLUDED_

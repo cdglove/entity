@@ -11,7 +11,7 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-# pragma once
+#pragma once
 #ifndef _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 #define _ENTITY_COMPONENT_ZIP_H_INCLUDED_
 
@@ -33,7 +33,7 @@
 
 // ----------------------------------------------------------------------------
 //
-namespace entity 
+namespace entity { namespace component
 {
 	namespace detail
 	{
@@ -206,6 +206,6 @@ namespace entity
 		return zip_from_tuple(tie(pool_1, pool_2, pool_3));
 	}
 #endif
-}
+} } // namespace entity { namespace component { 
 
 #endif // _ENTITY_COMPONENT_ZIP_H_INCLUDED_

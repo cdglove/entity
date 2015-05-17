@@ -1,7 +1,7 @@
 // ****************************************************************************
 // entity/component/tie.hpp
 //
-// Ties component poos together to be used with algorithms
+// Ties component pools together to be used with algorithms
 // iterators etc.  
 // Replaces the need to use variadics everywhere and
 // possibly makes client code more readable by explicitly
@@ -14,12 +14,12 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-
+#pragma once
 #include <boost/fusion/container/vector.hpp>
 
 // ----------------------------------------------------------------------------
 //
-namespace entity
+namespace entity { namespace component
 {
 	// ------------------------------------------------------------------------
 	//
@@ -48,4 +48,4 @@ namespace entity
 		return boost::fusion::vector<Pool1&, Pool2&, Pool3&>(pool_1, pool_2, pool_3);
 	}
 #endif
-}
+} } // namespace entity { namespace component {
