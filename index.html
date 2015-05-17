@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.9.1"/>
-<title>entity: Main Page</title>
+<title>entity: User Manual</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -90,14 +90,87 @@ $(document).ready(function(){initNavTree('index.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">entity Documentation</div>  </div>
+<div class="title">User Manual </div>  </div>
 </div><!--header-->
 <div class="contents">
-<ul><li><a href="index.html"><span>Main&#160;Page</span></a>
-</li><li><a href="pages.html"><span>Related&#160;Pages</span></a>
-</li><li><a href="usergroup0.html"><span>Indexes</span></a>
-</li></ul>
-</div><!-- contents -->
+<div class="toc"><h3>Table of Contents</h3>
+<ul><li class="level1"><a href="#tutorial-preface">Preface</a><ul><li class="level2"><a href="#tutorial-installation">Installation</a></li>
+<li class="level2"><a href="#tutorial-license">License</a></li>
+<li class="level2"><a href="#tutorial-compilers">Supported Compilers</a></li>
+</ul>
+</li>
+<li class="level1"><a href="#tutorial-what-is-entity">What is entity?</a></li>
+</ul>
+</div>
+<div class="textblock"><h1><a class="anchor" id="tutorial-preface"></a>
+Preface</h1>
+<hr/>
+<p> ECS for C++ For more information on what an ECS is, visit <a href="http://en.wikipedia.org/wiki/Entity_component_system">ECS</a> on Wikipedia.</p>
+<p><b>Development Status:</b></p>
+<p>This code is alpha quality at best. Though it does contain a reasonable test suit, it's not been proven to be of use to any real systems as of yet. The being said, I believe the concept is solid and the library just needs refinement.</p>
+<h2><a class="anchor" id="tutorial-installation"></a>
+Installation</h2>
+<hr/>
+<p>This library is currently header-only but depends on boost 1.55 or higher. The easiest installation is, if you use cmake, to auto configure it using my handy <a href="https://github.com/cdglove/cmaketools">cmake tools</a>. An example might look like this;</p>
+<blockquote class="doxtable">
+<p>Download cmaketools to project folder </p>
+</blockquote>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;mkdir my_program</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;cd my_program</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;git clone https://github.com/cdglove/cmaketools contrib/cmaketools</div>
+</div><!-- fragment --><blockquote class="doxtable">
+<p>Add the following to a CMakeLists.txt </p>
+</blockquote>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;include(contrib/cmaketools/external_git.cmake)</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;include(contrib/cmaketools/enable_cpp11.cmake)</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;set(ENTITY_BUILD_TESTS OFF CACHE BOOL &quot;Disable libentity tests&quot; FORCE)</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;add_external_git_repo(</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;    &quot;https://github.com/cdglove/entity.git&quot;</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;    &quot;master&quot; # master breach at HEAD.  Or a specific commit.</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;    &quot;contrib/entity&quot;)</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;find_package(entity)</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;add_executable(my_executable main.cpp)</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;target_include_directories( my_executable PUBLIC ${ENTITY_INCLUDE_DIRS})</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;target_link_libraries( my_executable ${ENTITY_LIBRARIES})</div>
+</div><!-- fragment --><p>That's all that's required. entity will autoconfigure itself and your project with the appropriate dependencies. To get started,</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="all_8hpp.html">entity/all.hpp</a>&gt;</span></div>
+</div><!-- fragment --><p>or each individual file as necessary;</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="dense__pool_8hpp.html">entity/component/dense_pool.hpp</a>&gt;</span></div>
+<div class="line"><span class="preprocessor">#include &lt;entity/**/*.hpp&gt;</span></div>
+</div><!-- fragment --><p>Alternatively, you can get the source from the <a href="https://github.com/cdglove/entity">entity repository</a> on github and then point your compiler at it via -I, /I, et al.</p>
+<h2><a class="anchor" id="tutorial-license"></a>
+License</h2>
+<hr/>
+<p>Most of the source code in this project are mine, and those are under the Boost Software License. Please see the attached LICENSE file for the licensing.</p>
+<h2><a class="anchor" id="tutorial-compilers"></a>
+Supported Compilers</h2>
+<hr/>
+<p> The code is known to work on the following compilers:</p>
+<ul>
+<li>clang 3.4.0</li>
+<li>GCC 4.9.0</li>
+<li>MSVC 2015</li>
+</ul>
+<h1><a class="anchor" id="tutorial-what-is-entity"></a>
+What is entity?</h1>
+<hr/>
+<p>entity implements an ECS system which is usually described as a method to compose object-like things from component-like things in a dynamic, yet typesafe fashion.</p>
+<p>There are several other C++ ECS systems, but many of them suffer from some performance issues due to the cost of the entity carrying a list of type erased components. Fetching a component from the entity means walking a list fo see if such a type exists in the list. Because such system usually work based on types, this also means than an entity can only have one instance of each component type attached to it</p>
+<p>To fix these two problems, entity takes a slightly different approach: nstead treating the entity as an object, it's actually just an id from which to retrieve and modify components from various pools. entity, therefore, simply coordinates the lifetime management of the entities and it's components while also providing algorithsm to assist in working with the system.</p>
+<h2>Why Use an ECS?</h2>
+<h3>Flexibility</h3>
+<p>Inheritance is probably the most overused abstraction in C++ and indeed most modern languages. Despite the fact that most problems don't fit into such a nice hierarchy, most programmers reach for inheritance too soon when first building a new system resulting in overly rigid architcturses that are difficult to change.</p>
+<p>An ECS on the otherhand is flexible and dynamic.</p>
+<h3>Performance</h3>
+<p>The virtual function mehanism implies heap allocated objects (or at least, pointers to objects). This in turn implies jumping around in memory a lot, which is hard on the CPU cache.</p>
+<p>But, we like composability, so an ECS aims to fix offer that without the cache problem.</p>
+<h2>OOP vs. ECS</h2>
+<div class="fragment"><div class="line"><span class="comment">// Put sample OOP code here.</span></div>
+</div><!-- fragment --><p>with</p>
+<div class="fragment"><div class="line"><span class="comment">// Put sample ECS code here.</span></div>
+</div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
