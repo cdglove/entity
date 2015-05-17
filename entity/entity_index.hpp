@@ -21,7 +21,7 @@
 //
 namespace entity
 {
-	typedef std::uint32_t entity_index_t;
+	typedef std::size_t entity_index_t;
 }
 
 #endif // _ENTITY_ENTITYINDEX_H_INCLUDED_
