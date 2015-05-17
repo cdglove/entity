@@ -10,9 +10,9 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#include "entity/saturated_component_pool.hpp"
-#include "entity/dense_component_pool.hpp"
-#include "entity/sparse_component_pool.hpp"
+#include "entity/component/saturated_pool.hpp"
+#include "entity/component/dense_pool.hpp"
+#include "entity/component/sparse_pool.hpp"
 #include "entity/entity_pool.hpp"
 #include "entity/entity.hpp"
 #include "entity/component/zip.hpp"
@@ -55,22 +55,22 @@ void IteratePool()
 template<typename EntityList>	
 void IterateTied(entity::entity_pool& pool, EntityList& entities)
 {
-	typedef entity::sparse_component_pool<int> position_pool_type;
-	typedef entity::dense_component_pool<int> velocity_pool_type;
-	typedef entity::saturated_component_pool<int> accel_pool_type;
+	typedef entity::component::sparse_pool<int> position_pool_type;
+	typedef entity::component::dense_pool<int> velocity_pool_type;
+	typedef entity::component::saturated_pool<int> accel_pool_type;
 
 	position_pool_type position_pool(pool);
 	velocity_pool_type velocity_pool(pool);	
 	accel_pool_type accel_pool(pool);
 
-	auto range = entity::make_entity_range(entities, entity::zip(position_pool, velocity_pool, accel_pool));
+	auto range = entity::make_entity_range(entities, entity::component::zip(position_pool, velocity_pool, accel_pool));
 	for(auto i = range.begin(); i != range.end(); ++i)
 	{
-		int& p = entity::get<0>(*i);
+		int& p = entity::component::get<0>(*i);
 		p = 1;
-		int& v = entity::get<1>(*i);
+		int& v = entity::component::get<1>(*i);
 		v = 2;
-		int& a = entity::get<2>(*i);
+		int& a = entity::component::get<2>(*i);
 		a = 3;
 	}
 
@@ -131,17 +131,17 @@ BOOST_AUTO_TEST_CASE( entity_iteration )
 
 BOOST_AUTO_TEST_CASE( saturated_iteration )
 {
-	IteratePool<entity::saturated_component_pool<float>>();
+	IteratePool<entity::component::saturated_pool<float>>();
 }
 
 BOOST_AUTO_TEST_CASE( dense_iteration )
 {
-	IteratePool<entity::dense_component_pool<float>>();
+	IteratePool<entity::component::dense_pool<float>>();
 }
 
 BOOST_AUTO_TEST_CASE( sparse_iteration )
 {
-	IteratePool<entity::sparse_component_pool<float>>();
+	IteratePool<entity::component::sparse_pool<float>>();
 }
 
 BOOST_AUTO_TEST_CASE( tied_iteration )

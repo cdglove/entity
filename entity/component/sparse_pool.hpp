@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/sparse_component_pool.h
+// entity/component/sparse_pool.h
 //
 // Represents a component pool where the number of components
 // is significantly less than the number of entities with those components.
@@ -12,8 +12,9 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
-#define _ENTITY_SPARSECOMPONENT_POOL_H_INCLUDED_
+#pragma once
+#ifndef _ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_
+#define _ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_
 
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
@@ -43,15 +44,15 @@ struct forward_traversal_tag;
 
 // ----------------------------------------------------------------------------
 //
-namespace entity 
+namespace entity { namespace component 
 {
 	template<typename ComponentPool>
-	class component_creation_queue;
+	class creation_queue;
 	template<typename ComponentPool>
-	class component_destruction_queue;
+	class destruction_queue;
 
 	template<typename T>
-	class sparse_component_pool
+	class sparse_pool
 	{
 		struct iterator_impl
 			  : boost::iterator_facade<
@@ -71,7 +72,7 @@ namespace entity
 		private:
 
 			friend class boost::iterator_core_access;
-			friend class sparse_component_pool;
+			friend class sparse_pool;
 			
 			typedef typename boost::container::flat_map<entity, T>::iterator parent_iterator;
 
@@ -141,7 +142,7 @@ namespace entity
 
 		private:
 
-			friend class sparse_component_pool;
+			friend class sparse_pool;
 
 			typedef typename boost::container::flat_map<
 				entity, value_type
@@ -158,12 +159,12 @@ namespace entity
 		
 		// --------------------------------------------------------------------
 		//
-		sparse_component_pool(entity_pool& owner_pool, T const& default_value = T())
+		sparse_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
 		#if ENTITY_SUPPORT_VARIADICS
-			auto create_func = &sparse_component_pool::create<T const&>;
+			auto create_func = &sparse_pool::create<T const&>;
 		#else
-			auto create_func = &sparse_component_pool::create;
+			auto create_func = &sparse_pool::create;
 		#endif
 
 			// Create default values for existing entities.
@@ -181,7 +182,7 @@ namespace entity
 			slots_.entity_destroy_handler = 
 				owner_pool.signals().on_entity_destroy.connect(
 					boost::bind(
-						&sparse_component_pool::handle_destroy_entity,
+						&sparse_pool::handle_destroy_entity,
 						this,
 						::_1
 					)
@@ -191,7 +192,7 @@ namespace entity
 			slots_.entity_swap_handler = 
 				owner_pool.signals().on_entity_swap.connect(
 					boost::bind(
-						&sparse_component_pool::handle_swap_entity,
+						&sparse_pool::handle_swap_entity,
 						this,
 						::_1, 
 						::_2
@@ -221,7 +222,7 @@ namespace entity
 			slots_.entity_create_handler = 
 				owner_pool.signals().on_entity_create.connect(
 					boost::bind(
-						&sparse_component_pool::create,
+						&sparse_pool::create,
 						this,
 						::_1,
 						default_value
@@ -294,9 +295,13 @@ namespace entity
 		}
 
 	private:
+		
+		// No copying
+		sparse_pool(sparse_pool const&);
+		sparse_pool operator=(sparse_pool);
 
-		friend class component_creation_queue<sparse_component_pool<T>>;
-		friend class component_destruction_queue<sparse_component_pool<T>>;
+		friend class creation_queue<sparse_pool<T>>;
+		friend class destruction_queue<sparse_pool<T>>;
 
 		struct slot_list
 		{
@@ -362,6 +367,6 @@ namespace entity
 		boost::container::flat_map<entity, T> components_;
 		slot_list slots_;
 	};
-}
+} } // namespace entity { namespace component 
 
-#endif // _ENTITY_DENSECOMPONENT_POOL_H_INCLUDED_
+#endif // _ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_

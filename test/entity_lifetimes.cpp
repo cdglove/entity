@@ -10,7 +10,7 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#include "entity/saturated_component_pool.hpp"
+#include "entity/component/saturated_pool.hpp"
 #include "entity/entity_pool.hpp"
 #include "entity/entity.hpp"
 
