@@ -316,7 +316,9 @@ BOOST_AUTO_TEST_CASE( library_entity )
 	if(!daily::timer_map::get_default().empty())
 	{
 		std::cout << "---------- Report -----------\n";
-		daily::timer_map::get_default().report(std::cout);
+		daily::timer_map::get_default().gather_report(
+			std::ostream_iterator<daily::timer_map::result_type>(std::cout, "\n")
+		);
 	}
 
 	daily::timer_map::get_default().reset_all();
@@ -344,6 +346,8 @@ BOOST_AUTO_TEST_CASE( library_entity )
 	}
 
 	Total_timer.stop();
-	daily::timer_map::get_default().report(std::cout);
+	daily::timer_map::get_default().gather_report(
+		std::ostream_iterator<daily::timer_map::result_type>(std::cout, "\n")
+	);
 	std::cout.flush();
 }
