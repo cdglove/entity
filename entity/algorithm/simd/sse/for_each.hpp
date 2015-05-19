@@ -61,7 +61,7 @@ namespace entity { namespace simd { namespace sse
 	// ------------------------------------------------------------------------
 	//
 	template<typename EntityList, typename ComponentPoolTuple, typename Fn>
-	void for_each(EntityList const& entities, ComponentPoolTuple&& p, Fn f)
+	void for_each(EntityList const& entities, ComponentPoolTuple p, Fn f)
 	{
 		//DAILY_AUTO_INSTRUMENT_NODE(for_each);
 		//typedef typename boost::mpl::transform<

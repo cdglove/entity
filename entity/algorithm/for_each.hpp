@@ -34,14 +34,14 @@ namespace entity
 	// ------------------------------------------------------------------------
 	//
 	template<typename EntityList, typename ComponentPoolTuple, typename Fn>
-	void for_each(EntityList const& entities, ComponentPoolTuple&& p, iterator_traits::is_incremental_tag, Fn f)
+	void for_each(EntityList const& entities, ComponentPoolTuple p, iterator_traits::is_incremental_tag, Fn f)
 	{
 		auto i = begin(entities); 
 		auto e = end(entities);
 
 		auto c = boost::fusion::as_vector(
 			boost::fusion::transform(
-			std::forward<ComponentPoolTuple>(p),
+			p,
 			functional::get_window()
 			)
 		);
@@ -74,14 +74,14 @@ namespace entity
 	// ------------------------------------------------------------------------
 	//
 	template<typename EntityList, typename ComponentPoolTuple, typename Fn>
-	void for_each(EntityList const& entities, ComponentPoolTuple&& p, iterator_traits::is_skipping_tag, Fn f)
+	void for_each(EntityList const& entities, ComponentPoolTuple p, iterator_traits::is_skipping_tag, Fn f)
 	{
 		auto i = begin(entities); 
 		auto e = end(entities);
 
 		auto c = boost::fusion::as_vector(
 			boost::fusion::transform(
-			std::forward<ComponentPoolTuple>(p),
+			p,
 			functional::get_window()
 			)
 		);
@@ -112,7 +112,7 @@ namespace entity
 	}
 
 	template<typename EntityList, typename ComponentPoolTuple, typename Fn>
-	void for_each(EntityList const& entities, ComponentPoolTuple&& p, Fn f)
+	void for_each(EntityList const& entities, ComponentPoolTuple p, Fn f)
 	{
 		for_each(entities, p, iterator_traits::entity_list_is_incremental<EntityList>(), f);
 	}

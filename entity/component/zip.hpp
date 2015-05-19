@@ -101,7 +101,7 @@ namespace entity { namespace component
 			>::type
 		>::type windows_type;
 
-		zipped_component_windows(ComponentPoolTuple&& pools)
+		zipped_component_windows(ComponentPoolTuple pools)
 		{
 			windows_ = boost::fusion::as_vector(
 				boost::fusion::transform(
