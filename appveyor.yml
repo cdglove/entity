@@ -28,8 +28,9 @@ environment:
       CONFIG: Release
 
 build_script:
-  - set BOOST_ROOT=c:\Libraries\boost
-  - C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat
+  - cmd: set BOOST_ROOT=c:\Libraries\boost
+  - cmd: dir C:\Libraries\boost
+  - cmd: call C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat
   - cmake "-G%GENERATOR%" -H. -B_builds
   - cmake --build _builds --config "%CONFIG%"
 
