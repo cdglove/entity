@@ -26,11 +26,11 @@ environment:
       CONFIG: Release
 
 install:
-  - cmake "-G%GENERATOR%" -H. -B_builds
+  - cmd: cmake "-G%GENERATOR%" -H. -B_builds
 
 build_script:
-  - cmake --build _builds --config "%CONFIG%"
+  - cmd: cmake --build _builds --config "%CONFIG%"
 
 test_script:
   - ps: cd _builds
-  - ctest -VV -C "%CONFIG%"
+  - cmd: ctest -VV -C "%CONFIG%"
