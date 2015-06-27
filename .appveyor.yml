@@ -25,8 +25,10 @@ environment:
     - GENERATOR: "Visual Studio 12 Win64"
       CONFIG: Release
 
-build_script:
+install:
   - cmake "-G%GENERATOR%" -H. -B_builds
+
+build_script:
   - cmake --build _builds --config "%CONFIG%"
 
 test_script:
