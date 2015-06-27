@@ -25,6 +25,9 @@ environment:
     - GENERATOR: "Visual Studio 14 Win64"
       CONFIG: Release
 
+build:
+  project: _builds/entity.sln      # path to Visual Studio solution or project
+
 build_script:
   - cmake "-G%GENERATOR%" -H. -B_builds
   - cmake --build _builds --config "%CONFIG%"
