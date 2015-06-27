@@ -1,0 +1,34 @@
+# ##############################################################################
+# .appveyor.yml
+#
+# Appveyor CI integration file
+# 
+# Copyright Chris Glover 2014-2015
+#
+# Distributed under the Boost Software License, Version 1.0.
+# See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt
+#
+# ##############################################################################
+
+environment:
+  matrix:
+    - GENERATOR: "Visual Studio 14"
+      CONFIG: Debug
+
+    - GENERATOR: "Visual Studio 14"
+      CONFIG: Release
+
+    - GENERATOR: "Visual Studio 14 Win64"
+      CONFIG: Debug
+
+    - GENERATOR: "Visual Studio 14 Win64"
+      CONFIG: Release
+
+build_script:
+  - cmake "-G%GENERATOR%" -H. -B_builds
+  - cmake --build _builds --config "%CONFIG%"
+
+test_script:
+  - ps: cd _builds
+  - ctest -VV -C "%CONFIG%"
