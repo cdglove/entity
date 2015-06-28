@@ -40,8 +40,8 @@ before_install:
   #- aptitude search libboost
   - export BOOST_VERSION="1.55"
   - sudo apt-get install libboost-thread${BOOST_VERSION}-dev libboost-chrono${BOOST_VERSION}-dev libboost-date-time${BOOST_VERSION}-dev libboost-system${BOOST_VERSION}-dev libboost-test${BOOST_VERSION}-dev libboost-timer${BOOST_VERSION}-dev #libboost1.55-all-dev
-  - sudo apt-get install -qq g++-${GCC_VERSION}; fi
-  - export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - sudo apt-get install -qq g++-${GCC_VERSION}
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
 
 install:
   - cd $CHECKOUT_PATH
@@ -56,4 +56,4 @@ install:
   - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--no-as-needed ${CXX_LINKER_FLAGS} -lrt"
   - make VERBOSE=1
 script:
-  - ctest -VV;
+  - ctest -VV
