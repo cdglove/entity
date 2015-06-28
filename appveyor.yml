@@ -10,27 +10,23 @@
 # http://www.boost.org/LICENSE_1_0.txt
 #
 # ##############################################################################
-os:
-  - Visual Studio 2015 RC
-
 environment:
   matrix:
-    - GENERATOR: "Visual Studio 14"
+    - GENERATOR: "Visual Studio 12"
       CONFIG: Debug
 
-    - GENERATOR: "Visual Studio 14"
+    - GENERATOR: "Visual Studio 12"
       CONFIG: Release
 
-    - GENERATOR: "Visual Studio 14 Win64"
+    - GENERATOR: "Visual Studio 12 Win64"
       CONFIG: Debug
 
-    - GENERATOR: "Visual Studio 14 Win64"
+    - GENERATOR: "Visual Studio 12 Win64"
       CONFIG: Release
 
 build_script:
   - cmd: set BOOST_ROOT=c:\Libraries\boost
-  - cmd: dir C:\Libraries\boost\stage\lib
-  - cmd: call C:\"Program Files (x86)"\"Microsoft Visual Studio 14.0"\VC\vcvarsall.bat
+  - cmd: call C:\"Program Files (x86)"\"Microsoft Visual Studio 12.0"\VC\vcvarsall.bat
   - cmake "-G%GENERATOR%" -H. -B_builds
   - cmake --build _builds --config "%CONFIG%"
 
