@@ -2,6 +2,7 @@
 #define ENTITY_CONFIG_H
 
 #include <boost/config.hpp>
+#include <boost/config/warning_disable.hpp>
 
 namespace entity {
 
