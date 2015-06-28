@@ -15,4 +15,7 @@ Incomplete, but evolving, documentation is available [here](http://cdglove.githu
 
 ## Build Status
 
-**Travis-CI:** [![Build Status](https://travis-ci.org/cdglove/entity.svg?branch=master)](https://travis-ci.org/cdglove/entity)
+**GCC/Clang (Travis-CI):** [![Build Status](https://travis-ci.org/cdglove/entity.svg?branch=master)](https://travis-ci.org/cdglove/entity)
+
+**MSVC (Appveyor):** [![Build status](https://ci.appveyor.com/api/projects/status/beejgdhljl4iw8a8/branch/master?svg=true)](https://ci.appveyor.com/project/cdglove/entity/branch/master)
+
