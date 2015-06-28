@@ -95,15 +95,6 @@ namespace entity
 			ref_ = nullptr;
 		}
 
-		// MSVC not correctly generating implicit move assinments
-	#if _MSC_VER < 1900
-		unique_entity& operator=(unique_entity&& other)
-		{
-			ref_ = std::move(other.ref_);
-			return *this;
-		}
-	#endif
-	
 	private:
 
 		friend class entity_pool;

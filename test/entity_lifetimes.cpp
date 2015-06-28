@@ -32,6 +32,10 @@ BOOST_AUTO_TEST_CASE( manual_ownership )
 
 BOOST_AUTO_TEST_CASE( unique_ownership )
 {
+	// Doesnt compile on MSVC < 1900 due
+	// to that compiler not correctly generating
+	// implicit move operations.
+#if _MSC_VER >= 1900
 	entity::entity_pool entities;
 	entity::unique_entity e = entities.create_unique();
 	BOOST_CHECK_EQUAL(entities.size(), 1);
@@ -43,6 +47,7 @@ BOOST_AUTO_TEST_CASE( unique_ownership )
 	BOOST_CHECK_EQUAL(entities.size(), 1);
 	e.clear();
 	BOOST_CHECK(entities.empty());
+#endif
 }
 
 BOOST_AUTO_TEST_CASE( shared_ownership )
