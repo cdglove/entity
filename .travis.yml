@@ -53,7 +53,7 @@ install:
   - if [ -n "$ASAN" ]; then export CXX_FLAGS="${CXX_FLAGS} -fsanitize=address,undefined,integer -fno-omit-frame-pointer -fno-sanitize=unsigned-integer-overflow"; fi
   - if [ "$CXX" == "clang++" ]; then CXX_FLAGS="${CXX_FLAGS} -D__extern_always_inline=inline"; fi
 
-  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--no-as-needed ${CXX_LINKER_FLAGS} -lrt"
+  - cmake .. -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DENTITY_ENABLE_PERFORMANCE_TESTS=OFF -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--no-as-needed ${CXX_LINKER_FLAGS} -lrt"
   - make VERBOSE=1
 script:
   - ctest -VV
