@@ -1,3 +1,0 @@
-[
-	{ include: ["@<boost/signals2/detail/.*>", "private", "<boost/signals2.hpp>", "public"] }
-]

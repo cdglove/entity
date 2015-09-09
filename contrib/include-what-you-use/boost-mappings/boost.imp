@@ -1,5 +1,0 @@
-[
-	{ ref: "boost.fusion.imp" },
-	{ ref: "boost.signals2.imp" },
-	{ ref: "boost.function.imp" }
-]

@@ -1,3 +1,0 @@
-[
-	{ include: ["@<boost/container/detail/std_fwd.hpp>", "private", "<boost/container/container_fwd.hpp>", "public"] }
-]

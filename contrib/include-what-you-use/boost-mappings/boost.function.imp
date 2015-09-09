@@ -1,3 +1,0 @@
-[
-	{ include: ["@<boost/function/.*>", "private", "<boost/function.hpp>", "public"] }
-]

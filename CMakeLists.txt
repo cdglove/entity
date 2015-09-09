@@ -65,8 +65,8 @@ include(contrib/cmaketools/external_git.cmake)
 set(Boost_USE_MULTI_THREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
 find_package( Boost
-	REQUIRED
-    system
+  REQUIRED
+  system
 )
 
 ###############################################################################
@@ -83,22 +83,56 @@ find_package(daily)
 
 ###############################################################################
 #
-# Add entity library
+# If using IWUY, we generate from fake cpp files to compile.  Their only`
+# job is to include the ir corresponding header file.
+#
+###############################################################################
+if(CHECK_INCLUDES_VIA_IWYU)
+  file(GLOB_RECURSE PROJECT_HEADERS_RELATIVE RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} entity/*.hpp)
+  foreach(f IN ITEMS ${PROJECT_HEADERS_RELATIVE})
+    file(WRITE "${PROJECT_BINARY_DIR}/gen/${f}.cpp" "#include \"${f}\"")
+  endforeach(f)
+  file(GLOB_RECURSE PROJECT_GENERATED_SOURCES ${PROJECT_BINARY_DIR}/gen/*.cpp)
+endif()
+
+
+###############################################################################
+#
+# Find our project files
 #
 ###############################################################################
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
-file(GLOB_RECURSE PROJECT_HEADERS entity/*.hpp)
+file(GLOB_RECURSE PROJECT_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} entity/*.hpp)
 
-set(ENTITY_INCLUDE_DIRS 
-	${Boost_INCLUDE_DIR} 
-	${DAILY_INCLUDE_DIRS} 
-	${PROJECT_SOURCE_DIR}
-	${PROJECT_BINARY_DIR}
+###############################################################################
+#
+# Find our project files
+#
+###############################################################################
+
+set(ENTITY_SYS_INCLUDE_DIRS 
+  ${Boost_INCLUDE_DIRS} 
+  ${DAILY_INCLUDE_DIRS} 
 )
+set(ENTITY_LOCAL_INCLUDE_DIRS
+  ${PROJECT_SOURCE_DIR}
+  ${PROJECT_BINARY_DIR}
+)
+set(ENTITY_INCLUDE_DIRS
+  ${ENTITY_SYS_INCLUDE_DIRS}
+  ${ENTITY_LOCAL_INDLUDE_DIRS}
+)
+
 set(ENTITY_LIBRARIES entity ${DAILY_LIBRARIES} ${Boost_LIBRARIES})
 
-add_library( ${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS} )
-target_include_directories( ${PROJECT_NAME} PUBLIC ${ENTITY_INCLUDE_DIRS})
+add_library(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_GENERATED_SOURCES} ${PROJECT_HEADERS})
+target_include_directories(
+  ${PROJECT_NAME} SYSTEM PUBLIC 
+  ${ENTITY_SYS_INCLUDE_DIRS})
+
+target_include_directories(
+  ${PROJECT_NAME} PUBLIC 
+  ${ENTITY_LOCAL_INCLUDE_DIRS})
 
 enable_testing()
 
@@ -108,6 +142,23 @@ endif()
 
 if(ENTITY_BUILD_DOCS)
 	add_subdirectory(doc)
+endif()
+
+###############################################################################
+#
+# Enable IWYU
+#
+###############################################################################
+if(CHECK_INCLUDES_VIA_IWYU)
+  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+  if(IWYU_PATH)
+    set(IWYU_PATH_AND_OPTIONS ${IWYU_PATH}
+      -Xiwyu --mapping_file=/home/chris/src/build/llvm/tools/clang/tools/include-what-you-use/gcc.stl.headers.imp
+      -Xiwyu --mapping_file=/home/chris/src/build/llvm/tools/clang/tools/include-what-you-use/boost-all.imp
+      -Xiwyu --mapping_file=/home/chris/src/build/llvm/tools/clang/tools/include-what-you-use/boost-all-private.imp
+    )
+    set_property(TARGET entity PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH_AND_OPTIONS})
+  endif()
 endif()
 
 ###############################################################################
