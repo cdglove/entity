@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8)
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 project (entity)
 
@@ -103,7 +103,7 @@ endif()
 #
 ###############################################################################
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
-file(GLOB_RECURSE PROJECT_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} entity/*.hpp)
+file(GLOB_RECURSE PROJECT_HEADERS entity/*.hpp)
 
 ###############################################################################
 #
@@ -127,9 +127,15 @@ set(ENTITY_INCLUDE_DIRS
 set(ENTITY_LIBRARIES entity ${DAILY_LIBRARIES} ${Boost_LIBRARIES})
 
 add_library(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_GENERATED_SOURCES} ${PROJECT_HEADERS})
-target_include_directories(
-  ${PROJECT_NAME} SYSTEM PUBLIC 
-  ${ENTITY_SYS_INCLUDE_DIRS})
+if((CMAKE_VERSION_MAJOR VERSION_EQUAL 3) OR (CMAKE_VERSION_MAJOR VERSION_GREATER 3))
+ target_include_directories(
+   ${PROJECT_NAME} SYSTEM PUBLIC 
+   ${ENTITY_SYS_INCLUDE_DIRS})
+else()
+ target_include_directories(
+   ${PROJECT_NAME} PUBLIC 
+   ${ENTITY_SYS_INCLUDE_DIRS})
+endif()
 
 target_include_directories(
   ${PROJECT_NAME} PUBLIC 
