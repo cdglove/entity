@@ -18,7 +18,6 @@
 #include <entity/entity_index.hpp>
 #include <entity/entity_pool.hpp>
 #include <entity/entity_range.hpp>
-#include <entity/algorithm/for_each.hpp>
 #include <entity/component/creation_queue.hpp>
 #include <entity/component/destruction_queue.hpp>
 #include <entity/component/dense_pool.hpp>

@@ -20,10 +20,6 @@
 #include <iostream>
 #include <daily/timer/timer.h>
 
-#if ENTITY_SUPPORT_AVX
-#  include "entity/algorithm/simd/avx/for_each.hpp"
-#endif
-
 static const std::size_t kNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
@@ -190,78 +186,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 		float time_remaining = kTestLength;
 		while(time_remaining > 0)
 		{
-		#if USE_SSE
-			__m128 increment = _mm_set1_ps(0.001f);
-			entity::simd::sse::for_each(entities, entity::component::tie(accel_pool), [&increment](__m128& a)
-			{
-				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Accel);
-				// Add a little to accel each frame.
-				a = _mm_add_ps(increment, a);
-			});
-
-			// Compute new velocity.
-			__m128 divisor = _mm_set1_ps(2.f);
-			__m128 frame_time_sq = _mm_set1_ps(kFrameTime * kFrameTime);
-			entity::simd::sse::for_each(entities, entity::component::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m128 const& a, __m128& v)
-			{
-				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Velocity);
-				v = _mm_add_ps(
-						_mm_mul_ps(
-							_mm_div_ps(
-								a, divisor
-							),
-						    frame_time_sq
-						),
-						v
-					);
-			});
-
-			__m128 frame_time = _mm_set1_ps(kFrameTime);
-			entity::simd::sse::for_each(entities, entity::component::tie(velocity_pool, position_pool), [&frame_time](__m128 const& v, __m128& p)
-			{
-				DAILY_AUTO_INSTRUMENT_NODE(Simulation_Position);
-				// Compute new position.
-				p = _mm_add_ps(
-						_mm_mul_ps(v, frame_time),
-						p
-					);
-			});
-		#elif USE_AVX && ENTITY_SUPPORT_AVX
-			__m256 increment = _mm256_set1_ps(0.001f);
-			entity::simd::avx::for_each(entities, entity::component::tie(accel_pool), [&increment](__m256& a)
-			{
-				// Add a little to accel each frame.
-				a = _mm256_add_ps(increment, a);
-			});
-
-			// Compute new velocity.
-			__m256 divisor = _mm256_set1_ps(2.f);
-			__m256 frame_time_sq = _mm256_set1_ps(kFrameTime * kFrameTime);
-			entity::simd::avx::for_each(entities, entity::component::tie(accel_pool, velocity_pool), [&divisor,&frame_time_sq](__m256 a, __m256& v)
-			{
-				// Compute new velocity.
-				v = _mm256_add_ps(
-						_mm256_mul_ps(
-							_mm256_div_ps(
-								a, divisor
-							),
-						    frame_time_sq
-						),
-						v
-					);
-			});
-
-			__m256 frame_time = _mm256_set1_ps(kFrameTime);
-			entity::simd::avx::for_each(entities, entity::component::tie(velocity_pool, position_pool), [&frame_time](__m256 v, __m256& p)
-			{
-				// Compute new position.
-				// Compute new position.
-				p = _mm256_add_ps(
-						_mm256_mul_ps(v, frame_time),
-						p
-					);
-			});
-		#elif USE_RAW_LOOPS
+		#if USE_RAW_LOOPS
 			float* __restrict a = accel_pool.get(entity::make_entity(0));
 			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
@@ -273,7 +198,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
 				// Compute new velocity.
-				v[i] += (a[i]/2.f) * (kFrameTime * kFrameTime);
+				v[i] += a[i] * kFrameTime;
 			}
 
 			float* __restrict p = position_pool.get(entity::make_entity(0));
@@ -283,25 +208,28 @@ BOOST_AUTO_TEST_CASE( library_entity )
 				p[i] += v[i] * kFrameTime;
 			}
 		#else
-			entity::for_each(entities, entity::component::tie(accel_pool), [](float& a)
-			{
-				// Add a little to accel each frame.
-				a += 0.001f;
-			});
+			//for(auto i : entity::component::zip(accel_pool))
+			//{
 
-			entity::for_each(entities, entity::component::tie(accel_pool, velocity_pool), [](float a, float& v)
-			{
-				// Compute new velocity.
-				v += (a/2.f) * (kFrameTime * kFrameTime);
-			});
+			//}
+			//entity::for_each(entities, entity::component::tie(accel_pool), [](float& a)
+			//{
+			//	// Add a little to accel each frame.
+			//	a += 0.001f;
+			//});
 
-			entity::for_each(entities, entity::component::tie(velocity_pool, position_pool), [](float v, float& p)
-			{
-				// Compute new position.
-				p += v * kFrameTime;
-			});
+			//entity::for_each(entities, entity::component::tie(accel_pool, velocity_pool), [](float a, float& v)
+			//{
+			//	// Compute new velocity.
+			//	v += (a/2.f) * (kFrameTime * kFrameTime);
+			//});
+
+			//entity::for_each(entities, entity::component::tie(velocity_pool, position_pool), [](float v, float& p)
+			//{
+			//	// Compute new position.
+			//	p += v * kFrameTime;
+			//});
 		#endif
-
 			time_remaining -= kFrameTime;
 		}
 	}
