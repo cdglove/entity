@@ -107,6 +107,17 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 
 // ----------------------------------------------------------------------------
 //
+struct add_0_1
+{
+	template<typename T>
+	int operator()(T e)
+	{
+		int a = entity::component::get<0>(e);
+		int b = entity::component::get<1>(e);
+		return a + b;
+	}
+};
+
 template<typename EntityList>	
 void TransformTied(entity::entity_pool& pool, EntityList& entities)
 {
@@ -134,12 +145,7 @@ void TransformTied(entity::entity_pool& pool, EntityList& entities)
 		accel_range.begin(),
 		accel_range.end(),
 		velocity_pool.begin(),
-		[](auto e)
-		{
-			int v = entity::component::get<0>(e);
-			int a = entity::component::get<1>(e);
-			return v + a;
-		}
+		add_0_1()
 	);
 
 	auto vel_range = entity::make_entity_range(entities, zip(position_pool, velocity_pool));
@@ -147,12 +153,7 @@ void TransformTied(entity::entity_pool& pool, EntityList& entities)
 		vel_range.begin(),
 		vel_range.end(),
 		position_pool.begin(),
-		[](auto e)
-		{
-			int p = entity::component::get<0>(e);
-			int v = entity::component::get<1>(e);
-			return v + p;
-		}
+		add_0_1()
 	);
 
 	std::for_each(
