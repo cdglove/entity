@@ -63,7 +63,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 	velocity_pool_type velocity_pool(pool);	
 	accel_pool_type accel_pool(pool);
 
-	auto range = entity::make_entity_range(entities, entity::component::zip(position_pool, velocity_pool, accel_pool));
+	auto range = entity::make_entity_range(entities, zip(position_pool, velocity_pool, accel_pool));
 	for(auto i = range.begin(); i != range.end(); ++i)
 	{
 		int& p = entity::component::get<0>(*i);
@@ -101,6 +101,66 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		{
 			int i = *accel_pool.get(e);
 			BOOST_REQUIRE_EQUAL(i, 3);
+		}
+	);
+}
+
+// ----------------------------------------------------------------------------
+//
+template<typename EntityList>	
+void TransformTied(entity::entity_pool& pool, EntityList& entities)
+{
+	typedef entity::component::sparse_pool<int> position_pool_type;
+	typedef entity::component::dense_pool<int> velocity_pool_type;
+	typedef entity::component::saturated_pool<int> accel_pool_type;
+
+	position_pool_type position_pool(pool);
+	velocity_pool_type velocity_pool(pool);	
+	accel_pool_type accel_pool(pool);
+
+	auto range = entity::make_entity_range(entities, zip(position_pool, velocity_pool, accel_pool));
+	for(auto i = range.begin(); i != range.end(); ++i)
+	{
+		int& p = entity::component::get<0>(*i);
+		p = 1;
+		int& v = entity::component::get<1>(*i);
+		v = 2;
+		int& a = entity::component::get<2>(*i);
+		a = 3;
+	}
+
+	auto accel_range = entity::make_entity_range(entities, zip(velocity_pool, accel_pool));
+	std::transform(
+		accel_range.begin(),
+		accel_range.end(),
+		velocity_pool.begin(),
+		[](auto e)
+		{
+			int v = entity::component::get<0>(e);
+			int a = entity::component::get<1>(e);
+			return v + a;
+		}
+	);
+
+	auto vel_range = entity::make_entity_range(entities, zip(position_pool, velocity_pool));
+	std::transform(
+		vel_range.begin(),
+		vel_range.end(),
+		position_pool.begin(),
+		[](auto e)
+		{
+			int p = entity::component::get<0>(e);
+			int v = entity::component::get<1>(e);
+			return v + p;
+		}
+	);
+
+	std::for_each(
+		position_pool.begin(),
+		position_pool.end(),
+		[](int p)
+		{
+			BOOST_REQUIRE_EQUAL(p, 6);
 		}
 	);
 }
@@ -148,6 +208,12 @@ BOOST_AUTO_TEST_CASE( tied_iteration )
 {
 	auto entities = CreateFilledPool();
 	IterateTied(*entities, *entities);
+}
+
+BOOST_AUTO_TEST_CASE( tied_transform )
+{
+	auto entities = CreateFilledPool();
+	TransformTied(*entities, *entities);
 }
 
 BOOST_AUTO_TEST_CASE( list_iteration )
