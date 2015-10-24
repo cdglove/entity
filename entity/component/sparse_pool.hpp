@@ -54,10 +54,11 @@ namespace entity { namespace component
 	template<typename T>
 	class sparse_pool
 	{
+		template<typename ValueType>
 		struct iterator_impl
 			  : boost::iterator_facade<
-			    iterator_impl
-			  , T&
+			    iterator_impl<ValueType>
+			  , ValueType&
 			  , boost::forward_traversal_tag
 		  	>
 		{
@@ -90,7 +91,7 @@ namespace entity { namespace component
 				return iterator_ == other.iterator_;
 			}
 
-			T& dereference() const
+			ValueType& dereference() const
 			{
 				return iterator_->second;
 			}
@@ -101,7 +102,8 @@ namespace entity { namespace component
 	public:
 
 		typedef T type;
-		typedef iterator_impl iterator;
+		typedef iterator_impl<T> iterator;
+		typedef iterator_impl<const T> const_iterator;
 
 		// --------------------------------------------------------------------
 		//
@@ -280,6 +282,16 @@ namespace entity { namespace component
 		}
 
 		iterator end()
+		{
+			return iterator(components_.end());
+		}
+
+		const_iterator begin() const
+		{
+			return iterator(components_.begin());
+		}
+
+		const_iterator end() const
 		{
 			return iterator(components_.end());
 		}

@@ -59,10 +59,11 @@ namespace entity { namespace component
 			char mem_[sizeof(T)];
 		};
 
+		template<typename ValueType>
 		struct iterator_impl
 			: boost::iterator_facade<
-			  iterator_impl
-			, T&
+			  iterator_impl<ValueType>
+			, ValueType&
 			, boost::forward_traversal_tag
 			>
 		{
@@ -112,7 +113,7 @@ namespace entity { namespace component
 				return entity_index_ == other.entity_index_;
 			}
 
-			T& dereference() const
+			ValueType& dereference() const
 			{
 				return *parent_->get_component(get_entity().index());
 			}
@@ -121,10 +122,13 @@ namespace entity { namespace component
 			entity_index_t entity_index_;
 		};
 
+		
+
 	public:
 
 		typedef T type;
-		typedef iterator_impl iterator;
+		typedef iterator_impl<T> iterator;
+		typedef iterator_impl<const T> const_iterator;
 
 		// --------------------------------------------------------------------
 		//
@@ -331,6 +335,16 @@ namespace entity { namespace component
 		iterator end()
 		{
 			return iterator(this, available_.size());
+		}
+
+		const_iterator begin() const
+		{
+			return const_iterator(this, 0);
+		}
+
+		const_iterator end() const
+		{
+			return const_iterator(this, available_.size());
 		}
 
 		window view()

@@ -19,7 +19,6 @@
 #include "entity/component/tie.hpp"
 #include "entity/entity_range.hpp"
 #include <algorithm>
-#include <boost/fusion/include/at_c.hpp>
 #include <random>
 
 

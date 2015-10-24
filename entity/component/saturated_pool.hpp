@@ -51,10 +51,11 @@ namespace entity { namespace component
 	{
 	private:
 
+		template<typename ValueType>
 		struct iterator_impl
 			  : boost::iterator_facade<
-			    iterator_impl
-			  , T&
+			    iterator_impl<ValueType>
+			  , ValueType&
 			  , boost::forward_traversal_tag
 		  	>
 		{
@@ -71,7 +72,7 @@ namespace entity { namespace component
 			friend class boost::iterator_core_access;
 			friend class saturated_pool;
 			
-			typedef T* parent_iterator;
+			typedef ValueType* parent_iterator;
 
 			iterator_impl(
 				saturated_pool* parent,
@@ -90,7 +91,7 @@ namespace entity { namespace component
 				return entity_index_ == other.entity_index_;
 			}
 
-			T& dereference() const
+			ValueType& dereference() const
 			{
 				return parent_->components_[entity_index_];
 			}
@@ -102,59 +103,8 @@ namespace entity { namespace component
 	public:
 
 		typedef T type;
-		typedef iterator_impl iterator;
-
-		// --------------------------------------------------------------------
-		//
-		template<typename EntityListIterator>
-		struct entity_iterator
-			: boost::iterator_facade<
-			  entity_iterator<EntityListIterator>
-			, T&
-			, boost::forward_traversal_tag
-			>
-		{
-			entity_iterator()
-			{}
-
-			entity get_entity() const
-			{
-				return *entity_iter_;
-			}
-
-			bool is_valid() const
-			{
-				return true;
-			}
-
-		private:
-
-			friend class boost::iterator_core_access;
-			friend class saturated_pool;
-
-			entity_iterator(saturated_pool* parent, EntityListIterator entity_iter)
-				: parent_(parent)
-				, entity_iter_(std::move(entity_iter))
-			{}
-
-			void increment()
-			{
-				++entity_iter_;
-			}
-
-			bool equal(entity_iterator const& other) const
-			{
-				return entity_iter_ == other.entity_iter_;
-			}
-
-			T& dereference() const
-			{
-				return parent_->components_[get_entity().index()];
-			}
-
-			saturated_pool* parent_;
-			EntityListIterator entity_iter_;
-		};
+		typedef iterator_impl<T> iterator;
+		typedef iterator_impl<const T> const_iterator;
 
 		// --------------------------------------------------------------------
 		//
@@ -302,6 +252,16 @@ namespace entity { namespace component
 		iterator end()
 		{
 			return iterator(this, components_.size());
+		}
+		
+		const_iterator begin() const
+		{
+			return const_iterator(this, 0);
+		}
+
+		const_iterator end() const
+		{
+			return const_iterator(this, components_.size());
 		}
 
 		window view()
