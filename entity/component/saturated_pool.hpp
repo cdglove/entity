@@ -105,6 +105,8 @@ namespace entity { namespace component
 		typedef T type;
 		typedef iterator_impl<T> iterator;
 		typedef iterator_impl<const T> const_iterator;
+		typedef iterator_impl<T> optional_iterator;
+		typedef iterator_impl<const T> const_optional_iterator;
 
 		// --------------------------------------------------------------------
 		//
@@ -181,6 +183,8 @@ namespace entity { namespace component
 					)
 				)
 			;
+
+			auto_create_components(owner_pool, default_value);
 		}
 
 	#if ENTITY_SUPPORT_VARIADICS
@@ -214,6 +218,8 @@ namespace entity { namespace component
 		}
 	#endif
 
+		// Saturated pools cant create or destroy things independently 
+		// of the entity pool, so sunch functions should be private.
 	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
@@ -262,6 +268,26 @@ namespace entity { namespace component
 		const_iterator end() const
 		{
 			return const_iterator(this, components_.size());
+		}
+
+		optional_iterator optional_begin()
+		{
+			return optional_iterator(this, 0);
+		}
+
+		optional_iterator optional_end()
+		{
+			return optional_iterator(this, components_.size());
+		}
+		
+		const_optional_iterator optional_begin() const
+		{
+			return const_optional_iterator(this, 0);
+		}
+
+		const_optional_iterator optional_end() const
+		{
+			return const_optional_iterator(this, components_.size());
 		}
 
 		window view()

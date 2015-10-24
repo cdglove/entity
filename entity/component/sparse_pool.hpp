@@ -99,11 +99,58 @@ namespace entity { namespace component
 			parent_iterator iterator_;
 		};
 
+		template<typename ValueType>
+		struct optional_iterator_impl
+			  : boost::iterator_facade<
+			    iterator_impl<ValueType>
+			  , ValueType&
+			  , boost::forward_traversal_tag
+		  	>
+		{
+			entity get_entity() const
+			{
+				return iterator_->first;
+			}
+
+			optional_iterator_impl()
+			{}
+
+		private:
+
+			friend class boost::iterator_core_access;
+			friend class sparse_pool;
+			
+			typedef typename boost::container::flat_map<entity, T>::iterator parent_iterator;
+
+			explicit optional_iterator_impl(parent_iterator convert_from)
+				: iterator_(std::move(convert_from))
+			{}
+
+			void increment()
+			{
+				++iterator_;
+			}
+
+			bool equal(optional_iterator_impl const& other) const
+			{
+				return iterator_ == other.iterator_;
+			}
+
+			optional<ValueType> dereference() const
+			{
+				return iterator_->second;
+			}
+
+			parent_iterator iterator_;
+		};
+
 	public:
 
 		typedef T type;
 		typedef iterator_impl<T> iterator;
 		typedef iterator_impl<const T> const_iterator;
+		typedef optional_iterator_impl<T> optional_iterator;
+		typedef optional_iterator_impl<const T> const_optional_iterator;
 
 		// --------------------------------------------------------------------
 		//
@@ -292,6 +339,26 @@ namespace entity { namespace component
 		}
 
 		const_iterator end() const
+		{
+			return iterator(components_.end());
+		}
+
+		optional_iterator optional_begin()
+		{
+			return optional_iterator(components_.begin());
+		}
+
+		optional_iterator optional_end()
+		{
+			return optional_iterator(components_.end());
+		}
+
+		const_optional_iterator optional_begin() const
+		{
+			return optional_iterator(components_.begin());
+		}
+
+		const_optional_iterator optional_end() const
 		{
 			return iterator(components_.end());
 		}

@@ -12,6 +12,7 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
+#pragma once
 #ifndef _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
 #define _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
 
@@ -30,6 +31,7 @@
 #include <vector>
 
 #include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/component/optional.hpp"
 #include "entity/entity.hpp"
 #include "entity/entity_index.hpp"
 #include "entity/entity_pool.hpp"
@@ -122,13 +124,70 @@ namespace entity { namespace component
 			entity_index_t entity_index_;
 		};
 
-		
+		template<typename ValueType>
+		struct optional_iterator_impl
+			: boost::iterator_facade<
+			  iterator_impl<ValueType>
+			, ValueType&
+			, boost::forward_traversal_tag
+			>
+		{
+			optional_iterator_impl()
+			{}
+
+			entity get_entity() const
+			{
+				return make_entity(entity_index_);
+			}
+
+		private:
+
+			friend class boost::iterator_core_access;
+			friend class dense_pool;
+
+			typedef typename std::vector<char>::iterator parent_iterator;
+
+			optional_iterator_impl(dense_pool* parent, entity_index_t start)
+				: parent_(parent)
+				, entity_index_(start)
+			{}
+
+			void increment()
+			{
+				++entity_index_;
+			}
+
+			bool equal(optional_iterator_impl const& other) const
+			{
+				return entity_index_ == other.entity_index_;
+			}
+
+			optional<ValueType> dereference() const
+			{
+				auto available_iterator = parent_->available_.begin() + entity_index_;
+				auto end_iterator = parent_->available_.end();
+				if(available_iterator < end_iterator)
+				{
+					if(!(*available_iterator))
+					{
+						return *parent_->get_component(get_entity().index());
+					}
+				}
+
+				return boost::none;
+			}
+
+			dense_pool* parent_;
+			entity_index_t entity_index_;
+		};
 
 	public:
 
 		typedef T type;
 		typedef iterator_impl<T> iterator;
 		typedef iterator_impl<const T> const_iterator;
+		typedef optional_iterator_impl<T> optional_iterator;
+		typedef optional_iterator_impl<const T> const_optional_iterator;
 
 		// --------------------------------------------------------------------
 		//
@@ -345,6 +404,26 @@ namespace entity { namespace component
 		const_iterator end() const
 		{
 			return const_iterator(this, available_.size());
+		}
+
+		optional_iterator optional_begin()
+		{
+			return optional_iterator(this, 0);
+		}
+
+		optional_iterator optional_end()
+		{
+			return optional_iterator(this, available_.size());
+		}
+
+		const_optional_iterator optional_begin() const
+		{
+			return const_optional_iterator(this, 0);
+		}
+
+		const_optional_iterator optional_end() const
+		{
+			return const_optional_iterator(this, available_.size());
 		}
 
 		window view()

@@ -19,21 +19,20 @@
 #include "entity/component/tie.hpp"
 #include "entity/entity_range.hpp"
 #include <algorithm>
+#include <numeric>
 #include <random>
 
 
 #define BOOST_TEST_MODULE Iteration
 #include <boost/test/unit_test.hpp>
 
-//#undef BOOST_REQUIRE_EQUAL
-//#define BOOST_REQUIRE_EQUAL(a, b) assert(a == b)
 
 static int const kNumEntities = 5;
 
 // ----------------------------------------------------------------------------
 //
 template<typename Pool>
-void IteratePool()
+void SimpleIteratePool()
 {
 	entity::entity_pool entities;
 	for(int i = 0; i < kNumEntities; ++i)
@@ -45,8 +44,57 @@ void IteratePool()
 	std::for_each(
 		pool.begin(),
 		pool.end(),
+		[](typename Pool::type& v){}
+	);
+}
+
+// ----------------------------------------------------------------------------
+//
+template<typename Pool>
+void OptionalSimpleIteratePool()
+{
+	entity::entity_pool entities;
+	for(int i = 0; i < kNumEntities; ++i)
+	{
+		entities.create();
+	}
+
+	Pool pool(entities);
+	std::for_each(
+		pool.optional_begin(),
+		pool.optional_end(),
 		[](typename Pool::type&){}
 	);
+}
+
+// ----------------------------------------------------------------------------
+//
+template<typename Pool>
+void AccumulatePool()
+{
+	entity::entity_pool entities;
+	for(int i = 0; i < kNumEntities; ++i)
+	{
+		entities.create();
+	}
+
+	Pool pool(entities);
+	std::transform(
+		pool.begin(),
+		pool.end(),
+		pool.begin(),
+		[](typename Pool::type)
+		{
+			return 1;
+		}
+	);
+
+	typename Pool::type sum = std::accumulate(
+		pool.begin(),
+		pool.end(),
+		0);
+
+	BOOST_TEST_CHECK(sum == kNumEntities);
 }
 
 // ----------------------------------------------------------------------------
@@ -79,7 +127,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&position_pool](entity::entity e)
 		{
 			int i = *position_pool.get(e);
-			BOOST_REQUIRE_EQUAL(i, 1);
+			BOOST_TEST_CHECK(i == 1);
 		}
 	);
 
@@ -89,7 +137,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&velocity_pool](entity::entity e)
 		{
 			int i = *velocity_pool.get(e);
-			BOOST_REQUIRE_EQUAL(i, 2);
+			BOOST_TEST_CHECK(i == 2);
 		}
 	);
 
@@ -99,7 +147,7 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 		[&accel_pool](entity::entity e)
 		{
 			int i = *accel_pool.get(e);
-			BOOST_REQUIRE_EQUAL(i, 3);
+			BOOST_TEST_CHECK(i == 3);
 		}
 	);
 }
@@ -160,7 +208,7 @@ void TransformTied(entity::entity_pool& pool, EntityList& entities)
 		position_pool.end(),
 		[](int p)
 		{
-			BOOST_REQUIRE_EQUAL(p, 6);
+			BOOST_TEST_CHECK(p == 6);
 		}
 	);
 }
@@ -191,17 +239,126 @@ BOOST_AUTO_TEST_CASE( entity_iteration )
 
 BOOST_AUTO_TEST_CASE( saturated_iteration )
 {
-	IteratePool<entity::component::saturated_pool<float>>();
+	SimpleIteratePool<entity::component::saturated_pool<float>>();
 }
 
 BOOST_AUTO_TEST_CASE( dense_iteration )
 {
-	IteratePool<entity::component::dense_pool<float>>();
+	SimpleIteratePool<entity::component::dense_pool<float>>();
 }
 
 BOOST_AUTO_TEST_CASE( sparse_iteration )
 {
-	IteratePool<entity::component::sparse_pool<float>>();
+	SimpleIteratePool<entity::component::sparse_pool<float>>();
+}
+
+BOOST_AUTO_TEST_CASE( optional_saturated_iteration )
+{
+	OptionalSimpleIteratePool<entity::component::saturated_pool<float>>();
+}
+
+BOOST_AUTO_TEST_CASE( optional_dense_iteration )
+{
+	OptionalSimpleIteratePool<entity::component::dense_pool<float>>();
+}
+
+BOOST_AUTO_TEST_CASE( optional_sparse_iteration )
+{
+	OptionalSimpleIteratePool<entity::component::sparse_pool<float>>();
+}
+
+BOOST_AUTO_TEST_CASE( saturated_accumulation )
+{
+	AccumulatePool<entity::component::saturated_pool<int>>();
+}
+
+BOOST_AUTO_TEST_CASE( dense_accumulation )
+{
+	AccumulatePool<entity::component::dense_pool<int>>();
+}
+
+BOOST_AUTO_TEST_CASE( sparse_accumulation )
+{
+	AccumulatePool<entity::component::sparse_pool<int>>();
+}
+
+BOOST_AUTO_TEST_CASE( optional_saturated_accumulation )
+{
+	entity::entity_pool entities;
+	entity::component::saturated_pool<int> pool(entities, 1);
+	for(int i = 0; i < kNumEntities; ++i)
+	{
+		entities.create();
+	}
+
+	int sum = std::accumulate(
+		pool.begin(),
+		pool.end(),
+		0);
+
+	BOOST_TEST_CHECK(sum == kNumEntities);
+}
+
+BOOST_AUTO_TEST_CASE( optional_dense_accumulation )
+{
+	entity::entity_pool entities;
+	entity::component::saturated_pool<int> pool(entities);
+	int expected_sum = 0;
+	for(int i = 0; i < kNumEntities; ++i)
+	{
+		auto e = entities.create();
+		if(i % 2)
+		{
+			expected_sum += i;
+			*pool.get(e) = i;
+		}
+	}
+
+	int sum = std::accumulate(
+		pool.optional_begin(),
+		pool.optional_end(),
+		0,
+		[](int current, entity::component::optional<int> v)
+		{
+			if(v)
+				return *v + current;
+			else
+				return current;
+		}
+	);
+
+	BOOST_TEST_CHECK(sum == expected_sum);
+}
+
+BOOST_AUTO_TEST_CASE( optional_sparse_accumulation )
+{
+	entity::entity_pool entities;
+	entity::component::saturated_pool<int> pool(entities);
+	int expected_sum = 0;
+	for(int i = 0; i < kNumEntities; ++i)
+	{
+		auto e = entities.create();
+		if(!(i % 2))
+		{
+			expected_sum += i;
+			*pool.get(e) = i;
+		}
+	}
+
+	int sum = std::accumulate(
+		pool.optional_begin(),
+		pool.optional_end(),
+		0,
+		[](int current, entity::component::optional<int> v)
+		{
+			if(v)
+				return *v + current;
+			else
+				return current;
+		}
+	);
+
+	BOOST_TEST_CHECK(sum == expected_sum);
 }
 
 BOOST_AUTO_TEST_CASE( tied_iteration )
@@ -245,6 +402,8 @@ BOOST_AUTO_TEST_CASE( partial_list_iteration )
 	std::sort(ids.begin(), ids.end());
 	IterateTied(*entities, ids);
 }
+
+
 // Unordered currently unsupported.
 //BOOST_AUTO_TEST_CASE( unordered_list_iteration )
 //{
