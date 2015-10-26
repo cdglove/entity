@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/component/optional.hpp
+// entity/component/required.hpp
 //
 // Copyright Chris Glover 2014-2015
 //
@@ -9,30 +9,25 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_
-#define _ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_
+#ifndef _ENTITY_COMPONENT_REQUIRED_H_INCLUDED_
+#define _ENTITY_COMPONENT_REQUIRED_H_INCLUDED_
 
-#include <boost/none.hpp>
+#include "entity/component/optional.hpp"
 #include <boost/utility/explicit_operator_bool.hpp>
 
 // ----------------------------------------------------------------------------
 //
 namespace entity { namespace component {
 
-/// \brief Represents an optional componant entry from pools that may or may
-/// not contain the specificed component. Similar to boost::optional but with
-/// a more compact representation.
+/// \brief Represents a required component, but contains the same interface as
+/// optional. Is always valid.
 ///
 template<typename T>
-class optional
+class required
 {
 public:
 
-	optional(boost::none_t)
-		: value_(nullptr)
-	{}
-
-	optional(T& value)
+	required(T& value)
 		: value_(&value)
 	{}
 
@@ -66,12 +61,17 @@ public:
 		return value_;
 	}
 
-	bool operator!() const
+	operator optional<T>() const
 	{
-		return value_ ? false : true;
+		return *value_;
 	}
 
-	BOOST_EXPLICIT_OPERATOR_BOOL();
+	BOOST_CONSTEXPR BOOST_FORCEINLINE bool operator!() const
+	{
+		return false;
+	}
+
+	BOOST_CONSTEXPR BOOST_EXPLICIT_OPERATOR_BOOL();
 
 private:
 
@@ -80,4 +80,4 @@ private:
 
 } }
 
-#endif // _ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_
+#endif //  

@@ -63,7 +63,7 @@ void OptionalSimpleIteratePool()
 	std::for_each(
 		pool.optional_begin(),
 		pool.optional_end(),
-		[](typename Pool::type&){}
+		[](entity::component::optional<typename Pool::type>){}
 	);
 }
 
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE( optional_dense_accumulation )
 		pool.optional_begin(),
 		pool.optional_end(),
 		0,
-		[](int current, entity::component::optional<int> v)
+		[](int current, entity::component::required<int> v)
 		{
 			if(v)
 				return *v + current;
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE( optional_sparse_accumulation )
 		pool.optional_begin(),
 		pool.optional_end(),
 		0,
-		[](int current, entity::component::optional<int> v)
+		[](int current, entity::component::required<int> v)
 		{
 			if(v)
 				return *v + current;

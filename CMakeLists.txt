@@ -48,7 +48,7 @@ configure_file (
   "${PROJECT_BINARY_DIR}/entity/config.hpp")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-include(contrib/cmaketools/enable_cpp11.cmake)
+include(contrib/cmaketools/enable_cpp14.cmake)
 
 ###############################################################################
 #

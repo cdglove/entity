@@ -33,6 +33,7 @@
 #include <vector>
 
 #include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/component/optional.hpp"
 #include "entity/entity.hpp"
 #include "entity/entity_pool.hpp"
 
@@ -102,18 +103,26 @@ namespace entity { namespace component
 		template<typename ValueType>
 		struct optional_iterator_impl
 			  : boost::iterator_facade<
-			    iterator_impl<ValueType>
-			  , ValueType&
+			    optional_iterator_impl<ValueType>
+			  , optional<ValueType>
 			  , boost::forward_traversal_tag
+			  , optional<ValueType>
 		  	>
 		{
+			optional_iterator_impl()
+			{}
+
 			entity get_entity() const
 			{
 				return iterator_->first;
 			}
 
-			optional_iterator_impl()
-			{}
+			void set_target(entity e) 
+			{
+				entity_index_ = e.index();
+				while(entity_index_ < last_entity_index_ && entity_index_ < iterator_->first.index())
+					++iterator_;
+			}
 
 		private:
 
@@ -122,25 +131,37 @@ namespace entity { namespace component
 			
 			typedef typename boost::container::flat_map<entity, T>::iterator parent_iterator;
 
-			explicit optional_iterator_impl(parent_iterator convert_from)
+			optional_iterator_impl(
+				parent_iterator convert_from, 
+				entity_index_t first_entity,
+				entity_index_t last_entity)
 				: iterator_(std::move(convert_from))
+				, entity_index_(first_entity)
+				, last_entity_index_(last_entity)
 			{}
 
 			void increment()
 			{
-				++iterator_;
+				++entity_index_;
+				while(entity_index_ < last_entity_index_ && entity_index_ < iterator_->first.index())
+					++iterator_;
 			}
 
 			bool equal(optional_iterator_impl const& other) const
 			{
-				return iterator_ == other.iterator_;
+				return entity_index_ == other.entity_index_;
 			}
 
 			optional<ValueType> dereference() const
 			{
-				return iterator_->second;
+				if(entity_index_ < last_entity_index_ && entity_index_ == iterator_->first.index())
+					return iterator_->second;
+				else
+					return boost::none;
 			}
 
+			entity_index_t entity_index_;
+			entity_index_t last_entity_index_;
 			parent_iterator iterator_;
 		};
 
@@ -301,26 +322,26 @@ namespace entity { namespace component
 			components_.erase(e);
 		}
 
-		T* get(entity e)
+		optional<T> get(entity e)
 		{
 			auto obj = components_.find(e);
 			if(obj != components_.end())
 			{
-				return &obj->second;
+				return obj->second;
 			}
 
-			return nullptr;
+			return boost::none;
 		}
 
-		T const* get(entity e) const
+		optional<const T> get(entity e) const
 		{
 			auto obj = components_.find(e);
 			if(obj != components_.end())
 			{
-				return &obj->second;
+				return obj->second;
 			}
 
-			return nullptr;
+			return boost::none;
 		}
 
 		iterator begin()
@@ -345,22 +366,66 @@ namespace entity { namespace component
 
 		optional_iterator optional_begin()
 		{
-			return optional_iterator(components_.begin());
+			if(components_.empty())
+			{
+				return optional_iterator(components_.begin(), 0, 0);
+			}
+			else
+			{
+				return optional_iterator(
+					components_.begin(),
+					0, 
+					components_.rbegin()->first.index() + 1
+				);
+			}
 		}
 
 		optional_iterator optional_end()
 		{
-			return optional_iterator(components_.end());
+			if(components_.empty())
+			{
+				return optional_iterator(components_.end(), 0, 0);
+			}
+			else
+			{
+				return optional_iterator(
+					components_.end(),
+					components_.rbegin()->first.index() + 1,
+					components_.rbegin()->first.index() + 1
+				);
+			}
 		}
 
 		const_optional_iterator optional_begin() const
 		{
-			return optional_iterator(components_.begin());
+			if(components_.empty())
+			{
+				return const_optional_iterator(components_.begin(), 0, 0);
+			}
+			else
+			{
+				return const_optional_iterator(
+					components_.begin(),
+					0, 
+					components_.rbegin()->first.index() + 1
+				);
+			}
 		}
 
 		const_optional_iterator optional_end() const
 		{
-			return iterator(components_.end());
+			if(components_.empty())
+			{
+				return const_optional_iterator(components_.end(), 0, 0);
+			}
+			else
+			{
+				return const_optional_iterator(
+					components_.end(),
+					components_.rbegin()->first.index() + 1,
+					components_.rbegin()->first.index() + 1
+				);
+			}
 		}
 
 		window view()

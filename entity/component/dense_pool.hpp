@@ -127,9 +127,10 @@ namespace entity { namespace component
 		template<typename ValueType>
 		struct optional_iterator_impl
 			: boost::iterator_facade<
-			  iterator_impl<ValueType>
-			, ValueType&
+			  optional_iterator_impl<ValueType>
+			, optional<ValueType>
 			, boost::forward_traversal_tag
+			, optional<ValueType>
 			>
 		{
 			optional_iterator_impl()
@@ -138,6 +139,11 @@ namespace entity { namespace component
 			entity get_entity() const
 			{
 				return make_entity(entity_index_);
+			}
+
+			void set_target(entity e)
+			{
+				entity_index_ = e.index();
 			}
 
 		private:
@@ -366,24 +372,24 @@ namespace entity { namespace component
 			set_available(e.index(), true);
 		}
 
-		T* get(entity e)
+		optional<T> get(entity e)
 		{
 			if(is_available(e.index()))	
 			{
-				return nullptr;
+				return boost::none;
 			}
 
-			return get_component(e.index());
+			return *get_component(e.index());
 		}
 
-		T const* get(entity e) const
+		optional<const T> get(entity e) const
 		{
 			if(is_available(e.index()))
 			{
-				return nullptr;
+				return boost::none;
 			}
 
-			return get_component(e.index());
+			return *get_component(e.index());
 		}
 
 		iterator begin()
