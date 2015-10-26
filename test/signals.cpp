@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( manual_component_creation )
 	entities.create();
 
 	BOOST_CHECK_EQUAL(entities.size(), 3);
-	BOOST_CHECK_EQUAL(sat_pool.size(), 0);
+	BOOST_CHECK_EQUAL(sat_pool.size(), 3);
 	BOOST_CHECK_EQUAL(dense_pool.size(), 0);
 	BOOST_CHECK_EQUAL(sparse_pool.size(), 0);
 }
