@@ -26,6 +26,9 @@
 #define BOOST_TEST_MODULE Iteration
 #include <boost/test/unit_test.hpp>
 
+#if BOOST_VERSION < 105900
+#  define BOOST_TEST_CHECK BOOST_CHECK
+#endif
 
 static int const kNumEntities = 5;
 
