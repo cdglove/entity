@@ -174,60 +174,6 @@ namespace entity { namespace component
 		typedef iterator_impl<const T> const_iterator;
 		typedef optional_iterator_impl<T> optional_iterator;
 		typedef optional_iterator_impl<const T> const_optional_iterator;
-
-		// --------------------------------------------------------------------
-		//
-		struct window
-		{
-			typedef type value_type;
-
-			window()
-			{}
-
-			bool is_entity(entity e) const
-			{
-				return iterator_ != end_ && e == iterator_->first;
-			}
-
-			bool increment(entity target)
-			{
-				while(iterator_ != end_ && iterator_->first < target)
-					++iterator_;
-
-				return iterator_ != end_ && iterator_->first == target;
-			}
-
-			bool advance(entity target)
-			{
-				return increment(target);
-			}
-
-			value_type& get() const
-			{
-				return iterator_->second;
-			}
-
-			bool is_end() const
-			{
-				return iterator_ == end_;
-			}
-
-		private:
-
-			friend class sparse_pool;
-
-			typedef typename boost::container::flat_map<
-				entity, value_type
-			>::iterator parent_iterator;
-
-			window(parent_iterator start, parent_iterator end)
-				: iterator_(std::move(start))
-				, end_(std::move(end))
-			{}
-
-			parent_iterator iterator_;
-			parent_iterator end_;
-		};
 		
 		// --------------------------------------------------------------------
 		//
@@ -428,11 +374,6 @@ namespace entity { namespace component
 					components_.rbegin()->first.index() + 1
 				);
 			}
-		}
-
-		window view()
-		{
-			return window(components_.begin(), components_.end());
 		}
 
 		std::size_t size()

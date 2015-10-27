@@ -196,61 +196,6 @@ namespace entity { namespace component
 		typedef iterator_impl<const T> const_iterator;
 		typedef optional_iterator_impl<T> optional_iterator;
 		typedef optional_iterator_impl<const T> const_optional_iterator;
-
-		// --------------------------------------------------------------------
-		//
-		struct window
-		{
-			typedef type value_type;
-
-			window()
-			{}
-
-			bool is_entity(entity) const
-			{
-				return !(*available_);
-			}
-
-			bool increment(entity)
-			{
-				++data_;
-				++available_;
-				return !(*available_);
-			}
-
-			bool advance(entity e)
-			{
-				data_ = data_begin_ + e.index();
-				available_ = available_begin_ + e.index();
-				return !(*available_);
-			}
-
-			value_type& get() const
-			{
-				return *reinterpret_cast<value_type*>(data_);
-			}
-
-			bool is_end() const
-			{
-				return false;
-			}
-
-		private:
-
-			friend class dense_pool;
-
-			window(dense_pool* parent)
-				: available_begin_(&parent->available_[0])
-				, available_(&parent->available_[0])
-				, data_begin_(&parent->components_[0])
-				, data_(&parent->components_[0])
-			{}
-
-			char const* available_begin_;
-			char const* available_;
-			typename dense_pool::element_t* data_begin_;
-			typename dense_pool::element_t* data_;
-		};
 			
 		// --------------------------------------------------------------------
 		//
@@ -432,11 +377,6 @@ namespace entity { namespace component
 		const_optional_iterator optional_end() const
 		{
 			return const_optional_iterator(this, available_.size());
-		}
-
-		window view()
-		{
-			return window(this);
 		}
 
 		std::size_t size()

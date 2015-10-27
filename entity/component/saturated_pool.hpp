@@ -171,55 +171,6 @@ namespace entity { namespace component
 		typedef optional_iterator_impl<const T> const_optional_iterator;
 
 		// --------------------------------------------------------------------
-		//
-		struct window
-		{
-			typedef type value_type;
-
-			window()
-			{}
-
-			bool is_entity(entity) const
-			{
-				return true;
-			}
-
-			bool increment(entity)
-			{
-				++data_;
-				return true;
-			}
-
-			bool advance(entity e)
-			{
-				data_ = data_begin_ + e.index();
-				return true;
-			}
-
-			value_type& get() const
-			{
-				return *data_;
-			}
-
-			bool is_end() const
-			{
-				return false;
-			}
-
-		private:
-
-			friend class saturated_pool;
-
-			window(saturated_pool* parent)
-				: data_begin_(&parent->components_[0])
-				, data_(&parent->components_[0])
-			{}
-
-			value_type* data_begin_;
-			value_type* data_;
-		};
-
-		// --------------------------------------------------------------------
 		//		
 		saturated_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
@@ -347,11 +298,6 @@ namespace entity { namespace component
 		const_optional_iterator optional_end() const
 		{
 			return const_optional_iterator(this, components_.size());
-		}
-
-		window view()
-		{
-			return window(this);
 		}
 
 		std::size_t size()

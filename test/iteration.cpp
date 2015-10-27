@@ -13,11 +13,9 @@
 #include "entity/component/saturated_pool.hpp"
 #include "entity/component/dense_pool.hpp"
 #include "entity/component/sparse_pool.hpp"
+#include "entity/range/combine.hpp"
 #include "entity/entity_pool.hpp"
 #include "entity/entity.hpp"
-#include "entity/component/zip.hpp"
-#include "entity/component/tie.hpp"
-#include "entity/entity_range.hpp"
 #include <algorithm>
 #include <numeric>
 #include <random>
@@ -113,14 +111,15 @@ void IterateTied(entity::entity_pool& pool, EntityList& entities)
 	velocity_pool_type velocity_pool(pool);	
 	accel_pool_type accel_pool(pool);
 
-	auto range = entity::make_entity_range(entities, zip(position_pool, velocity_pool, accel_pool));
+	auto range = entity::range::combine(entities, position_pool, velocity_pool, accel_pool);
 	for(auto i = range.begin(); i != range.end(); ++i)
 	{
-		int& p = entity::component::get<0>(*i);
+		using std::get;
+		int& p = *get<0>(*i);
 		p = 1;
-		int& v = entity::component::get<1>(*i);
+		int& v = *get<1>(*i);
 		v = 2;
-		int& a = entity::component::get<2>(*i);
+		int& a = *get<2>(*i);
 		a = 3;
 	}
 
@@ -162,8 +161,9 @@ struct add_0_1
 	template<typename T>
 	int operator()(T e)
 	{
-		int a = entity::component::get<0>(e);
-		int b = entity::component::get<1>(e);
+		using std::get;
+		int a = *get<0>(e);
+		int b = *get<1>(e);
 		return a + b;
 	}
 };
@@ -179,18 +179,19 @@ void TransformTied(entity::entity_pool& pool, EntityList& entities)
 	velocity_pool_type velocity_pool(pool);	
 	accel_pool_type accel_pool(pool);
 
-	auto range = entity::make_entity_range(entities, zip(position_pool, velocity_pool, accel_pool));
+	auto range = entity::range::combine(entities, position_pool, velocity_pool, accel_pool);
 	for(auto i = range.begin(); i != range.end(); ++i)
 	{
-		int& p = entity::component::get<0>(*i);
+		using std::get;
+		int& p = *get<0>(*i);
 		p = 1;
-		int& v = entity::component::get<1>(*i);
+		int& v = *get<1>(*i);
 		v = 2;
-		int& a = entity::component::get<2>(*i);
+		int& a = *get<2>(*i);
 		a = 3;
 	}
 
-	auto accel_range = entity::make_entity_range(entities, zip(velocity_pool, accel_pool));
+	auto accel_range = entity::range::combine(entities, velocity_pool, accel_pool);
 	std::transform(
 		accel_range.begin(),
 		accel_range.end(),
@@ -198,7 +199,7 @@ void TransformTied(entity::entity_pool& pool, EntityList& entities)
 		add_0_1()
 	);
 
-	auto vel_range = entity::make_entity_range(entities, zip(position_pool, velocity_pool));
+	auto vel_range = entity::range::combine(entities, position_pool, velocity_pool);
 	std::transform(
 		vel_range.begin(),
 		vel_range.end(),

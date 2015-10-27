@@ -28,18 +28,6 @@
 #include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity.hpp"
 #include "entity/entity_index.hpp"
-#include "entity/traits/iterator_traits.hpp"
-
-namespace boost {
-namespace iterators {
-struct forward_traversal_tag;
-}  // namespace iterators
-}  // namespace boost
-namespace entity {
-namespace iterator_traits {
-template <typename EntityList> struct entity_list_is_incremental;
-}  // namespace iterator_traits
-}  // namespace entity
 
 // ----------------------------------------------------------------------------
 //
@@ -242,25 +230,6 @@ namespace entity
 		std::vector<entity_index_t*> entities_;
 		signal_list signals_;
 	};
-
-	entity_pool::iterator begin(entity_pool const& p)
-	{
-		return p.begin();
-	}
-
-	entity_pool::iterator end(entity_pool const& p)
-	{
-		return p.end();
-	}
-
-	// Entitiy pools are garanteed to be inremental
-	namespace iterator_traits
-	{
-		template<>
-		struct entity_list_is_incremental<entity_pool> : is_incremental_tag
-		{};
-	}
-
 }
 
 #endif // _ENTITY_ENTITYPOOL_H_INCLUDED_
