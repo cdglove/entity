@@ -36,6 +36,8 @@ create_test(test.pools entity_functionality_performance.cpp "TEST_MIXED_POOLS=1;
 if(ENTITY_ENABLE_PERFORMANCE_TESTS)
 	create_test(test.perf.saturated.raw entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_RAW_LOOPS=1")
 	create_test(test.perf.saturated.fetch entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_INDEXED_LOOPS=1")
+	create_test(test.perf.saturated.helper entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_GET_HELPER=1")
+	create_test(test.perf.saturated.zip entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_ZIP_ITERATOR=1")
 	create_test(test.perf.saturated.optional entity_functionality_performance.cpp "TEST_SATURATED_POOLS=1;USE_OPTIONAL_ITERATORS=1")
 	#create_test(test.perf.dense.optional entity_functionality_performance.cpp "TEST_DENSE_POOLS=1;USE_OPTIONAL_ITERATORS=1")
 	#create_test(test.perf.sparse.optional entity_functionality_performance.cpp "TEST_SPARSE_POOLS=1;USE_OPTIONAL_ITERATORS=1")

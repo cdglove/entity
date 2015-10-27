@@ -19,7 +19,7 @@
 //
 namespace entity { namespace component {
 
-/// \brief Represents an optional componant entry from pools that may or may
+/// \brief Represents an optional component entry from pools that may or may
 /// not contain the specificed component. Similar to boost::optional but with
 /// a more compact representation.
 ///
@@ -27,6 +27,9 @@ template<typename T>
 class optional
 {
 public:
+
+	// For boost iterator adapaters.
+	typedef T element_type;
 
 	optional(boost::none_t)
 		: value_(nullptr)
@@ -41,7 +44,7 @@ public:
 		return *value_;
 	}
 
-	T& get() const
+	T const& get() const
 	{
 		return *value_;
 	}

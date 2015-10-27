@@ -15,7 +15,7 @@ char const* const VersionString = "@ENTITY_VERSION_STRING@";
 
 // Variadic support currently not working correctly
 // on gcc 4.8 and lower.
-#if __GNUC__  <= 4
+#if defined(__GNUC__) && __GNUC__  <= 4
 #  if __GNUC_MINOR__ <= 8
 #    define ENTITY_SUPPORT_VARIADICS 0
 #  endif

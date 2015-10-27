@@ -27,6 +27,9 @@ class required
 {
 public:
 
+	// For boost iterator adapaters.
+	typedef T element_type;
+
 	required(T& value)
 		: value_(&value)
 	{}
@@ -36,7 +39,7 @@ public:
 		return *value_;
 	}
 
-	T& get() const
+	T const& get() const
 	{
 		return *value_;
 	}

@@ -22,6 +22,9 @@
 #include <daily/timer/timer.h>
 #include <boost/iterator/zip_iterator.hpp>
 
+#include "entity/component/detail/get_helper.hpp"
+#include "entity/iterator/zip_iterator.hpp"
+
 static const std::size_t kDefaultNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
@@ -50,8 +53,10 @@ struct accelerate
 	template<typename T>
 	void operator()(T av)
 	{
-		auto a = boost::get<0>(av);
-		auto v = boost::get<1>(av);
+		using std::get;
+		using boost::get;
+		auto a = get<0>(av);
+		auto v = get<1>(av);
 		if(a && v)
 			*v += *a * kFrameTime;
 	}
@@ -62,8 +67,10 @@ struct move
 	template<typename T>
 	void operator()(T vp)
 	{
-		auto v = boost::get<0>(vp);
-		auto p = boost::get<1>(vp);
+		using std::get;
+		using boost::get;
+		auto v = get<0>(vp);
+		auto p = get<1>(vp);
 		if(v && p)
 			*p += *v * kFrameTime;
 	}
@@ -224,9 +231,9 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 			for(auto&& e : entities)
 			{
-				*position_pool.create(e, 0) = 0.f;
-				*velocity_pool.create(e, 0) = 0.f;
-				*accel_pool.create(e, 0) = 9.8f;
+				*position_pool.create(e, 0.f) = 0.f;
+				*velocity_pool.create(e, 0.f) = 0.f;
+				*accel_pool.create(e, 0.f) = 9.8f;
 			}
 		}
 	}
@@ -333,6 +340,59 @@ BOOST_AUTO_TEST_CASE( library_entity )
 					**p_begin += **v_begin * kFrameTime;
 				}
 			}
+
+		#elif USE_GET_HELPER
+
+			auto a_getter = entity::component::detail::make_get_helper(accel_pool);
+			auto v_getter = entity::component::detail::make_get_helper(velocity_pool);
+			auto p_getter = entity::component::detail::make_get_helper(position_pool);
+
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			{
+				auto accel = a_getter.get(entity::make_entity(i));
+				// Add a little to accel each frame.
+				if(accel)
+					*accel += 0.001f * kFrameTime;
+			}
+
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			{
+				auto accel = a_getter.get(entity::make_entity(i));
+				auto velocity = v_getter.get(entity::make_entity(i));
+				// Compute new velocity.
+				if(accel && velocity)
+					*velocity += *accel * kFrameTime;
+			}
+
+			float* p = &*position_pool.get(entity::make_entity(0));
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			{
+				auto velocity = v_getter.get(entity::make_entity(i));
+				auto position = p_getter.get(entity::make_entity(i));
+				// Compute new position.
+				if(velocity && position)
+					*position += *velocity * kFrameTime;
+			}
+		
+		#elif USE_ZIP_ITERATOR
+
+			std::for_each(
+				accel_pool.optional_begin(),
+				accel_pool.optional_end(),
+				jerk()
+			);
+
+			std::for_each(
+				entity::iterator::make_zip_iterator(entities.begin(), accel_pool, velocity_pool),
+				entity::iterator::make_zip_iterator(entities.end(), accel_pool, velocity_pool),
+				accelerate()
+			);
+
+			std::for_each(
+				entity::iterator::make_zip_iterator(entities.begin(), velocity_pool, position_pool),
+				entity::iterator::make_zip_iterator(entities.end(), velocity_pool, position_pool),
+				move()
+			);
 
 		#elif USE_OPTIONAL_ITERATORS
 
