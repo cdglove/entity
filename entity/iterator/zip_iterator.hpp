@@ -26,7 +26,6 @@ namespace entity { namespace iterator {
 /// \brief Zip together a list of entities plus an arbitrary number of component
 /// pools to allow iteration in parallel
 ///
-#if ENTITY_SUPPORT_VARIADICS
 template<typename EntityIterator, typename... ComponentPools>
 class zip_iterator
 	: public boost::iterator_facade<
@@ -89,7 +88,6 @@ zip_iterator<
 {
 	return zip_iterator<EntityIterator, ComponentPools...>(iter, pools...);
 }
-#endif
 
 } } // namespace entity { namespace iterator {
 

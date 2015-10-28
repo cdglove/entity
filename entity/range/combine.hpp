@@ -21,7 +21,6 @@
 //
 namespace entity { namespace range {
 
-#if ENTITY_SUPPORT_VARIADICS
 template<typename EntityRange, typename... ComponentPool>
 boost::iterator_range<
 	iterator::zip_iterator<
@@ -35,7 +34,6 @@ boost::iterator_range<
 		iterator::make_zip_iterator(entities.end(), pools...)
 	);
 }
-#endif // ENTITY_SUPPORT_VARIADICS
 
 } } // namespace entity { namespace range {
 

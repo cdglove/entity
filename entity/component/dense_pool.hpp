@@ -205,11 +205,7 @@ namespace entity { namespace component
 			components_.resize(owner_pool.size());
 			available_.resize(owner_pool.size(), true);
 
-		#if ENTITY_SUPPORT_VARIADICS
 			auto create_func = &dense_pool::create<T const&>;
-		#else
-			auto create_func = &dense_pool::create;
-		#endif
 			
 			// Create default values for existing entities.
 			std::for_each(
@@ -255,7 +251,6 @@ namespace entity { namespace component
 			;
 		}
 
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
 		{
@@ -271,24 +266,7 @@ namespace entity { namespace component
 				)
 			;
 		}
-	#else
-		void auto_create_components(entity_pool& owner_pool, T const& default_value)
-		{
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					std::function<void(entity)>(
-						[this, default_value](entity e)
-						{
-							create_entity_slot(e);
-							create(e, default_value);
-						}
-					)
-				)
-			;
-		}
-	#endif
 
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
@@ -298,16 +276,6 @@ namespace entity { namespace component
 			++used_count_;
 			return ret_val;
 		}	
-	#else
-		T* create(entity e, type original)
-		{
-			set_available(e.index(), false);
-			T* ret_val = get_component(e.index());
-			new(ret_val) T(std::move(original));
-			++used_count_;
-			return ret_val;
-		}	
-	#endif
 
 		void destroy(entity e)
 		{

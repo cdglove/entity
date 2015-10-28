@@ -179,12 +179,8 @@ namespace entity { namespace component
 		//
 		sparse_pool(entity_pool& owner_pool, T const& default_value = T())
 		{
-		#if ENTITY_SUPPORT_VARIADICS
 			auto create_func = &sparse_pool::create<T const&>;
-		#else
-			auto create_func = &sparse_pool::create;
-		#endif
-
+	
 			// Create default values for existing entities.
 			std::for_each(
 				owner_pool.begin(),
@@ -219,7 +215,6 @@ namespace entity { namespace component
 			;
 		}
 
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
 		{
@@ -234,37 +229,14 @@ namespace entity { namespace component
 				)
 			;
 		}
-	#else
-		void auto_create_components(entity_pool& owner_pool, T const& default_value)
-		{
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					boost::bind(
-						&sparse_pool::create,
-						this,
-						::_1,
-						default_value
-					)
-				)
-			;
-		}
-	#endif
-
-	#if ENTITY_SUPPORT_VARIADICS
+	
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
 			auto r = components_.emplace(e, std::forward<Args>(args)...);
 			return &(r.first->second);
 		}
-	#else
-		T* create(entity e, type original)
-		{
-			auto r = components_.emplace(e, std::move(original));
-			return &(r.first->second);
-		}
-	#endif
-
+	
 		void destroy(entity e)
 		{
 			components_.erase(e);

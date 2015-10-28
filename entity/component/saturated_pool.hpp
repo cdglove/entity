@@ -200,7 +200,6 @@ namespace entity { namespace component
 			auto_create_components(owner_pool, default_value);
 		}
 
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		void auto_create_components(entity_pool& owner_pool, Args... constructor_args)
 		{
@@ -215,37 +214,15 @@ namespace entity { namespace component
 				)
 			;
 		}
-	#else
-		void auto_create_components(entity_pool& owner_pool, T const& default_value)
-		{
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					boost::bind(
-						&saturated_pool::create_impl,
-						this,
-						::_1,
-						default_value
-					)
-				)
-			;
-		}
-	#endif
 
 		// Saturated pools cant create or destroy things independently 
 		// of the entity pool, so these functions should not exist.
 		// Right now they're here for compatibility.
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
 			return &components_[e.index()];
 		}	
-	#else
-		T* create(entity e, type original)
-		{
-			return &components_[e.index()];
-		}	
-	#endif
 
 		void destroy(entity e)
 		{}
@@ -313,20 +290,12 @@ namespace entity { namespace component
 
 		// Saturated pools cant create or destroy things independently 
 		// of the entity pool, so such functions should be private.
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create_impl(entity e, Args&&... args)
 		{
 			components_.emplace(components_.begin() + e.index(), std::forward<Args>(args)...);
 			return &components_[e.index()];
 		}	
-	#else
-		T* create_impl(entity e, type original)
-		{
-			components_.emplace(components_.begin() + e.index(), std::move(original));
-			return &components_[e.index()];
-		}	
-	#endif
 
 		void destroy_impl(entity e)
 		{
