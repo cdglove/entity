@@ -10,13 +10,12 @@ compiler:
  - gcc
 
 env:
-  global:
-    - GCC_VERSION="4.8"
   matrix:
     - BUILD_TYPE=Debug
     - BUILD_TYPE=Release
     - ASAN=On
     - GCC_VERSION="4.9"
+    - GCC_VERSION="4.8"
 
 matrix:
   exclude:
