@@ -11,24 +11,25 @@ compiler:
 
 env:
   global:
-    - GCC_VERSION="4.8"
+    - GCC_VERSION="4.9"
   matrix:
     - BUILD_TYPE=Debug
     - BUILD_TYPE=Release
     - ASAN=On
-    - GCC_VERSION="4.9"
 
 matrix:
   exclude:
+      # Dont run gcc with ASAN
     - compiler: gcc
       env: ASAN=On
-    - compiler: clang
-      env: GCC_VERSION="4.9"
+      # Dont run gcc debug
     - compiler: gcc
       env: BUILD_TYPE=Debug
 
 # Install dependencies
 before_install:
+  # Clang doesnt like libstdc++4.9.
+  - if [ "$CXX" == "clang++" ]; then GCC_VERSION="4.8"; fi
   - export CHECKOUT_PATH=`pwd`;
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:kalakris/cmake -y

@@ -12,6 +12,7 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
+#pragma once
 #ifndef _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
 #define _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
 
@@ -30,6 +31,7 @@
 #include <vector>
 
 #include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/component/optional.hpp"
 #include "entity/entity.hpp"
 #include "entity/entity_index.hpp"
 #include "entity/entity_pool.hpp"
@@ -59,10 +61,11 @@ namespace entity { namespace component
 			char mem_[sizeof(T)];
 		};
 
+		template<typename ValueType>
 		struct iterator_impl
 			: boost::iterator_facade<
-			  iterator_impl
-			, T&
+			  iterator_impl<ValueType>
+			, ValueType&
 			, boost::forward_traversal_tag
 			>
 		{
@@ -112,9 +115,72 @@ namespace entity { namespace component
 				return entity_index_ == other.entity_index_;
 			}
 
-			T& dereference() const
+			ValueType& dereference() const
 			{
 				return *parent_->get_component(get_entity().index());
+			}
+
+			dense_pool* parent_;
+			entity_index_t entity_index_;
+		};
+
+		template<typename ValueType>
+		struct optional_iterator_impl
+			: boost::iterator_facade<
+			  optional_iterator_impl<ValueType>
+			, optional<ValueType>
+			, boost::forward_traversal_tag
+			, optional<ValueType>
+			>
+		{
+			optional_iterator_impl()
+			{}
+
+			entity get_entity() const
+			{
+				return make_entity(entity_index_);
+			}
+
+			void set_target(entity e)
+			{
+				entity_index_ = e.index();
+			}
+
+		private:
+
+			friend class boost::iterator_core_access;
+			friend class dense_pool;
+
+			typedef typename std::vector<char>::iterator parent_iterator;
+
+			optional_iterator_impl(dense_pool* parent, entity_index_t start)
+				: parent_(parent)
+				, entity_index_(start)
+			{}
+
+			void increment()
+			{
+				++entity_index_;
+			}
+
+			bool equal(optional_iterator_impl const& other) const
+			{
+				return entity_index_ == other.entity_index_;
+			}
+
+			optional<ValueType> dereference() const
+			{
+				auto available_iterator = parent_->available_.begin() + entity_index_;
+				auto end_iterator = parent_->available_.end();
+				if(available_iterator < end_iterator)
+				{
+					if(!(*available_iterator))
+					{
+						return *parent_->get_component(get_entity().index());
+					}
+				}
+
+				return boost::none;
 			}
 
 			dense_pool* parent_;
@@ -124,62 +190,12 @@ namespace entity { namespace component
 	public:
 
 		typedef T type;
-		typedef iterator_impl iterator;
-
-		// --------------------------------------------------------------------
-		//
-		struct window
-		{
-			typedef type value_type;
-
-			window()
-			{}
-
-			bool is_entity(entity) const
-			{
-				return !(*available_);
-			}
-
-			bool increment(entity)
-			{
-				++data_;
-				++available_;
-				return !(*available_);
-			}
-
-			bool advance(entity e)
-			{
-				data_ = data_begin_ + e.index();
-				available_ = available_begin_ + e.index();
-				return !(*available_);
-			}
-
-			value_type& get() const
-			{
-				return *reinterpret_cast<value_type*>(data_);
-			}
-
-			bool is_end() const
-			{
-				return false;
-			}
-
-		private:
-
-			friend class dense_pool;
-
-			window(dense_pool* parent)
-				: available_begin_(&parent->available_[0])
-				, available_(&parent->available_[0])
-				, data_begin_(&parent->components_[0])
-				, data_(&parent->components_[0])
-			{}
-
-			char const* available_begin_;
-			char const* available_;
-			typename dense_pool::element_t* data_begin_;
-			typename dense_pool::element_t* data_;
-		};
+		typedef T value_type;
+		typedef optional<T> optional_type;
+		typedef iterator_impl<T> iterator;
+		typedef iterator_impl<const T> const_iterator;
+		typedef optional_iterator_impl<T> optional_iterator;
+		typedef optional_iterator_impl<const T> const_optional_iterator;
 			
 		// --------------------------------------------------------------------
 		//
@@ -189,11 +205,7 @@ namespace entity { namespace component
 			components_.resize(owner_pool.size());
 			available_.resize(owner_pool.size(), true);
 
-		#if ENTITY_SUPPORT_VARIADICS
 			auto create_func = &dense_pool::create<T const&>;
-		#else
-			auto create_func = &dense_pool::create;
-		#endif
 			
 			// Create default values for existing entities.
 			std::for_each(
@@ -239,7 +251,6 @@ namespace entity { namespace component
 			;
 		}
 
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
 		{
@@ -255,24 +266,7 @@ namespace entity { namespace component
 				)
 			;
 		}
-	#else
-		void auto_create_components(entity_pool& owner_pool, T const& default_value)
-		{
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					std::function<void(entity)>(
-						[this, default_value](entity e)
-						{
-							create_entity_slot(e);
-							create(e, default_value);
-						}
-					)
-				)
-			;
-		}
-	#endif
 
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
@@ -282,16 +276,6 @@ namespace entity { namespace component
 			++used_count_;
 			return ret_val;
 		}	
-	#else
-		T* create(entity e, type original)
-		{
-			set_available(e.index(), false);
-			T* ret_val = get_component(e.index());
-			new(ret_val) T(std::move(original));
-			++used_count_;
-			return ret_val;
-		}	
-	#endif
 
 		void destroy(entity e)
 		{
@@ -303,24 +287,24 @@ namespace entity { namespace component
 			set_available(e.index(), true);
 		}
 
-		T* get(entity e)
+		optional<T> get(entity e)
 		{
 			if(is_available(e.index()))	
 			{
-				return nullptr;
+				return boost::none;
 			}
 
-			return get_component(e.index());
+			return *get_component(e.index());
 		}
 
-		T const* get(entity e) const
+		optional<const T> get(entity e) const
 		{
 			if(is_available(e.index()))
 			{
-				return nullptr;
+				return boost::none;
 			}
 
-			return get_component(e.index());
+			return *get_component(e.index());
 		}
 
 		iterator begin()
@@ -333,9 +317,34 @@ namespace entity { namespace component
 			return iterator(this, available_.size());
 		}
 
-		window view()
+		const_iterator begin() const
 		{
-			return window(this);
+			return const_iterator(this, 0);
+		}
+
+		const_iterator end() const
+		{
+			return const_iterator(this, available_.size());
+		}
+
+		optional_iterator optional_begin()
+		{
+			return optional_iterator(this, 0);
+		}
+
+		optional_iterator optional_end()
+		{
+			return optional_iterator(this, available_.size());
+		}
+
+		const_optional_iterator optional_begin() const
+		{
+			return const_optional_iterator(this, 0);
+		}
+
+		const_optional_iterator optional_end() const
+		{
+			return const_optional_iterator(this, available_.size());
 		}
 
 		std::size_t size()

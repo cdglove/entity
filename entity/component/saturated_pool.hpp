@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "entity/config.hpp" // IWYU pragma: keep
+#include "entity/component/required.hpp"
 #include "entity/entity.hpp"
 #include "entity/entity_index.hpp"
 #include "entity/entity_pool.hpp"
@@ -51,10 +52,11 @@ namespace entity { namespace component
 	{
 	private:
 
+		template<typename ValueType>
 		struct iterator_impl
 			  : boost::iterator_facade<
-			    iterator_impl
-			  , T&
+			    iterator_impl<ValueType>
+			  , ValueType&
 			  , boost::forward_traversal_tag
 		  	>
 		{
@@ -71,7 +73,7 @@ namespace entity { namespace component
 			friend class boost::iterator_core_access;
 			friend class saturated_pool;
 			
-			typedef T* parent_iterator;
+			typedef ValueType* parent_iterator;
 
 			iterator_impl(
 				saturated_pool* parent,
@@ -90,7 +92,7 @@ namespace entity { namespace component
 				return entity_index_ == other.entity_index_;
 			}
 
-			T& dereference() const
+			ValueType& dereference() const
 			{
 				return parent_->components_[entity_index_];
 			}
@@ -99,111 +101,74 @@ namespace entity { namespace component
 			entity_index_t entity_index_;
 		};
 
-	public:
-
-		typedef T type;
-		typedef iterator_impl iterator;
-
-		// --------------------------------------------------------------------
-		//
-		template<typename EntityListIterator>
-		struct entity_iterator
-			: boost::iterator_facade<
-			  entity_iterator<EntityListIterator>
-			, T&
-			, boost::forward_traversal_tag
-			>
+		// For saturated pools, the elements are never 'optional', so the name
+		// optional is incorrect.  However, we want the pools to have
+		// compatible interfaces so we retain the name.
+		template<typename ValueType>
+		struct optional_iterator_impl
+			  : boost::iterator_facade<
+			    optional_iterator_impl<ValueType>
+			  , required<ValueType>
+			  , boost::forward_traversal_tag
+			  , required<ValueType>
+		  	>
 		{
-			entity_iterator()
+			optional_iterator_impl()
 			{}
 
 			entity get_entity() const
 			{
-				return *entity_iter_;
+				return make_entity(std::distance(begin_, iterator_));
 			}
 
-			bool is_valid() const
+			void set_target(entity e)
 			{
-				return true;
+				iterator_ = begin_ + e.index();
 			}
 
 		private:
 
 			friend class boost::iterator_core_access;
 			friend class saturated_pool;
+			
+			typedef typename std::vector<ValueType>::iterator parent_iterator;
 
-			entity_iterator(saturated_pool* parent, EntityListIterator entity_iter)
-				: parent_(parent)
-				, entity_iter_(std::move(entity_iter))
-			{}
+			optional_iterator_impl(
+				saturated_pool* parent,
+				entity_index_t idx)
+			{
+				begin_ = parent->components_.begin();
+				iterator_ = begin_ + idx;
+			}
 
 			void increment()
 			{
-				++entity_iter_;
+				++iterator_;
 			}
 
-			bool equal(entity_iterator const& other) const
+			bool equal(optional_iterator_impl const& other) const
 			{
-				return entity_iter_ == other.entity_iter_;
+				return iterator_ == other.iterator_;
 			}
 
-			T& dereference() const
+			required<ValueType> dereference() const
 			{
-				return parent_->components_[get_entity().index()];
+				return *iterator_;
 			}
 
-			saturated_pool* parent_;
-			EntityListIterator entity_iter_;
+			parent_iterator begin_;
+			parent_iterator iterator_;
 		};
 
-		// --------------------------------------------------------------------
-		//
-		struct window
-		{
-			typedef type value_type;
+	public:
 
-			window()
-			{}
-
-			bool is_entity(entity) const
-			{
-				return true;
-			}
-
-			bool increment(entity)
-			{
-				++data_;
-				return true;
-			}
-
-			bool advance(entity e)
-			{
-				data_ = data_begin_ + e.index();
-				return true;
-			}
-
-			value_type& get() const
-			{
-				return *data_;
-			}
-
-			bool is_end() const
-			{
-				return false;
-			}
-
-		private:
-
-			friend class saturated_pool;
-
-			window(saturated_pool* parent)
-				: data_begin_(&parent->components_[0])
-				, data_(&parent->components_[0])
-			{}
-
-			value_type* data_begin_;
-			value_type* data_;
-		};
+		typedef T type;
+		typedef T value_type;
+		typedef required<T> optional_type;
+		typedef iterator_impl<T> iterator;
+		typedef iterator_impl<const T> const_iterator;
+		typedef optional_iterator_impl<T> optional_iterator;
+		typedef optional_iterator_impl<const T> const_optional_iterator;
 
 		// --------------------------------------------------------------------
 		//		
@@ -231,9 +196,10 @@ namespace entity { namespace component
 					)
 				)
 			;
+
+			auto_create_components(owner_pool, default_value);
 		}
 
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		void auto_create_components(entity_pool& owner_pool, Args... constructor_args)
 		{
@@ -242,56 +208,33 @@ namespace entity { namespace component
 					std::function<void(entity)>(
 						[this, constructor_args...](entity e) 
 						{
-							create(e, constructor_args...);
+                            create_impl(e, constructor_args...);
 						}
 					)
 				)
 			;
 		}
-	#else
-		void auto_create_components(entity_pool& owner_pool, T const& default_value)
-		{
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					boost::bind(
-						&saturated_pool::create,
-						this,
-						::_1,
-						default_value
-					)
-				)
-			;
-		}
-	#endif
 
-	#if ENTITY_SUPPORT_VARIADICS
+		// Saturated pools cant create or destroy things independently 
+		// of the entity pool, so these functions should not exist.
+		// Right now they're here for compatibility.
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
-			components_.emplace(components_.begin() + e.index(), std::forward<Args>(args)...);
 			return &components_[e.index()];
 		}	
-	#else
-		T* create(entity e, type original)
-		{
-			components_.emplace(components_.begin() + e.index(), std::move(original));
-			return &components_[e.index()];
-		}	
-	#endif
 
 		void destroy(entity e)
+		{}
+
+		required<T> get(entity e)
 		{
-			components_.erase(components_.begin() + e.index());
+			return *get_component(e);
 		}
 
-		T* get(entity e)
+		required<T const> get(entity e) const
 		{
-			return get_component(e);
-		}
-
-		T const* get(entity e) const
-		{
-			return get_component(e);
+			return *get_component(e);
 		}
 
 		iterator begin()
@@ -303,10 +246,35 @@ namespace entity { namespace component
 		{
 			return iterator(this, components_.size());
 		}
-
-		window view()
+		
+		const_iterator begin() const
 		{
-			return window(this);
+			return const_iterator(this, 0);
+		}
+
+		const_iterator end() const
+		{
+			return const_iterator(this, components_.size());
+		}
+
+		optional_iterator optional_begin()
+		{
+			return optional_iterator(this, 0);
+		}
+
+		optional_iterator optional_end()
+		{
+			return optional_iterator(this, components_.size());
+		}
+		
+		const_optional_iterator optional_begin() const
+		{
+			return const_optional_iterator(this, 0);
+		}
+
+		const_optional_iterator optional_end() const
+		{
+			return const_optional_iterator(this, components_.size());
 		}
 
 		std::size_t size()
@@ -319,6 +287,20 @@ namespace entity { namespace component
 		// No copying.
 		saturated_pool(saturated_pool const&);
 		saturated_pool operator=(saturated_pool);
+
+		// Saturated pools cant create or destroy things independently 
+		// of the entity pool, so such functions should be private.
+		template<typename... Args>
+		T* create_impl(entity e, Args&&... args)
+		{
+			components_.emplace(components_.begin() + e.index(), std::forward<Args>(args)...);
+			return &components_[e.index()];
+		}	
+
+		void destroy_impl(entity e)
+		{
+			components_.erase(components_.begin() + e.index());
+		}
 
 		friend class creation_queue<saturated_pool<T>>;
 		friend class destruction_queue<saturated_pool<T>>;
@@ -347,7 +329,7 @@ namespace entity { namespace component
 		{
 			while(first != last)
 			{
-				create(first->first.lock().get(), std::move(first->second));
+				create_impl(first->first.lock().get(), std::move(first->second));
 				++first;
 			}
 		}
@@ -357,7 +339,7 @@ namespace entity { namespace component
 		{
 			while(current != last)
 			{
-				destroy(current->lock().get());
+				destroy_impl(current->lock().get());
 				++current;
 			}
 		}
@@ -366,7 +348,7 @@ namespace entity { namespace component
 		// Slot Handlers.
 		void handle_destroy_entity(entity e)
 		{
-			destroy(e);
+			destroy_impl(e);
 		}
 
 		void handle_swap_entity(entity a, entity b)

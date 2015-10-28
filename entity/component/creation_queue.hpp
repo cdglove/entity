@@ -41,19 +41,12 @@ namespace entity { namespace component
 			flush();
 		}
 
-	#if ENTITY_SUPPORT_VARIADICS
 		template<typename... Args>
 		void push(weak_entity e, Args&&... args)
 		{
 			created_.push_back(std::make_pair(e, type(std::forward<Args>(args)...)));
 		}
-	#else
-		void push(weak_entity e, type&& original)
-		{
-			created_.push_back(std::make_pair(e, std::move(original)));
-		}
-	#endif
-
+	
 		void flush()
 		{
 			std::sort(created_.begin(), created_.end());
