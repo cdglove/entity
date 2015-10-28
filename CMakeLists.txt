@@ -160,9 +160,9 @@ if(CHECK_INCLUDES_VIA_IWYU)
   find_program(IWYU_PATH NAMES include-what-you-use iwyu)
   if(IWYU_PATH)
     set(IWYU_PATH_AND_OPTIONS ${IWYU_PATH}
-      -Xiwyu --mapping_file=/home/chris/src/build/llvm/tools/clang/tools/include-what-you-use/gcc.stl.headers.imp
-      -Xiwyu --mapping_file=/home/chris/src/build/llvm/tools/clang/tools/include-what-you-use/boost-all.imp
-      -Xiwyu --mapping_file=/home/chris/src/build/llvm/tools/clang/tools/include-what-you-use/boost-all-private.imp
+      -Xiwyu --mapping_file=${IWYU_MAPFILE_DIR}gcc.stl.headers.imp
+      -Xiwyu --mapping_file=${IWYU_MAPFILE_DIR}boost-all.imp
+      -Xiwyu --mapping_file=${IWYU_MAPFILE_DIR}boost-all-private.imp
     )
     set_property(TARGET entity PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH_AND_OPTIONS})
   endif()
