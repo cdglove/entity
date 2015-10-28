@@ -10,7 +10,6 @@ find_package( Boost
     system
     thread
     date_time
-    timer
     chrono
 )
 
