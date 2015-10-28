@@ -10,12 +10,12 @@ compiler:
  - gcc
 
 env:
+  global:
+    - GCC_VERSION="4.9"
   matrix:
     - BUILD_TYPE=Debug
     - BUILD_TYPE=Release
     - ASAN=On
-    - GCC_VERSION=4.9
-    - GCC_VERSION=4.8
 
 matrix:
   exclude:
@@ -25,15 +25,11 @@ matrix:
       # Dont run gcc debug
     - compiler: gcc
       env: BUILD_TYPE=Debug
-      # Dont run gcc 4.8 (bad variadic support)
-    - compiler: gcc
-      env: GCC_VERSION=4.8
-      # Dont run clang with gcc 4.8 stdlib (doesn't like it).
-    - compiler: clang
-      env: GCC_VERSION=4.9
 
 # Install dependencies
 before_install:
+  # Clang doesnt like libstdc++4.9.
+  - if [ "$CXX" == "clang++" ]; then GCC_VERSION="4.8"; fi
   - export CHECKOUT_PATH=`pwd`;
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:kalakris/cmake -y
