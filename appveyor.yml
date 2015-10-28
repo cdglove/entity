@@ -36,7 +36,7 @@ environment:
       CODE_GEN: x86_64
 
 build_script:
-  - ps: (new-object net.webclient).DownloadFile('https://github.com/cdglove/boost-install/blob/master/boost_1_59-entity-win32-%CODE_GEN%.zip?raw=true', 'C:\boost.zip')
+  - ps: (new-object net.webclient).DownloadFile('https://github.com/cdglove/boost-install/raw/master/boost_1_59-entity-win32-%CODE_GEN%.zip', 'C:\boost.zip')
   - ps: Add-Type -A System.IO.Compression.FileSystem
   - ps: "[IO.Compression.ZipFile]::ExtractToDirectory('C:\\boost.zip', 'C:\\')"
   - cmd: set BOOST_INCLUDEDIR=c:\boost_1_59-entity-win32-%CODE_GEN%\include\boost-1_59\
