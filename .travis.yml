@@ -11,19 +11,17 @@ compiler:
 
 env:
   global:
-    - GCC_VERSION="4.8"
+    - GCC_VERSION="4.9"
   matrix:
     - BUILD_TYPE=Debug
     - BUILD_TYPE=Release
     - ASAN=On
-    - GCC_VERSION="4.9"
 
 matrix:
   exclude:
     - compiler: gcc
       env: ASAN=On
     - compiler: clang
-      env: GCC_VERSION="4.9"
     - compiler: gcc
       env: BUILD_TYPE=Debug
 
