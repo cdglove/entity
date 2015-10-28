@@ -10,6 +10,9 @@
 # http://www.boost.org/LICENSE_1_0.txt
 #
 # ##############################################################################
+os:
+  - Visual Studio 2015
+
 environment:
   matrix:
     - GENERATOR: "Visual Studio 14"
