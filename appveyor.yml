@@ -30,7 +30,7 @@ environment:
 
 build_script:
   - cmd: set BOOST_ROOT=c:\Libraries\boost
-  - cmd: call "%VS140COMNTOOLS%\VC\vcvarsall.bat"
+  - cmd: call "%VS140COMNTOOLS%\..\..\VC\vcvarsall.bat"
   - cmake "-G%GENERATOR%" %CMAKE_OPTS% -H. -B_builds
   - cmake --build _builds --config "%CONFIG%"
 
