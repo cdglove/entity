@@ -22,6 +22,7 @@ matrix:
     - compiler: gcc
       env: ASAN=On
     - compiler: clang
+      env: GCC_VERSION="4.9"
     - compiler: gcc
       env: BUILD_TYPE=Debug
 
