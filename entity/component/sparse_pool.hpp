@@ -426,6 +426,44 @@ namespace entity { namespace component
 		boost::container::flat_map<entity, T> components_;
 		slot_list slots_;
 	};
+
+	// Sparse pool specializes the get helper with the assumption that we
+	// be fetching contiguous elements.
+	namespace detail 
+	{
+		template<typename ComponentPool>
+		class get_helper;
+
+		template<typename T>
+		class get_helper<sparse_pool<T>>
+		{
+		public:
+
+			typedef typename sparse_pool<T>::optional_type optional_type;
+
+			get_helper(sparse_pool<T>& pool)
+				: pool_(&pool)
+				, iter_(pool.begin())
+			{}
+
+			optional_type get(entity e) const
+			{
+				typename sparse_pool<T>::iterator end = pool_->end();
+				while(iter_ != end && iter_.get_entity() < e)
+					++iter_;
+
+				if(iter_.get_entity() == e)
+					return *iter_;
+				else
+					return boost::none;
+			}
+
+		private:
+
+			sparse_pool<T>* pool_;
+			mutable typename sparse_pool<T>::iterator iter_;
+		};
+	}
 } } // namespace entity { namespace component 
 
 #endif // _ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_

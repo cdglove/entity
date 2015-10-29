@@ -27,11 +27,6 @@ public:
 		: pool_(&pool)
 	{}
 
-	optional_type get(entity e)
-	{
-		return pool_->get(e);
-	}
-
 	optional_type get(entity e) const
 	{
 		return pool_->get(e);
@@ -40,7 +35,6 @@ public:
 private:
 
 	ComponentPool* pool_;
-
 };
 
 template<typename ComponentPool>

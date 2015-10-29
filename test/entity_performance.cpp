@@ -394,6 +394,16 @@ BOOST_AUTO_TEST_CASE( library_entity )
 				move()
 			);
 
+		#elif USE_RANGE
+
+			std::for_each(accel_pool.optional_begin(), accel_pool.optional_end(), jerk());
+
+			auto avr = entity::range::combine(entities, accel_pool, velocity_pool);
+			std::for_each(avr.begin(), avr.end(), accelerate());
+
+			auto vpr = entity::range::combine(entities, velocity_pool, position_pool);
+			std::for_each(vpr.begin(), vpr.end(), move());
+
 		#elif USE_OPTIONAL_ITERATORS
 
 			std::for_each(
