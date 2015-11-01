@@ -12,6 +12,8 @@
 #ifndef _ENTITY_COMPONENT_GETHELPER_H_INCLUDED_
 #define _ENTITY_COMPONENT_GETHELPER_H_INCLUDED_
 
+#include "entity/type_traits/component_pool.hpp"
+
 // ----------------------------------------------------------------------------
 //
 namespace entity { namespace component { namespace detail {
@@ -21,7 +23,9 @@ class get_helper
 {
 public:
 
-	typedef typename ComponentPool::optional_type optional_type;
+	typedef typename type_traits::optional_type_of_pool<
+		ComponentPool
+	>::type optional_type;
 
 	get_helper(ComponentPool& pool)
 		: pool_(&pool)
@@ -37,6 +41,8 @@ private:
 	ComponentPool* pool_;
 };
 
+// ----------------------------------------------------------------------------
+//
 template<typename ComponentPool>
 get_helper<ComponentPool> make_get_helper(ComponentPool& pool)
 {

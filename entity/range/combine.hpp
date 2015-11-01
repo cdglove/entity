@@ -21,6 +21,8 @@
 //
 namespace entity { namespace range {
 
+// ----------------------------------------------------------------------------
+//
 template<typename EntityRange, typename... ComponentPool>
 boost::iterator_range<
 	iterator::zip_iterator<
@@ -33,6 +35,16 @@ boost::iterator_range<
 		iterator::make_zip_iterator(entities.begin(), pools...),
 		iterator::make_zip_iterator(entities.end(), pools...)
 	);
+}
+
+// ----------------------------------------------------------------------------
+//
+template<typename ComponentPool>
+boost::iterator_range<
+	typename ComponentPool::optional_iterator
+> make_optional_range(ComponentPool& pool)
+{
+	return boost::make_iterator_range(pool.optional_begin(), pool.optional_end());
 }
 
 } } // namespace entity { namespace range {

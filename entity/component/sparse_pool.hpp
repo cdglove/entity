@@ -170,10 +170,11 @@ namespace entity { namespace component
 		typedef T type;
 		typedef T value_type;
 		typedef optional<T> optional_type;
+		typedef optional<T const> const_optional_type;
 		typedef iterator_impl<T> iterator;
-		typedef iterator_impl<const T> const_iterator;
+		typedef iterator_impl<T const> const_iterator;
 		typedef optional_iterator_impl<T> optional_iterator;
-		typedef optional_iterator_impl<const T> const_optional_iterator;
+		typedef optional_iterator_impl<T const> const_optional_iterator;
 		
 		// --------------------------------------------------------------------
 		//

@@ -18,6 +18,7 @@
 #include "entity/config.hpp"  // IWYU pragma: keep
 #include "entity/component/detail/get_helper.hpp"
 #include "entity/support/variadic.hpp"
+#include "entity/type_traits/component_pool.hpp"
 
 // ----------------------------------------------------------------------------
 //
@@ -30,9 +31,9 @@ template<typename EntityIterator, typename... ComponentPools>
 class zip_iterator
 	: public boost::iterator_facade<
 	    zip_iterator<EntityIterator, ComponentPools...>
-	  , std::tuple<typename ComponentPools::optional_type...>
+	  , std::tuple<typename type_traits::optional_type_of_pool<ComponentPools>::type...>
 	  , boost::forward_traversal_tag
-	  , std::tuple<typename ComponentPools::optional_type...>
+	  , std::tuple<typename type_traits::optional_type_of_pool<ComponentPools>::type...>
     >
 {
 public:
@@ -57,7 +58,7 @@ private:
 	}
 
 	typedef std::tuple<
-		typename ComponentPools::optional_type...
+		typename type_traits::optional_type_of_pool<ComponentPools>::type...
 	> reference_type;
 
 	template<std::size_t... Indices>
