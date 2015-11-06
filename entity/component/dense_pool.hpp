@@ -376,10 +376,10 @@ namespace entity { namespace component
 
 		T const* get_component(entity_index_t e) const
 		{
-			return reinterpret_cast<T*>(&components_[e]);
+			return reinterpret_cast<T const*>(&components_[e]);
 		}
 
-		bool is_available(entity_index_t idx)
+		bool is_available(entity_index_t idx) const
 		{
 			return available_[idx] != 0;
 		}
