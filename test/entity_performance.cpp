@@ -396,7 +396,8 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 		#elif USE_RANGE
 
-			std::for_each(accel_pool.optional_begin(), accel_pool.optional_end(), jerk());
+			auto ar = entity::range::make_optional_range(accel_pool);
+			std::for_each(ar.begin(), ar.end(), jerk());
 
 			auto avr = entity::range::combine(entities, accel_pool, velocity_pool);
 			std::for_each(avr.begin(), avr.end(), accelerate());
