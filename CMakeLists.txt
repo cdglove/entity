@@ -48,7 +48,7 @@ configure_file (
   "${PROJECT_BINARY_DIR}/entity/config.hpp")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_STANDARD 14)
+include(contrib/cmaketools/enable_cpp11.cmake)
 
 ###############################################################################
 #
@@ -103,7 +103,7 @@ endif()
 #
 ###############################################################################
 file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
-file(GLOB_RECURSE PROJECT_HEADERS include/entity/*.hpp)
+file(GLOB_RECURSE PROJECT_HEADERS entity/*.hpp)
 
 ###############################################################################
 #
