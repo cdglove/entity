@@ -17,7 +17,7 @@
 
 #include "entity/config.hpp"  // IWYU pragma: keep
 #include "entity/component/detail/get_helper.hpp"
-#include "entity/support/variadic.hpp"
+#include "entity/support/index_sequence.hpp"
 #include "entity/type_traits/component_pool.hpp"
 
 // ----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ private:
 	> reference_type;
 
 	template<std::size_t... Indices>
-	reference_type get_impl(support::index_list<Indices...>) const
+	reference_type get_impl(support::index_sequence<Indices...>) const
 	{
 		entity e = *entity_iterator_;
 		return std::make_tuple(std::get<Indices>(pools_).get(e)...);
@@ -70,7 +70,7 @@ private:
 
 	reference_type dereference() const
 	{
-		return get_impl(support::make_index_list<sizeof...(ComponentPools)>());
+		return get_impl(support::make_index_sequence<sizeof...(ComponentPools)>());
 	}
 
 	EntityIterator entity_iterator_;
