@@ -49,12 +49,13 @@ endfunction(clone_external_git_repo)
 ###############################################################################
 #
 # add_external_git_repo
-# Adds a prepository into a prefix and automatically configurs it for use
+# Adds a prepository into a prefix and automatically configures it for use
 # using defalt locations. For more control, use clone_external_git_repo
 #
 ###############################################################################
 function(add_external_git_repo URL TAG PREFIX)
   clone_external_git_repo(${URL} ${TAG} "${PROJECT_SOURCE_DIR}/${PREFIX}")
-  add_subdirectory("${PROJECT_SOURCE_DIR}/${PREFIX}")
-  set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${PROJECT_BINARY_DIR}/${PREFIX}" PARENT_SCOPE)
+  get_filename_component(full_path_source_dir "${PROJECT_SOURCE_DIR}/${PREFIX}" ABSOLUTE)
+  get_filename_component(full_path_bin_dir "${PROJECT_BINARY_DIR}/${PREFIX}" ABSOLUTE)
+  add_subdirectory(${full_path_source_dir} ${full_path_bin_dir})
 endfunction(add_external_git_repo)

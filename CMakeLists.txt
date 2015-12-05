@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.3)
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 project (entity)
 
@@ -62,24 +62,7 @@ include(contrib/cmaketools/external_git.cmake)
 # Find Boost
 #
 ###############################################################################
-set(Boost_USE_MULTI_THREADED ON)
-set(Boost_USE_STATIC_LIBS ON)
-find_package( Boost
-  REQUIRED
-  system
-)
-
-###############################################################################
-#
-# Find daily
-#
-###############################################################################
-set(DAILY_BUILD_TESTS OFF CACHE BOOL "Disable libdaily tests" FORCE)
-add_external_git_repo(
-  "https://github.com/cdglove/daily.git"
-  "master"
-  "contrib/daily")
-find_package(daily)
+find_package( Boost )
 
 ###############################################################################
 #
@@ -141,9 +124,8 @@ target_include_directories(
   ${PROJECT_NAME} PUBLIC 
   ${ENTITY_LOCAL_INCLUDE_DIRS})
 
-enable_testing()
-
 if(ENTITY_BUILD_TESTS)
+  enable_testing()
 	add_subdirectory(test)
 endif()
 
