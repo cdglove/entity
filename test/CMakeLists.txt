@@ -4,15 +4,17 @@ option( ENTITY_ENABLE_PERFORMANCE_TESTS "Build and run performance tests (slow)"
 
 ###############################################################################
 #
-# Find daily
+# Find daily -- needed for performance counters.
 #
 ###############################################################################
-set(DAILY_BUILD_TESTS OFF CACHE BOOL "Disable libdaily tests" FORCE)
-add_external_git_repo(
-  "https://github.com/cdglove/daily.git"
-  "master"
-  "contrib/daily")
-find_package(daily)
+if(ENTITY_ENABLE_PERFORMANCE_TESTS)
+	set(DAILY_BUILD_TESTS OFF CACHE BOOL "Disable libdaily tests" FORCE)
+	add_external_git_repo(
+	  "https://github.com/cdglove/daily.git"
+	  "master"
+	  "contrib/daily")
+	find_package(daily)
+endif()
  
 set(Boost_USE_MULTI_THREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
