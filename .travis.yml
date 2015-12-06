@@ -38,9 +38,9 @@ before_install:
   - sudo add-apt-repository ppa:george-edison55/cmake-3.x -y
   #- sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install cmake
+  - sudo apt-get install -qq cmake
   - export BOOST_VERSION=""
-  - sudo apt-get install libboost-thread${BOOST_VERSION}-dev libboost-chrono${BOOST_VERSION}-dev libboost-date-time${BOOST_VERSION}-dev libboost-system${BOOST_VERSION}-dev libboost-test${BOOST_VERSION}-dev libboost-timer${BOOST_VERSION}-dev #libboost1.55-all-dev
+  - sudo apt-get install -qq libboost-thread${BOOST_VERSION}-dev libboost-chrono${BOOST_VERSION}-dev libboost-date-time${BOOST_VERSION}-dev libboost-system${BOOST_VERSION}-dev libboost-test${BOOST_VERSION}-dev libboost-timer${BOOST_VERSION}-dev #libboost1.55-all-dev
   - sudo apt-get install -qq g++-${GCC_VERSION}
   - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
 
