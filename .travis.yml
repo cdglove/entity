@@ -34,12 +34,12 @@ before_install:
   # Clang doesnt like libstdc++4.9.
   #- if [ "$CXX" == "clang++" ]; then GCC_VERSION="4.8"; fi
   - export CHECKOUT_PATH=`pwd`;
-  #- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:george-edison55/cmake-3.x -y
-  - sudo add-apt-repository ppa:boost-latest/ppa -y
+  #- sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo apt-get update -qq
   - sudo apt-get install cmake
-  - export BOOST_VERSION="1.55"
+  - export BOOST_VERSION=""
   - sudo apt-get install libboost-thread${BOOST_VERSION}-dev libboost-chrono${BOOST_VERSION}-dev libboost-date-time${BOOST_VERSION}-dev libboost-system${BOOST_VERSION}-dev libboost-test${BOOST_VERSION}-dev libboost-timer${BOOST_VERSION}-dev #libboost1.55-all-dev
   - sudo apt-get install -qq g++-${GCC_VERSION}
   - if [ "$CXX" = "g++" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
