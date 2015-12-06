@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.2)
 
 option( ENTITY_ENABLE_PERFORMANCE_TESTS "Build and run performance tests (slow)" ON)
 

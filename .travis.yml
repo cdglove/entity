@@ -2,6 +2,9 @@ language: cpp
 
 script: cmake
 
+sudo: required
+dist: trusty
+
 git:
     submodules: false
 
@@ -11,7 +14,7 @@ compiler:
 
 env:
   global:
-    - GCC_VERSION="4.9"
+    - GCC_VERSION="5.0"
   matrix:
     - BUILD_TYPE=Debug
     - BUILD_TYPE=Release
@@ -29,16 +32,13 @@ matrix:
 # Install dependencies
 before_install:
   # Clang doesnt like libstdc++4.9.
-  - if [ "$CXX" == "clang++" ]; then GCC_VERSION="4.8"; fi
+  #- if [ "$CXX" == "clang++" ]; then GCC_VERSION="4.8"; fi
   - export CHECKOUT_PATH=`pwd`;
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo add-apt-repository ppa:kalakris/cmake -y
+  #- sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo add-apt-repository ppa:george-edison55/cmake-3.x -y
   - sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo apt-get update -qq
   - sudo apt-get install cmake
-  # Used foer determining the boost verion on the machine
-  #- sudo apt-get install aptitude
-  #- aptitude search libboost
   - export BOOST_VERSION="1.55"
   - sudo apt-get install libboost-thread${BOOST_VERSION}-dev libboost-chrono${BOOST_VERSION}-dev libboost-date-time${BOOST_VERSION}-dev libboost-system${BOOST_VERSION}-dev libboost-test${BOOST_VERSION}-dev libboost-timer${BOOST_VERSION}-dev #libboost1.55-all-dev
   - sudo apt-get install -qq g++-${GCC_VERSION}

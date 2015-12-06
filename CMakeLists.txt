@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.2)
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 project (entity)
 
@@ -99,7 +99,7 @@ set(ENTITY_SYS_INCLUDE_DIRS
   ${DAILY_INCLUDE_DIRS} 
 )
 set(ENTITY_LOCAL_INCLUDE_DIRS
-  ${PROJECT_SOURCE_DIR}/include
+  "${PROJECT_SOURCE_DIR}/include"
   ${PROJECT_BINARY_DIR}
 )
 set(ENTITY_INCLUDE_DIRS
