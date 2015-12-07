@@ -85,7 +85,7 @@ endif()
 #
 ###############################################################################
 add_library(entity INTERFACE)
-target_include_directories(entity INTERFACE "include/" ${Boost_INCLUDE_DIRS})
+target_include_directories(entity INTERFACE "include/")
 target_include_directories(entity SYSTEM INTERFACE ${Boost_INCLUDE_DIRS})
 # cglover-todo: consider if this should be set be the consumer only or not.
 # currently, entity is completly header only in this config, but it might be
