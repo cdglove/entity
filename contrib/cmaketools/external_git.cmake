@@ -53,9 +53,9 @@ endfunction(clone_external_git_repo)
 # using defalt locations. For more control, use clone_external_git_repo
 #
 ###############################################################################
-function(add_external_git_repo)
-  set(options ALWAYS_UPDATE ADD_SUBDIR)
-  set(oneValueArgs URL PREFIX TAG)
+macro(add_external_git_repo)
+  set(options ALWAYS_UPDATE)
+  set(oneValueArgs URL PREFIX TAG PACKAGE)
   cmake_parse_arguments(external_git "${options}" "${oneValueArgs}" "" ${ARGN} )
 
   clone_external_git_repo(
@@ -66,7 +66,12 @@ function(add_external_git_repo)
 
   get_filename_component(full_path_source_dir "${PROJECT_SOURCE_DIR}/${external_git_PREFIX}" ABSOLUTE)
   get_filename_component(full_path_bin_dir "${PROJECT_BINARY_DIR}/${external_git_PREFIX}" ABSOLUTE)
-  if(${external_git_ADD_SUBDIR})
-    add_subdirectory(${full_path_source_dir} ${full_path_bin_dir})
-  endif()
-endfunction(add_external_git_repo)
+  add_subdirectory(${full_path_source_dir} ${full_path_bin_dir})
+  find_package(${external_git_PACKAGE} PATHS ${full_path_bin_dir}
+    NO_CMAKE_PATH
+    NO_CMAKE_ENVIRONMENT_PATH 
+    NO_SYSTEM_ENVIRONMENT_PATH
+    NO_CMAKE_BUILDS_PATH 
+    NO_CMAKE_PACKAGE_REGISTRY 
+    NO_CMAKE_SYSTEM_PATH)
+ endmacro(add_external_git_repo)

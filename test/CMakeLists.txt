@@ -12,16 +12,9 @@ add_external_git_repo(
   URL "https://github.com/cdglove/daily.git"
   TAG "master"
   PREFIX "contrib/daily"
+  PACKAGE daily
   ALWAYS_UPDATE
-  ADD_SUBDIR)
-
-find_package(daily PATHS ${PROJECT_BINARY_DIR}/contrib/daily
-  NO_CMAKE_PATH
-  NO_CMAKE_ENVIRONMENT_PATH 
-  NO_SYSTEM_ENVIRONMENT_PATH
-  NO_CMAKE_BUILDS_PATH 
-  NO_CMAKE_PACKAGE_REGISTRY 
-  NO_CMAKE_SYSTEM_PATH )
+  )
  
 set(Boost_USE_MULTI_THREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
