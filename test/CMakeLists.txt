@@ -25,6 +25,8 @@ find_package( Boost
     chrono
 )
 
+include(../contrib/cmaketools/precompiled_header.cmake)
+
 function(create_test test_name test_source test_defines)
 	add_executable(${test_name} ${test_source})
 	target_link_libraries(${test_name} PUBLIC ${Boost_LIBRARIES} daily entity )
@@ -41,6 +43,8 @@ create_test(test.entity_lifetimes entity_lifetimes.cpp "")
 create_test(test.iterator iteration.cpp "")
 create_test(test.signals signals.cpp "")
 create_test(test.pools entity_performance.cpp "TEST_MIXED_POOLS=1;TEST_SIZE=1024")
+
+target_precompiled_header(test.pools ../include/entity/all.hpp)
 
 if(ENTITY_ENABLE_PERFORMANCE_TESTS)
 	create_test(test.perf.saturated.raw entity_performance.cpp "TEST_SATURATED_POOLS=1;USE_RAW_LOOPS=1")
