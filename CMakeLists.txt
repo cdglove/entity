@@ -87,6 +87,10 @@ endif()
 add_library(entity INTERFACE)
 target_include_directories(entity INTERFACE "include/" ${Boost_INCLUDE_DIRS})
 target_include_directories(entity SYSTEM INTERFACE ${Boost_INCLUDE_DIRS})
+# cglover-todo: consider if this should be set be the consumer only or not.
+# currently, entity is completly header only in this config, but it might be
+# bad to hijack this define from the consumers.
+target_compile_definitions(entity INTERFACE "BOOST_ERROR_CODE_HEADER_ONLY=1")
 target_link_libraries(entity ${Boost_LIBRARIES})
 
 if(ENTITY_BUILD_TESTS)
