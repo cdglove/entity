@@ -62,7 +62,7 @@ include(contrib/cmaketools/external_git.cmake)
 # Find Boost
 #
 ###############################################################################
-find_package( Boost )
+find_package( Boost REQUIRED )
 
 ###############################################################################
 #
@@ -79,50 +79,15 @@ if(CHECK_INCLUDES_VIA_IWYU)
   file(GLOB_RECURSE PROJECT_GENERATED_SOURCES ${PROJECT_BINARY_DIR}/gen/*.cpp)
 endif()
 
-
 ###############################################################################
 #
 # Find our project files
 #
 ###############################################################################
-file(GLOB_RECURSE PROJECT_SOURCES src/*.cpp)
-file(GLOB_RECURSE PROJECT_HEADERS include/entity/*.hpp)
-
-###############################################################################
-#
-# Find our project files
-#
-###############################################################################
-
-set(ENTITY_SYS_INCLUDE_DIRS 
-  ${Boost_INCLUDE_DIRS} 
-  ${DAILY_INCLUDE_DIRS} 
-)
-set(ENTITY_LOCAL_INCLUDE_DIRS
-  "${PROJECT_SOURCE_DIR}/include"
-  ${PROJECT_BINARY_DIR}
-)
-set(ENTITY_INCLUDE_DIRS
-  ${ENTITY_SYS_INCLUDE_DIRS}
-  ${ENTITY_LOCAL_INCLUDE_DIRS}
-)
-
-set(ENTITY_LIBRARIES entity ${DAILY_LIBRARIES} ${Boost_LIBRARIES})
-
-add_library(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_GENERATED_SOURCES} ${PROJECT_HEADERS})
-if((CMAKE_VERSION_MAJOR VERSION_EQUAL 3) OR (CMAKE_VERSION_MAJOR VERSION_GREATER 3))
- target_include_directories(
-   ${PROJECT_NAME} SYSTEM PUBLIC 
-   ${ENTITY_SYS_INCLUDE_DIRS})
-else()
- target_include_directories(
-   ${PROJECT_NAME} PUBLIC 
-   ${ENTITY_SYS_INCLUDE_DIRS})
-endif()
-
-target_include_directories(
-  ${PROJECT_NAME} PUBLIC 
-  ${ENTITY_LOCAL_INCLUDE_DIRS})
+add_library(entity INTERFACE)
+target_include_directories(entity INTERFACE "include/" ${Boost_INCLUDE_DIRS})
+target_include_directories(entity SYSTEM INTERFACE ${Boost_INCLUDE_DIRS})
+target_link_libraries(entity ${Boost_LIBRARIES})
 
 if(ENTITY_BUILD_TESTS)
   enable_testing()

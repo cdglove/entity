@@ -12,9 +12,7 @@ add_external_git_repo(
   URL "https://github.com/cdglove/daily.git"
   TAG "master"
   PREFIX "contrib/daily"
-  PACKAGE daily
-  ALWAYS_UPDATE
-  )
+  ALWAYS_UPDATE)
  
 set(Boost_USE_MULTI_THREADED ON)
 set(Boost_USE_STATIC_LIBS ON)
@@ -29,7 +27,7 @@ find_package( Boost
 
 function(create_test test_name test_source test_defines)
 	add_executable(${test_name} ${test_source})
-	target_link_libraries(${test_name} LINK_PUBLIC ${Boost_LIBRARIES} ${ENTITY_LIBRARIES} ${DAILY_LIBRARIES})
+	target_link_libraries(${test_name} PUBLIC ${Boost_LIBRARIES} daily entity )
 	add_test(${test_name} ${test_name})
 	set_property(TARGET ${test_name} APPEND PROPERTY COMPILE_DEFINITIONS ${test_defines})	
 	if(MSVC)

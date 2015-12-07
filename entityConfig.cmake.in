@@ -5,7 +5,7 @@
  
 # Compute paths
 get_filename_component(ENTITY_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(ENTITY_INCLUDE_DIRS "@ENTITY_INCLUDE_DIRS@")
+set(ENTITY_INCLUDE_DIRS "include/" @Boost_INCLUDE_DIRS@)
  
 # Our library dependencies (contains definitions for IMPORTED targets)
 if(    NOT TARGET entity
@@ -14,5 +14,5 @@ if(    NOT TARGET entity
 endif()
  
 # These are IMPORTED targets created by entityTargets.cmake
-set(ENTITY_LIBRARIES @ENTITY_LIBRARIES@)
+set(ENTITY_LIBRARIES entity @Boost_LIBRARIES@)
 

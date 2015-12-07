@@ -67,11 +67,14 @@ macro(add_external_git_repo)
   get_filename_component(full_path_source_dir "${PROJECT_SOURCE_DIR}/${external_git_PREFIX}" ABSOLUTE)
   get_filename_component(full_path_bin_dir "${PROJECT_BINARY_DIR}/${external_git_PREFIX}" ABSOLUTE)
   add_subdirectory(${full_path_source_dir} ${full_path_bin_dir})
-  find_package(${external_git_PACKAGE} PATHS ${full_path_bin_dir}
-    NO_CMAKE_PATH
-    NO_CMAKE_ENVIRONMENT_PATH 
-    NO_SYSTEM_ENVIRONMENT_PATH
-    NO_CMAKE_BUILDS_PATH 
-    NO_CMAKE_PACKAGE_REGISTRY 
-    NO_CMAKE_SYSTEM_PATH)
+
+  if(NOT ${external_git_PACKAGE} STREQUAL "")
+    find_package(${external_git_PACKAGE} PATHS ${full_path_bin_dir}
+      NO_CMAKE_PATH
+      NO_CMAKE_ENVIRONMENT_PATH 
+      NO_SYSTEM_ENVIRONMENT_PATH
+      NO_CMAKE_BUILDS_PATH 
+      NO_CMAKE_PACKAGE_REGISTRY 
+      NO_CMAKE_SYSTEM_PATH)
+  endif()
  endmacro(add_external_git_repo)
