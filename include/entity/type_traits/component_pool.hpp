@@ -9,8 +9,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_TYPETRAITS_COMPONENTPOOL_H_INCLUDED_
-#define _ENTITY_TYPETRAITS_COMPONENTPOOL_H_INCLUDED_
+#ifndef ENTITY_TYPETRAITS_COMPONENTPOOL_H_INCLUDED_
+#define ENTITY_TYPETRAITS_COMPONENTPOOL_H_INCLUDED_
 
 namespace entity { namespace type_traits {
 
@@ -28,4 +28,4 @@ struct optional_type_of_pool<ComponentPool const>
 
 
 } } // namespace entity { namespace type_traits {
-#endif // _ENTITY_TYPETRAITS_COMPONENTPOOL_H_INCLUDED_
+#endif // ENTITY_TYPETRAITS_COMPONENTPOOL_H_INCLUDED_

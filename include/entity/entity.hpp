@@ -11,8 +11,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_ENTITY_H_INCLUDED_
-#define _ENTITY_ENTITY_H_INCLUDED_
+#ifndef ENTITY_ENTITY_H_INCLUDED_
+#define ENTITY_ENTITY_H_INCLUDED_
 
 #include <boost/operators.hpp>
 #include <algorithm>
@@ -215,4 +215,4 @@ namespace entity
 	};
 }
 
-#endif // _ENTITY_ENTITY_H_INCLUDED_
+#endif // ENTITY_ENTITY_H_INCLUDED_

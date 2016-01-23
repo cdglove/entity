@@ -9,8 +9,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_COMPONENT_REQUIRED_H_INCLUDED_
-#define _ENTITY_COMPONENT_REQUIRED_H_INCLUDED_
+#ifndef ENTITY_COMPONENT_REQUIRED_H_INCLUDED_
+#define ENTITY_COMPONENT_REQUIRED_H_INCLUDED_
 
 #include "entity/component/optional.hpp"
 #include <boost/utility/explicit_operator_bool.hpp>

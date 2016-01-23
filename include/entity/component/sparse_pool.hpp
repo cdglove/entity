@@ -13,8 +13,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_
-#define _ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_
+#ifndef ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_
+#define ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_
 
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
@@ -22,8 +22,8 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/ref.hpp>
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/signals2.hpp>
-#include <boost/signals2/connection.hpp>
+//#include <boost/signals2.hpp>
+//#include <boost/signals2/connection.hpp>
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -183,52 +183,52 @@ namespace entity { namespace component
 			auto create_func = &sparse_pool::create<T const&>;
 	
 			// Create default values for existing entities.
-			std::for_each(
-				owner_pool.begin(),
-				owner_pool.end(),
-				boost::bind(
-					create_func,
-					this,
-					::_1,
-					boost::ref(default_value)
-				)
-			);
+			//std::for_each(
+			//	owner_pool.begin(),
+			//	owner_pool.end(),
+			//	boost::bind(
+			//		create_func,
+			//		this,
+			//		::_1,
+			//		boost::ref(default_value)
+			//	)
+			//);
 
-			slots_.entity_destroy_handler = 
-				owner_pool.signals().on_entity_destroy.connect(
-					boost::bind(
-						&sparse_pool::handle_destroy_entity,
-						this,
-						::_1
-					)
-				)
-			;
+			//slots_.entity_destroy_handler = 
+			//	owner_pool.signals().on_entity_destroy.connect(
+			//		boost::bind(
+			//			&sparse_pool::handle_destroy_entity,
+			//			this,
+			//			::_1
+			//		)
+			//	)
+			//;
 
-			slots_.entity_swap_handler = 
-				owner_pool.signals().on_entity_swap.connect(
-					boost::bind(
-						&sparse_pool::handle_swap_entity,
-						this,
-						::_1, 
-						::_2
-					)
-				)
-			;
+			//slots_.entity_swap_handler = 
+			//	owner_pool.signals().on_entity_swap.connect(
+			//		boost::bind(
+			//			&sparse_pool::handle_swap_entity,
+			//			this,
+			//			::_1, 
+			//			::_2
+			//		)
+			//	)
+			//;
 		}
 
 		template<typename... Args>
 		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
 		{
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					std::function<void(entity)>(
-						[this, constructor_args...](entity e)
-						{
-							create(e, constructor_args...);
-						}
-					)
-				)
-			;
+			//slots_.entity_create_handler = 
+			//	owner_pool.signals().on_entity_create.connect(
+			//		std::function<void(entity)>(
+			//			[this, constructor_args...](entity e)
+			//			{
+			//				create(e, constructor_args...);
+			//			}
+			//		)
+			//	)
+			//;
 		}
 	
 		template<typename... Args>
@@ -363,12 +363,12 @@ namespace entity { namespace component
 		friend class creation_queue<sparse_pool<T>>;
 		friend class destruction_queue<sparse_pool<T>>;
 
-		struct slot_list
-		{
-			boost::signals2::scoped_connection entity_create_handler;
-			boost::signals2::scoped_connection entity_destroy_handler;
-			boost::signals2::scoped_connection entity_swap_handler;
-		};
+		//struct slot_list
+		//{
+		//	boost::signals2::scoped_connection entity_create_handler;
+		//	boost::signals2::scoped_connection entity_destroy_handler;
+		//	boost::signals2::scoped_connection entity_swap_handler;
+		//};
 
 		// --------------------------------------------------------------------
 		// Queue interface.
@@ -425,7 +425,7 @@ namespace entity { namespace component
 		}
 
 		boost::container::flat_map<entity, T> components_;
-		slot_list slots_;
+		//slot_list slots_;
 	};
 
 	// Sparse pool specializes the get helper with the assumption that we
@@ -467,4 +467,4 @@ namespace entity { namespace component
 	}
 } } // namespace entity { namespace component 
 
-#endif // _ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_
+#endif // ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_

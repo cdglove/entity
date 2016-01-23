@@ -12,14 +12,14 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
-#define _ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
+#ifndef ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
+#define ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
 
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/signals2.hpp>
-#include <boost/signals2/connection.hpp>
+//#include <boost/signals2.hpp>
+//#include <boost/signals2/connection.hpp>
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -177,26 +177,26 @@ namespace entity { namespace component
 		{
 			components_.resize(owner_pool.size(), default_value);
 
-			slots_.entity_destroy_handler = 
-				owner_pool.signals().on_entity_destroy.connect(
-					boost::bind(
-						&saturated_pool::handle_destroy_entity,
-						this,
-						::_1
-					)
-				)
-			;
+			//slots_.entity_destroy_handler = 
+			//	owner_pool.signals().on_entity_destroy.connect(
+			//		boost::bind(
+			//			&saturated_pool::handle_destroy_entity,
+			//			this,
+			//			::_1
+			//		)
+			//	)
+			//;
 
-			slots_.entity_swap_handler = 
-				owner_pool.signals().on_entity_swap.connect(
-					boost::bind(
-						&saturated_pool::handle_swap_entity,
-						this,
-						::_1, 
-						::_2
-					)
-				)
-			;
+			//slots_.entity_swap_handler = 
+			//	owner_pool.signals().on_entity_swap.connect(
+			//		boost::bind(
+			//			&saturated_pool::handle_swap_entity,
+			//			this,
+			//			::_1, 
+			//			::_2
+			//		)
+			//	)
+			//;
 
 			auto_create_components(owner_pool, default_value);
 		}
@@ -204,16 +204,16 @@ namespace entity { namespace component
 		template<typename... Args>
 		void auto_create_components(entity_pool& owner_pool, Args... constructor_args)
 		{
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					std::function<void(entity)>(
-						[this, constructor_args...](entity e) 
-						{
-                            create_impl(e, constructor_args...);
-						}
-					)
-				)
-			;
+			//slots_.entity_create_handler = 
+			//	owner_pool.signals().on_entity_create.connect(
+			//		std::function<void(entity)>(
+			//			[this, constructor_args...](entity e) 
+			//			{
+   //                         create_impl(e, constructor_args...);
+			//			}
+			//		)
+			//	)
+			//;
 		}
 
 		// Saturated pools cant create or destroy things independently 
@@ -306,12 +306,12 @@ namespace entity { namespace component
 		friend class creation_queue<saturated_pool<T>>;
 		friend class destruction_queue<saturated_pool<T>>;
 
-		struct slot_list
-		{
-			boost::signals2::scoped_connection entity_create_handler;
-			boost::signals2::scoped_connection entity_destroy_handler;
-			boost::signals2::scoped_connection entity_swap_handler;
-		};
+		//struct slot_list
+		//{
+		//	boost::signals2::scoped_connection entity_create_handler;
+		//	boost::signals2::scoped_connection entity_destroy_handler;
+		//	boost::signals2::scoped_connection entity_swap_handler;
+		//};
 
 		T* get_component(entity e)
 		{
@@ -359,8 +359,8 @@ namespace entity { namespace component
 		}
 
 		std::vector<type> components_;
-		slot_list		  slots_;
+		//slot_list		  slots_;
 	};
 } } // namespace entity { namespace component
 
-#endif // _ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
+#endif // ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_

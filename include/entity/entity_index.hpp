@@ -10,8 +10,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_ENTITYINDEX_H_INCLUDED_
-#define _ENTITY_ENTITYINDEX_H_INCLUDED_
+#ifndef ENTITY_ENTITYINDEX_H_INCLUDED_
+#define ENTITY_ENTITYINDEX_H_INCLUDED_
 
 #include <cstddef>
 
@@ -24,4 +24,4 @@ namespace entity
 	typedef std::size_t entity_index_t;
 }
 
-#endif // _ENTITY_ENTITYINDEX_H_INCLUDED_
+#endif // ENTITY_ENTITYINDEX_H_INCLUDED_

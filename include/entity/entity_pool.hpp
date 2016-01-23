@@ -1,5 +1,5 @@
 // ****************************************************************************
-// entity/entity_pool.h
+// entity/entity_pool.hpp
 //
 // Represents a pool of entity ids.
 // 
@@ -10,15 +10,12 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_ENTITYPOOL_H_INCLUDED_
-#define _ENTITY_ENTITYPOOL_H_INCLUDED_
+#ifndef ENTITY_ENTITYPOOL_H_INCLUDED_
+#define ENTITY_ENTITYPOOL_H_INCLUDED_
 
 #include <boost/function.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/pool/pool.hpp>
-#include <boost/signals2.hpp>
-#include <boost/signals2/optional_last_value.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
 #include <algorithm>
 #include <cstddef>
 #include <new>
@@ -28,6 +25,7 @@
 #include "entity/config.hpp" // IWYU pragma: keep
 #include "entity/entity.hpp"
 #include "entity/entity_index.hpp"
+#include "entity/support/object_storage.hpp"
 
 // ----------------------------------------------------------------------------
 //
@@ -70,17 +68,12 @@ namespace entity
 			entity_index_t iterator_;
 		};
 
+		class signal_list;
+
 	public:
 
 		typedef iterator_impl iterator;
 		typedef iterator_impl const_iterator;
-
-		struct signal_list
-		{
-			boost::signals2::signal<void(entity)> on_entity_create;
-			boost::signals2::signal<void(entity)> on_entity_destroy;
-			boost::signals2::signal<void(entity, entity)> on_entity_swap;
-		};
 
 		entity_pool()
 			: entity_pool_(16)
@@ -176,8 +169,123 @@ namespace entity
 
 	private:
 
+		// No copying
 		entity_pool(entity_pool const&);
 		entity_pool operator=(entity_pool);
+
+		class signal_list
+		{
+		public:
+
+			template <typename ComponentPool>
+			void register_pool(ComponentPool& pool)
+			{
+				pools_.emplace_back(pool);
+			}
+
+			template<typename ComponentPool>
+			void unregister_pool(ComponentPool& pool)
+			{
+				auto item = std::find_if(
+					pools_.begin(), 
+					pools_.end(), 
+					[&pool](signal_element_t const& elemend)
+					{
+						return element->get_pool() == &pool;	
+					}
+				);
+
+				BOOST_ASSERT(item != pools_.end());
+				pools_.erase(item);
+			}
+
+		private:
+			
+			friend class entity_pool;
+
+			void on_entity_create(entity e)
+			{
+				std::for_each(
+					pools_.begin(),
+					pools_.end(),
+					[e](signal_element_t& pool)
+					{
+						pool->on_entity_create(e);
+					}
+				);
+			}
+			
+			void on_entity_destroy(entity e)
+			{
+				std::for_each(
+					pools_.begin(),
+					pools_.end(),
+					[e](signal_element_t& pool)
+					{
+						pool->on_entity_destroy(e);
+					}
+				);
+			}
+			
+			void on_entity_swap(entity a, entity b)
+			{
+				std::for_each(
+					pools_.begin(),
+					pools_.end(),
+					[a, b](signal_element_t& pool)
+					{
+						pool->on_entity_swap(a, b);
+					}
+				);
+			}
+
+			struct component_pool_signal_interface
+			{
+				virtual ~component_pool_signal_interface() = 0;
+				virtual void on_entity_create(entity e)	= 0;		
+				virtual void on_entity_destroy(entity e) = 0;			
+				virtual void on_entity_swap(entity a, entity b) = 0;
+				virtual void* get_pool() = 0;
+			};
+
+			template<typename ComponentPool>
+			struct component_pool_signal
+			{
+				ComponentPool& pool_;
+
+				component_pool_signal(ComponentPool& pool)
+					: pool_(pool)
+				{}
+
+				void on_entity_create(entity e) override
+				{
+					pool_.handle_create_entity(e);
+				}
+
+				void on_entity_destroy(entity e) override
+				{
+					pool_.handle_destroy_entity(e);
+				}
+
+				void on_entity_swap(entity a, entity b) override
+				{
+					pool_.handle_entity_swap(a, b);
+				}
+
+				void* get_pool() override
+				{
+					return &pool_;
+				}
+			};
+
+			typedef support::object_storage<
+				component_pool_signal_interface,
+				sizeof(void*) * 2, 
+				alignof(component_pool_signal_interface)
+			> signal_element_t;
+
+			std::vector<signal_element_t> pools_;
+		};
 
 		struct entity_deleter
 		{
@@ -232,4 +340,4 @@ namespace entity
 	};
 }
 
-#endif // _ENTITY_ENTITYPOOL_H_INCLUDED_
+#endif // ENTITY_ENTITYPOOL_H_INCLUDED_

@@ -13,16 +13,16 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
-#define _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
+#ifndef ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
+#define ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
 
 #include <boost/assert.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
 #include <boost/ref.hpp>
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/signals2.hpp>
-#include <boost/signals2/connection.hpp>
+//#include <boost/signals2.hpp>
+//#include <boost/signals2/connection.hpp>
 #include <algorithm>
 #include <cstddef>
 #include <functional>
@@ -206,66 +206,62 @@ namespace entity { namespace component
 			components_.resize(owner_pool.size());
 			available_.resize(owner_pool.size(), true);
 
-			auto create_func = &dense_pool::create<T const&>;
-			
 			// Create default values for existing entities.
 			std::for_each(
 				owner_pool.begin(),
 				owner_pool.end(),
-				boost::bind(
-					create_func,
-					this,
-					::_1,
-					boost::ref(default_value)
-				)
+				[this, &default_value](entity e)
+				{
+					create(e, default_value);
+				}
 			);
 
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					boost::bind(
-						&dense_pool::handle_create_entity,
-						this,
-						::_1
-					)
-				)
-			;
+			//slots_.entity_create_handler = 
+			//	owner_pool.signals().on_entity_create.connect(
+			//		boost::bind(
+			//			&dense_pool::handle_create_entity,
+			//			this,
+			//			::_1
+			//		)
+			//	)
+			//;
 
-			slots_.entity_destroy_handler = 
-				owner_pool.signals().on_entity_destroy.connect(
-					boost::bind(
-						&dense_pool::handle_destroy_entity,
-						this,
-						::_1
-					)
-				)
-			;
+			//slots_.entity_destroy_handler = 
+			//	owner_pool.signals().on_entity_destroy.connect(
+			//		boost::bind(
+			//			&dense_pool::handle_destroy_entity,
+			//			this,
+			//			::_1
+			//		)
+			//	)
+			//;
 
-			slots_.entity_swap_handler = 
-				owner_pool.signals().on_entity_swap.connect(
-					boost::bind(
-						&dense_pool::handle_swap_entity,
-						this,
-						::_1,
-						::_2
-					)
-				)
-			;
+			//slots_.entity_swap_handler = 
+			//	owner_pool.signals().on_entity_swap.connect(
+			//		boost::bind(
+			//			&dense_pool::handle_swap_entity,
+			//			this,
+			//			::_1,
+			//			::_2
+			//		)
+			//	)
+			//;
 		}
 
 		template<typename... Args>
 		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
 		{
-			slots_.entity_create_handler = 
-				owner_pool.signals().on_entity_create.connect(
-					std::function<void(entity)>(
-						[this, constructor_args...](entity e)
-						{
-							create_entity_slot(e);
-							create(e, constructor_args...);
-						}
-					)
-				)
-			;
+			//slots_.entity_create_handler = 
+			//	owner_pool.signals().on_entity_create.connect(
+			//		std::function<void(entity)>(
+			//			[this, constructor_args...](entity e)
+			//			{
+			//				create_entity_slot(e);
+			//				create(e, constructor_args...);
+			//			}
+			//		)
+			//	)
+			//;
 		}
 
 		template<typename... Args>
@@ -361,13 +357,7 @@ namespace entity { namespace component
 
 		friend class creation_queue<dense_pool<T>>;
 		friend class destruction_queue<dense_pool<T>>;
-
-		struct slot_list
-		{
-			boost::signals2::scoped_connection entity_create_handler;
-			boost::signals2::scoped_connection entity_destroy_handler;
-			boost::signals2::scoped_connection entity_swap_handler;
-		};
+		friend class entity_pool;
 
 		T* get_component(entity_index_t e)
 		{
@@ -466,8 +456,7 @@ namespace entity { namespace component
 		std::vector<element_t>			components_;
 		std::vector<char>				available_;
 		std::size_t						used_count_;
-		slot_list						slots_;
 	};
 } } // namespace entity { namespace component
 	
-#endif // _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
+#endif // ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
