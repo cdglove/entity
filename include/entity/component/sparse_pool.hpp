@@ -5,7 +5,7 @@
 // is significantly less than the number of entities with those components.
 // Uses less space and will be faster to iterate under these conditions.
 // 
-// Copyright Chris Glover 2014-2015
+// Copyright Chris Glover 2014-2016
 //
 // Distributed under the Boost Software License, Version 1.0.
 // See accompanying file LICENSE_1_0.txt or copy at
