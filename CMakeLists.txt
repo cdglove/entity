@@ -18,7 +18,7 @@ set(ENTITY_VERSION_STRING ${ENTITY_VERSION_MAJOR}.${ENTITY_VERSION_MINOR}.${ENTI
 #
 ###############################################################################
 option( ENTITY_BUILD_TESTS "Build the entity project tests." ON)
-option( ENTITY_BUILD_DOCS  "Allow build the daily project docs." ON)
+option( ENTITY_BUILD_DOCS  "Allow build the entity project docs." ON)
 
 ###############################################################################
 #
@@ -71,7 +71,7 @@ find_package( Boost REQUIRED )
 #
 ###############################################################################
 if(CHECK_INCLUDES_VIA_IWYU)
-  file(GLOB_RECURSE PROJECT_HEADERS_RELATIVE RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} entity/*.hpp)
+  file(GLOB_RECURSE PROJECT_HEADERS_RELATIVE RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} include/*.hpp)
   foreach(f IN ITEMS ${PROJECT_HEADERS_RELATIVE})
     string(REPLACE ".hpp" ".cpp" s ${f})
     file(WRITE "${PROJECT_BINARY_DIR}/gen/${s}" "#include \"${f}\"")
@@ -85,6 +85,8 @@ endif()
 #
 ###############################################################################
 add_library(entity INTERFACE)
+file(GLOB_RECURSE PROJECT_HEADERS include/*.hpp)
+target_sources(entity INTERFACE ${PROJECT_HEADERS})
 target_include_directories(entity INTERFACE "include/")
 target_include_directories(entity SYSTEM INTERFACE ${Boost_INCLUDE_DIRS})
 # cglover-todo: consider if this should be set be the consumer only or not.
