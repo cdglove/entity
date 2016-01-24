@@ -10,8 +10,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_ENTITYPOOL_H_INCLUDED_
-#define _ENTITY_ENTITYPOOL_H_INCLUDED_
+#ifndef ENTITY_ENTITYPOOL_H_INCLUDED_
+#define ENTITY_ENTITYPOOL_H_INCLUDED_
 
 #include <boost/function.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -232,4 +232,4 @@ namespace entity
 	};
 }
 
-#endif // _ENTITY_ENTITYPOOL_H_INCLUDED_
+#endif // ENTITY_ENTITYPOOL_H_INCLUDED_

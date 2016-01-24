@@ -11,8 +11,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_ENTITY_H_INCLUDED_
-#define _ENTITY_ENTITY_H_INCLUDED_
+#ifndef ENTITY_ENTITY_H_INCLUDED_
+#define ENTITY_ENTITY_H_INCLUDED_
 
 #include <boost/operators.hpp>
 #include <algorithm>
@@ -60,6 +60,11 @@ namespace entity
 
 		entity_index_t idx_;
 	};
+
+	std::size_t hash_value(entity const& e)
+	{
+		return e.index();
+	}
 
 	inline entity make_entity(entity_index_t idx) BOOST_NOEXCEPT_OR_NOTHROW
 	{
@@ -215,4 +220,4 @@ namespace entity
 	};
 }
 
-#endif // _ENTITY_ENTITY_H_INCLUDED_
+#endif // ENTITY_ENTITY_H_INCLUDED_

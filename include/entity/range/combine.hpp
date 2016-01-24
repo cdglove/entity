@@ -9,8 +9,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_RANGE_COMBINE_H_INCLUDED_
-#define _ENTITY_RANGE_COMBINE_H_INCLUDED_
+#ifndef ENTITY_RANGE_COMBINE_H_INCLUDED_
+#define ENTITY_RANGE_COMBINE_H_INCLUDED_
 
 #include "entity/config.hpp"  // IWYU pragma: keep
 
@@ -49,4 +49,4 @@ boost::iterator_range<
 
 } } // namespace entity { namespace range {
 
-#endif // _ENTITY_RANGE_COMBINE_H_INCLUDED_
+#endif // ENTITY_RANGE_COMBINE_H_INCLUDED_

@@ -12,8 +12,8 @@
 // http://www.boost.org/LICENSE_1_0.txt
 //
 // ****************************************************************************
-#ifndef _ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
-#define _ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
+#ifndef ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
+#define ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
 
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
@@ -363,4 +363,4 @@ namespace entity { namespace component
 	};
 } } // namespace entity { namespace component
 
-#endif // _ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_
+#endif // ENTITY_COMPONENT_SATURATEDPOOL_H_INCLUDED_

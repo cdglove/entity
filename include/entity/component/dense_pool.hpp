@@ -13,8 +13,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
-#define _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
+#ifndef ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
+#define ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
 
 #include <boost/assert.hpp>
 #include <boost/bind/bind.hpp>
@@ -470,4 +470,4 @@ namespace entity { namespace component
 	};
 } } // namespace entity { namespace component
 	
-#endif // _ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_
+#endif // ENTITY_COMPONENT_DENSEPOOL_H_INCLUDED_

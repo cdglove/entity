@@ -9,8 +9,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_ITERATOR_ZIPITERATOR_H_INCLUDED_
-#define _ENTITY_ITERATOR_ZIPITERATOR_H_INCLUDED_
+#ifndef ENTITY_ITERATOR_ZIPITERATOR_H_INCLUDED_
+#define ENTITY_ITERATOR_ZIPITERATOR_H_INCLUDED_
 
 #include <tuple>
 #include <boost/iterator/iterator_facade.hpp>
@@ -92,4 +92,4 @@ zip_iterator<
 
 } } // namespace entity { namespace iterator {
 
-#endif // _ENTITY_ITERATOR_ZIPITERATOR_H_INCLUDED_
+#endif // ENTITY_ITERATOR_ZIPITERATOR_H_INCLUDED_

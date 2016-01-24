@@ -11,8 +11,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_SUPPORT_VARIADIC_H_INCLUDED_
-#define _ENTITY_SUPPORT_VARIADIC_H_INCLUDED_
+#ifndef ENTITY_SUPPORT_VARIADIC_H_INCLUDED_
+#define ENTITY_SUPPORT_VARIADIC_H_INCLUDED_
 
 namespace entity { namespace support {
 
@@ -51,4 +51,4 @@ static typename detail::make_indices_impl<num_indices>::type make_index_sequence
 
 } } // namespace entity { namespace support { 
 
-#endif // _ENTITY_SUPPORT_VARIADIC_H_INCLUDED_
+#endif // ENTITY_SUPPORT_VARIADIC_H_INCLUDED_

@@ -9,8 +9,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_
-#define _ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_
+#ifndef ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_
+#define ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_
 
 #include <boost/none.hpp>
 #include <boost/utility/explicit_operator_bool.hpp>
@@ -83,4 +83,4 @@ private:
 
 } }
 
-#endif // _ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_
+#endif // ENTITY_COMPONENT_OPTIONAL_H_INCLUDED_

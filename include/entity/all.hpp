@@ -12,8 +12,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_ALL_H_INCLUDED_
-#define _ENTITY_ALL_H_INCLUDED_
+#ifndef ENTITY_ALL_H_INCLUDED_
+#define ENTITY_ALL_H_INCLUDED_
 
 #include <entity/entity.hpp>
 #include <entity/entity_index.hpp>
@@ -26,4 +26,4 @@
 #include <entity/iterator/zip_iterator.hpp>
 #include <entity/range/combine.hpp>
 
-#endif // _ENTITY_ALL_H_INCLUDED_
+#endif // ENTITY_ALL_H_INCLUDED_

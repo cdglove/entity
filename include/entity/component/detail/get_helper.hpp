@@ -9,8 +9,8 @@
 //
 // ****************************************************************************
 #pragma once
-#ifndef _ENTITY_COMPONENT_GETHELPER_H_INCLUDED_
-#define _ENTITY_COMPONENT_GETHELPER_H_INCLUDED_
+#ifndef ENTITY_COMPONENT_GETHELPER_H_INCLUDED_
+#define ENTITY_COMPONENT_GETHELPER_H_INCLUDED_
 
 #include "entity/type_traits/component_pool.hpp"
 
@@ -50,4 +50,4 @@ get_helper<ComponentPool> make_get_helper(ComponentPool& pool)
 }
 
 } } } // namespace entity { namespace component { namespace detail {
-#endif // _ENTITY_COMPONENT_GETHELPER_H_INCLUDED_
+#endif // ENTITY_COMPONENT_GETHELPER_H_INCLUDED_
