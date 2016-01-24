@@ -43,8 +43,11 @@ struct jerk
 	template<typename T>
 	void operator()(T a)
 	{
-		if(a)
-			*a += (0.001f *  kFrameTime);
+		using std::get;
+		using boost::get;
+		auto ac = get<0>(a);
+		if(ac)
+			*ac += (0.001f *  kFrameTime);
 	}
 };
 
@@ -294,7 +297,6 @@ BOOST_AUTO_TEST_CASE( library_entity )
 					*velocity += *accel * kFrameTime;
 			}
 
-			float* p = &*position_pool.get(entity::make_entity(0));
 			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
 				auto velocity = velocity_pool.get(entity::make_entity(i));
@@ -377,8 +379,8 @@ BOOST_AUTO_TEST_CASE( library_entity )
 		#elif USE_ZIP_ITERATOR
 
 			std::for_each(
-				accel_pool.optional_begin(),
-				accel_pool.optional_end(),
+				entity::iterator::make_zip_iterator(entities.begin(), accel_pool),
+				entity::iterator::make_zip_iterator(entities.end(), accel_pool),
 				jerk()
 			);
 
@@ -396,7 +398,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 		#elif USE_RANGE
 
-			auto ar = entity::range::make_optional_range(accel_pool);
+			auto ar = entity::range::combine(entities, accel_pool);
 			std::for_each(ar.begin(), ar.end(), jerk());
 
 			auto avr = entity::range::combine(entities, accel_pool, velocity_pool);
@@ -407,22 +409,33 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 		#elif USE_OPTIONAL_ITERATORS
 
+			auto a_begin = boost::make_zip_iterator(
+				boost::make_tuple(accel_pool.optional_begin()));
+			auto a_end = boost::make_zip_iterator(
+				boost::make_tuple(accel_pool.optional_end()));
+
 			std::for_each(
-				accel_pool.optional_begin(),
-				accel_pool.optional_end(),
+				a_begin,
+				a_end,
 				jerk()
 			);
 
-			auto av_begin = boost::make_zip_iterator(boost::make_tuple(accel_pool.optional_begin(), velocity_pool.optional_begin()));
-			auto av_end = boost::make_zip_iterator(boost::make_tuple(accel_pool.optional_end(), velocity_pool.optional_end()));
+			auto av_begin = boost::make_zip_iterator(
+				boost::make_tuple(accel_pool.optional_begin(), velocity_pool.optional_begin()));
+			auto av_end = boost::make_zip_iterator(
+				boost::make_tuple(accel_pool.optional_end(), velocity_pool.optional_end()));
+
 			std::for_each(
 				av_begin,
 				av_end,
 				accelerate()
 			);
 
-			auto vp_begin = boost::make_zip_iterator(boost::make_tuple(velocity_pool.optional_begin(), position_pool.optional_begin()));
-			auto vp_end = boost::make_zip_iterator(boost::make_tuple(velocity_pool.optional_end(), position_pool.optional_end()));
+			auto vp_begin = boost::make_zip_iterator(
+				boost::make_tuple(velocity_pool.optional_begin(), position_pool.optional_begin()));
+			auto vp_end = boost::make_zip_iterator(
+				boost::make_tuple(velocity_pool.optional_end(), position_pool.optional_end()));
+
 			std::for_each(
 				vp_begin,
 				vp_end,

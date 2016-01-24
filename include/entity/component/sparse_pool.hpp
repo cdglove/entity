@@ -18,8 +18,11 @@
 
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
-#include <boost/container/flat_map.hpp>
-#include <boost/unordered/unordered_map.hpp>
+#include <boost/container/container_fwd.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/member.hpp>
 #include <boost/ref.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2.hpp>
@@ -77,7 +80,7 @@ namespace entity { namespace component
 			friend class boost::iterator_core_access;
 			friend class sparse_pool;
 			
-			typedef typename sparse_pool<T>::ordered_storage_t::iterator parent_iterator;
+			typedef typename sparse_pool<T>::ordered_index_t::iterator parent_iterator;
 
 			explicit iterator_impl(parent_iterator convert_from)
 				: iterator_(std::move(convert_from))
@@ -130,7 +133,7 @@ namespace entity { namespace component
 			friend class boost::iterator_core_access;
 			friend class sparse_pool;
 			
-			typedef typename sparse_pool<T>::ordered_storage_t::iterator parent_iterator;
+			typedef typename sparse_pool<T>::ordered_index_t::iterator parent_iterator;
 
 			optional_iterator_impl(
 				parent_iterator convert_from, 
@@ -236,20 +239,19 @@ namespace entity { namespace component
 		T* create(entity e, Args&&... args)
 		{
 			auto r = components_.emplace(e, std::forward<Args>(args)...);
-			invalidate_component_refs();
 			return &(r.first->second);
 		}
 	
 		void destroy(entity e)
 		{
-			components_by_hash_.erase(e);
 			components_.erase(e);
 		}
 
 		optional<T> get(entity e)
 		{
-			auto obj = components_by_hash_.find(e);
-			if(obj != components_by_hash_.end())
+			hashed_index_t& idx = components_.template get<1>();
+			auto obj = idx.find(e);
+			if(obj != idx.end())
 			{
 				return obj->second;
 			}
@@ -259,8 +261,9 @@ namespace entity { namespace component
 
 		optional<const T> get(entity e) const
 		{
-			auto obj = components_by_hash_.find(e);
-			if(obj != components_by_hash_.end())
+			hashed_index_t const& idx = components_.template get<1>();
+			auto obj = idx.find(e);
+			if(obj != idx.end())
 			{
 				return obj->second;
 			}
@@ -373,27 +376,20 @@ namespace entity { namespace component
 			boost::signals2::scoped_connection entity_swap_handler;
 		};
 
-		typedef typename boost::container::flat_map<entity, T> ordered_storage_t;
-		typedef typename boost::unordered::unordered_map<entity, T&> hashed_ref_t;
+		typedef support::mutable_pair<entity, T> indexed_node;
 
 		// --------------------------------------------------------------------
 		// Queue interface.
 		template<typename Iter>
 		void create_range(Iter first, Iter last)
 		{
-			std::vector<typename ordered_storage_t::value_type> entities;
-			entities.reserve(std::distance(first, last));
-			std::transform(
-				first, last, 
-				std::back_inserter(entities), 
-				[entities](std::pair<weak_entity, type>& h)
+			std::vector<indexed_node> entities;
+			std::transform(first, last, std::back_inserter(entities), [entities](std::pair<weak_entity, type>& h)
 			{
-				return std::make_pair(h.first.lock().get(), std::move(h.second));
+				return support::make_mutable_pair(h.first.lock().get(), std::move(h.second));
 			});
 
 			components_.insert(entities.begin(), entities.end());
-
-			invalidate_component_refs();
 		}
 
 		template<typename Iter>
@@ -404,20 +400,6 @@ namespace entity { namespace component
 				destroy(current->lock().get());
 				++current;
 			}
-		}
-
-		void invalidate_component_refs()
-		{
-			components_by_hash_.clear();
-			std::transform(
-				components_.begin(),
-				components_.end(),
-				std::inserter(components_by_hash_, components_by_hash_.begin()),
-				[](typename ordered_storage_t::value_type& value)
-				{
-					return typename hashed_ref_t::value_type(value.first, value.second);
-				}
-			);
 		}
 
 		// --------------------------------------------------------------------
@@ -450,8 +432,24 @@ namespace entity { namespace component
 			}
 		}
 
-		ordered_storage_t components_;
-		hashed_ref_t components_by_hash_;
+		typedef boost::multi_index_container<
+		  indexed_node,
+		  boost::multi_index::indexed_by<
+		    // sort entity id
+		    boost::multi_index::ordered_unique<
+			  boost::multi_index::member<indexed_node, entity, &indexed_node::first>
+			>,	
+		    // fetch by entity id
+		    boost::multi_index::hashed_unique<
+			  boost::multi_index::member<indexed_node, entity, &indexed_node::first>
+			>    
+		  >
+		> components_t;
+
+		typedef typename components_t::template nth_index<0>::type ordered_index_t;
+		typedef typename components_t::template nth_index<1>::type hashed_index_t;
+
+		components_t components_;
 		slot_list slots_;
 	};
 

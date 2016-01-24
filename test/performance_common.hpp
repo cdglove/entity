@@ -29,6 +29,6 @@
 #endif
 
 #ifndef TEST_DENSITY
-#  define TEST_DENSITY (0.1f)
+#  define TEST_DENSITY (1.f)
 #endif
 
