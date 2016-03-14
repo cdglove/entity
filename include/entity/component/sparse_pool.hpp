@@ -59,6 +59,24 @@ namespace entity { namespace component
 	template<typename T>
 	class sparse_pool
 	{
+		typedef support::mutable_pair<entity, T> indexed_node;
+		typedef boost::multi_index_container<
+		  indexed_node,
+		  boost::multi_index::indexed_by<
+		    // sort entity id
+		    boost::multi_index::ordered_unique<
+			  boost::multi_index::member<indexed_node, entity, &indexed_node::first>
+			>,	
+		    // fetch by entity id
+		    boost::multi_index::hashed_unique<
+			  boost::multi_index::member<indexed_node, entity, &indexed_node::first>
+			>    
+		  >
+		> components_t;
+
+		typedef typename components_t::template nth_index<0>::type ordered_index_t;
+		typedef typename components_t::template nth_index<1>::type hashed_index_t;
+
 		template<typename ValueType>
 		struct iterator_impl
 			  : boost::iterator_facade<
@@ -376,8 +394,6 @@ namespace entity { namespace component
 			boost::signals2::scoped_connection entity_swap_handler;
 		};
 
-		typedef support::mutable_pair<entity, T> indexed_node;
-
 		// --------------------------------------------------------------------
 		// Queue interface.
 		template<typename Iter>
@@ -431,23 +447,6 @@ namespace entity { namespace component
 				components_.erase(b);
 			}
 		}
-
-		typedef boost::multi_index_container<
-		  indexed_node,
-		  boost::multi_index::indexed_by<
-		    // sort entity id
-		    boost::multi_index::ordered_unique<
-			  boost::multi_index::member<indexed_node, entity, &indexed_node::first>
-			>,	
-		    // fetch by entity id
-		    boost::multi_index::hashed_unique<
-			  boost::multi_index::member<indexed_node, entity, &indexed_node::first>
-			>    
-		  >
-		> components_t;
-
-		typedef typename components_t::template nth_index<0>::type ordered_index_t;
-		typedef typename components_t::template nth_index<1>::type hashed_index_t;
 
 		components_t components_;
 		slot_list slots_;
