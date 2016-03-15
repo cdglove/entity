@@ -15,6 +15,7 @@
 #include "entity/config.hpp"  // IWYU pragma: keep
 
 #include <boost/range/iterator_range_core.hpp>
+#include <boost/range/combine.hpp>
 #include "entity/iterator/zip_iterator.hpp"
 
 // ----------------------------------------------------------------------------
@@ -45,6 +46,16 @@ boost::iterator_range<
 > make_optional_range(ComponentPool& pool)
 {
 	return boost::make_iterator_range(pool.optional_begin(), pool.optional_end());
+}
+
+// ----------------------------------------------------------------------------
+//
+template<typename... ComponentPool>
+auto combine_optional(ComponentPool&... pools)
+{
+	return boost::range::combine(
+		make_optional_range(pools)...
+	);
 }
 
 } } // namespace entity { namespace range {

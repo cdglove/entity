@@ -21,6 +21,7 @@
 #include <iostream>
 #include <daily/timer/timer.h>
 #include <boost/iterator/zip_iterator.hpp>
+#include <boost/range/algorithm/for_each.hpp>
 
 #include "entity/component/detail/get_helper.hpp"
 #include "entity/iterator/zip_iterator.hpp"
@@ -441,6 +442,17 @@ BOOST_AUTO_TEST_CASE( library_entity )
 				vp_end,
 				move()
 			);
+
+		#elif USE_OPTIONAL_RANGE
+
+			auto a_range = entity::range::combine_optional(accel_pool);
+			boost::range::for_each(a_range, jerk());
+
+			auto av_range = entity::range::combine_optional(accel_pool, velocity_pool);
+			boost::range::for_each(av_range, accelerate());
+
+			auto vp_range = entity::range::combine_optional(velocity_pool, position_pool);
+			boost::range::for_each(vp_range, move());
 
 		#else
 		
