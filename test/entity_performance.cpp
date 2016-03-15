@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 					*position += *velocity * kFrameTime;
 			}
 
-		#elif USE_INDEXED_OPTIONAL_ITERATORS
+		#elif 0 && USE_INDEXED_OPTIONAL_ITERATORS
 
 			auto a_begin = accel_pool.optional_begin();
 			auto a_end = accel_pool.optional_end();
