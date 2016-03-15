@@ -21,9 +21,17 @@
 #include <iostream>
 #include <daily/timer/timer.h>
 #include <boost/iterator/zip_iterator.hpp>
+#include <boost/optional.hpp>
+#include <boost/optional/optional_io.hpp>
 
 #include "entity/component/detail/get_helper.hpp"
 #include "entity/iterator/zip_iterator.hpp"
+
+#if STORE_OPTIONAL
+  typedef boost::optional<float> storage_t;
+#else
+  typedef float storage_t;
+#endif
 
 static const std::size_t kDefaultNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
@@ -38,6 +46,7 @@ static const float kTestDensity = TEST_DENSITY;
 #define BOOST_TEST_MODULE Performance
 #include <boost/test/unit_test.hpp>
 
+#if STORE_OPTIONAL == 0
 struct jerk
 {
 	template<typename T>
@@ -78,6 +87,48 @@ struct move
 			*p += *v * kFrameTime;
 	}
 };
+#else
+struct jerk
+{
+	template<typename T>
+	void operator()(T a)
+	{
+		using std::get;
+		using boost::get;
+		auto ac = get<0>(a);
+		if(ac && *ac)
+			**ac += (0.001f *  kFrameTime);
+	}
+};
+
+struct accelerate
+{
+	template<typename T>
+	void operator()(T av)
+	{
+		using std::get;
+		using boost::get;
+		auto a = get<0>(av);
+		auto v = get<1>(av);
+		if(a && v && *a && *v)
+			**v += **a * kFrameTime;
+	}
+};
+
+struct move
+{
+	template<typename T>
+	void operator()(T vp)
+	{
+		using std::get;
+		using boost::get;
+		auto v = get<0>(vp);
+		auto p = get<1>(vp);
+		if(v && p && *v && *p)
+			**p += **v * kFrameTime;
+	}
+};
+#endif // OPTIONAL
 
 BOOST_AUTO_TEST_CASE( library_entity )
 {
@@ -107,22 +158,22 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 
 #if TEST_DENSE_POOLS
-	typedef entity::component::dense_pool<float> position_pool_type;
-	typedef entity::component::dense_pool<float> velocity_pool_type;
-	typedef entity::component::dense_pool<float> accel_pool_type;
+	typedef entity::component::dense_pool<storage_t> position_pool_type;
+	typedef entity::component::dense_pool<storage_t> velocity_pool_type;
+	typedef entity::component::dense_pool<storage_t> accel_pool_type;
 #elif TEST_SPARSE_POOLS
-	typedef entity::component::sparse_pool<float> position_pool_type;
-	typedef entity::component::sparse_pool<float> velocity_pool_type;
-	typedef entity::component::sparse_pool<float> accel_pool_type;
+	typedef entity::component::sparse_pool<storage_t> position_pool_type;
+	typedef entity::component::sparse_pool<storage_t> velocity_pool_type;
+	typedef entity::component::sparse_pool<storage_t> accel_pool_type;
 #elif TEST_SATURATED_POOLS
-	assert(kTestDensity == 1.f);
-	typedef entity::component::saturated_pool<float> position_pool_type;
-	typedef entity::component::saturated_pool<float> velocity_pool_type;
-	typedef entity::component::saturated_pool<float> accel_pool_type;
+	assert(kTestDensity == 1.f || STORE_OPTIONAL);
+	typedef entity::component::saturated_pool<storage_t> position_pool_type;
+	typedef entity::component::saturated_pool<storage_t> velocity_pool_type;
+	typedef entity::component::saturated_pool<storage_t> accel_pool_type;
 #elif TEST_MIXED_POOLS
-	typedef entity::component::sparse_pool<float> position_pool_type;
-	typedef entity::component::dense_pool<float> velocity_pool_type;
-	typedef entity::component::sparse_pool<float> accel_pool_type;
+	typedef entity::component::sparse_pool<storage_t> position_pool_type;
+	typedef entity::component::dense_pool<storage_t> velocity_pool_type;
+	typedef entity::component::sparse_pool<storage_t> accel_pool_type;
 #endif
 
 	position_pool_type position_pool(entities);
@@ -159,7 +210,7 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 	std::vector<entity::shared_entity> shuffled_entitys;
 
-	if(kTestDensity < 1.f)
+	if(false && kTestDensity < 1.f)
 	{
 		kUseCreationQueue = true;
 	}
@@ -278,7 +329,35 @@ BOOST_AUTO_TEST_CASE( library_entity )
 				p[i] += v[i] * kFrameTime;
 			}
 
-		#elif USE_INDEXED_LOOPS
+		#elif USE_INDEXED_LOOPS && STORE_OPTIONAL
+		
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			{
+				auto accel = accel_pool.get(entity::make_entity(i));
+				// Add a little to accel each frame.
+				if(accel && *accel)
+					**accel += 0.001f * kFrameTime;
+			}
+
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			{
+				auto accel = accel_pool.get(entity::make_entity(i));
+				auto velocity = velocity_pool.get(entity::make_entity(i));
+				// Compute new velocity.
+				if(accel && velocity && *accel && *velocity)
+					**velocity += **accel * kFrameTime;
+			}
+
+			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			{
+				auto velocity = velocity_pool.get(entity::make_entity(i));
+				auto position = position_pool.get(entity::make_entity(i));
+				// Compute new position.
+				if(velocity && position && *velocity && *position)
+					**position += **velocity * kFrameTime;
+			}
+
+		#elif USE_INDEXED_LOOPS && !STORE_OPTIONAL
 		
 			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
