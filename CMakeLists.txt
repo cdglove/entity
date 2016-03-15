@@ -48,7 +48,7 @@ configure_file (
   "${PROJECT_BINARY_DIR}/entity/config.hpp")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 ###############################################################################
 #
@@ -86,7 +86,7 @@ endif()
 ###############################################################################
 add_library(entity INTERFACE)
 file(GLOB_RECURSE PROJECT_HEADERS include/*.hpp)
-#target_sources(entity INTERFACE ${PROJECT_HEADERS})
+target_sources(entity INTERFACE ${PROJECT_HEADERS})
 target_include_directories(entity INTERFACE "include/")
 target_include_directories(entity SYSTEM INTERFACE ${Boost_INCLUDE_DIRS})
 # cglover-todo: consider if this should be set be the consumer only or not.
