@@ -15,6 +15,7 @@
 
 #include <boost/function.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/core/no_exceptions_support.hpp>
 #include <boost/pool/pool.hpp>
 #include <boost/signals2.hpp>
 #include <boost/signals2/optional_last_value.hpp>
@@ -108,7 +109,7 @@ namespace entity
 			entity_index_t* new_idx_ptr = nullptr;
 			void* new_index_mem = nullptr;
 			bool pop_on_catch = false;
-			try
+			BOOST_TRY
 			{	
 				new_index_mem = entity_pool_.malloc();
 				new_idx_ptr = new(new_index_mem) entity_index_t(entities_.size());
@@ -127,7 +128,7 @@ namespace entity
 				signals().on_entity_create(ent_val);
 				return std::move(new_idx);
 			}
-			catch(...)
+			BOOST_CATCH(...)
 			{
 				if(pop_on_catch)
 					entities_.pop_back();
@@ -135,8 +136,9 @@ namespace entity
 					new_idx_ptr->~entity_index_t();
 				if(new_index_mem)
 					entity_pool_.free(new_index_mem);
-				throw;
+				BOOST_RETHROW;
 			}
+			BOOST_CATCH_END
 		}
 
 		shared_entity create_shared()
@@ -211,7 +213,7 @@ namespace entity
 
 			entity_index_t* idx = entities_.back();
 			entities_.pop_back();
-			try
+			BOOST_TRY
 			{
 				signals().on_entity_destroy(make_entity(*idx));
 				idx->~entity_index_t();
@@ -219,11 +221,13 @@ namespace entity
 				idx = nullptr;
 				entity_pool_.free(idx_mem);
 			}
-			catch(...)
+			BOOST_CATCH(...)
 			{
 				if(idx)
 					entities_.push_back(idx);
+				BOOST_RETHROW;
 			}
+			BOOST_CATCH_END
 		}
 
 		boost::pool<> entity_pool_;
