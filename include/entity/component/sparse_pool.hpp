@@ -167,32 +167,45 @@ namespace entity { namespace component
 			std::for_each(
 				owner_pool.begin(),
 				owner_pool.end(),
-				boost::bind(
-					create_func,
-					this,
-					::_1,
-					boost::ref(default_value)
-				)
+				[this](entity e)
+				{
+					handle_create_entity(e);
+				}
 			);
+
+			std::for_each(
+				owner_pool.begin(),
+				owner_pool.end(),
+				[&default_value, this](entity e)
+				{
+					create(e, default_value);
+				}
+			);
+
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					[this](entity e)
+					{
+						handle_create_entity(e);
+					}
+				)
+			;
 
 			slots_.entity_destroy_handler = 
 				owner_pool.signals().on_entity_destroy.connect(
-					boost::bind(
-						&sparse_pool::handle_destroy_entity,
-						this,
-						::_1
-					)
+					[this](entity e)
+					{
+						handle_destroy_entity(e);
+					}
 				)
 			;
 
 			slots_.entity_swap_handler = 
 				owner_pool.signals().on_entity_swap.connect(
-					boost::bind(
-						&sparse_pool::handle_swap_entity,
-						this,
-						::_1, 
-						::_2
-					)
+					[this](entity a, entity b)
+					{
+						handle_swap_entity(a, b);
+					}
 				)
 			;
 		}
@@ -205,6 +218,7 @@ namespace entity { namespace component
 					std::function<void(entity)>(
 						[this, constructor_args...](entity e)
 						{
+							handle_create_entity(e);
 							create(e, constructor_args...);
 						}
 					)
@@ -215,9 +229,6 @@ namespace entity { namespace component
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
-			if(table_.size() <= e.index())
-				table_.resize(e.index()+1, no_component_flag());
-
 			table_[e.index()] = components_.size();
 			components_.emplace_back(std::forward<Args>(args)...);
 			reverse_table_.emplace_back(e.index());
@@ -226,7 +237,7 @@ namespace entity { namespace component
 	
 		void destroy(entity e)
 		{
-			auto idx = table_[e.index()];
+			auto idx = get_index_for_entity(e);
 			table_[e.index()] = no_component_flag();
 			using std::swap;
 			swap(components_[idx], components_.back());
@@ -237,7 +248,7 @@ namespace entity { namespace component
 
 		optional<T> get(entity e)
 		{
-			auto idx = table_[e.index()];
+			auto idx = get_index_for_entity(e);
 			if(idx != no_component_flag())
 				return components_[idx];
 			return boost::none;
@@ -245,7 +256,7 @@ namespace entity { namespace component
 
 		optional<const T> get(entity e) const
 		{
-			auto idx = table_[e.index()];
+			auto idx = get_index_for_entity(e);
 			if(idx != no_component_flag())
 				return components_[idx];
 			return boost::none;
@@ -298,9 +309,16 @@ namespace entity { namespace component
 
 	private:
 
-		static entity_index_t no_component_flag(){
+		static entity_index_t no_component_flag()
+		{
 			return std::numeric_limits<entity_index_t>::max();
 		}
+
+		entity_index_t get_index_for_entity(entity e) const
+		{
+			return table_[e.index()];
+		}
+
 		
 		// No copying
 		sparse_pool(sparse_pool const&);
@@ -352,9 +370,19 @@ namespace entity { namespace component
 
 		// --------------------------------------------------------------------
 		// Slot Handlers.
+		void handle_create_entity(entity e)
+		{
+			if(table_.size() <= e.index())
+				table_.resize(e.index()+1, no_component_flag());
+		}
+
 		void handle_destroy_entity(entity e)
 		{
-			destroy(e);
+			auto idx = get_index_for_entity(e);
+			if(idx != no_component_flag())
+			{
+				destroy(e);
+			}
 		}
 
 		void handle_swap_entity(entity a, entity b)
