@@ -29,7 +29,7 @@ static const std::size_t kDefaultNumEntities = TEST_SIZE;
 static const float kTestLength = 10.0f;
 static const float kFrameTime = 0.016f;
 static       bool kUseCreationQueue = false;
-static const float kTestDensity = TEST_DENSITY;
+static const double kTestDensity = TEST_DENSITY;
 
 #define ALWAYS_TIME_NODE(name) \
 	daily::cpu_timer& name ## _timer = daily::timer_map::get_default().create_node(#name); \
@@ -159,85 +159,57 @@ BOOST_AUTO_TEST_CASE( library_entity )
 
 	std::vector<entity::shared_entity> shuffled_entitys;
 
+	// ------------------------------------------------------------------------
 	if(kTestDensity < 1.f)
 	{
-		kUseCreationQueue = true;
-	}
-	
-	// ------------------------------------------------------------------------
-	{
-		if(kUseCreationQueue)
+		// ----------------------------------------------------------------
 		{
-			// Create entities and components.
+			ALWAYS_TIME_NODE(Create_Entities);
+
+			for (int i = 0; i < num_entities; ++i)
 			{
-				ALWAYS_TIME_NODE(Create_Entities);
-
-				shuffled_entitys.reserve(entities.size());
-				for (int i = 0; i < num_entities; ++i)
-				{
-					shuffled_entitys.push_back(entities.create_shared());
-				}
-
-				std::random_device rd;
-				std::mt19937 g(rd());
-				std::uniform_int_distribution<> dis(0,1);
-
-				for(int i = 0; i < num_entities; ++i)
-				{
-					if(dis(g))
-					{
-						std::swap(
-							shuffled_entitys[i],
-							shuffled_entitys[num_entities-i-1]
-						);
-					}
-				}
-
-				// std::shuffle(
-				// 	shuffled_entitys.begin(),
-				// 	shuffled_entitys.end(),
-				// 	g
-				// );
-
-				std::size_t actual_size_to_use = std::size_t(kTestDensity * num_entities);
-				shuffled_entitys.resize(actual_size_to_use);
+				entities.create();
 			}
-
-			ALWAYS_TIME_NODE(Create_Components);
-
-			for(auto i = shuffled_entitys.begin(); i != shuffled_entitys.end(); ++i)
-			{
-				auto e = *i;
-				position_creation_queue.push(e, 0.f);
-				velocity_creation_queue.push(e, 0.f);
-				accel_creation_queue.push(e, 9.8f);
-			}
-
-			ALWAYS_TIME_NODE(Flush_Create_Components);
-			position_creation_queue.flush();
-			velocity_creation_queue.flush();
-			accel_creation_queue.flush();
 		}
-		else
+
+		int low_dis = static_cast<int>((kTestDensity < 0.5) ? ((kTestDensity - 1) / kTestDensity) : -1);
+		int high_dis = static_cast<int>(std::ceil((kTestDensity > 0.5) ? (1 / ((kTestDensity - 1) - 1)) : 1));
+
+		std::random_device rd;
+		std::mt19937 g(rd());
+		std::uniform_int_distribution<> dis(low_dis,high_dis);
+		
+		ALWAYS_TIME_NODE(Create_Components);
+
+		for(auto&& e : entities)
 		{
-			// ----------------------------------------------------------------
-			{
-				ALWAYS_TIME_NODE(Create_Entities);
-
-				for (int i = 0; i < num_entities; ++i)
-				{
-					entities.create();
-				}
-			}
-			
-			ALWAYS_TIME_NODE(Create_Components);
-
-			for(auto&& e : entities)
+			if(dis(g) >= 0)
 			{
 				*position_pool.create(e, 0.f) = 0.f;
 				*velocity_pool.create(e, 0.f) = 0.f;
 				*accel_pool.create(e, 0.f) = 9.8f;
 			}
+		}
+	}
+	else
+	{
+		// ----------------------------------------------------------------
+		{
+			ALWAYS_TIME_NODE(Create_Entities);
+
+			for (int i = 0; i < num_entities; ++i)
+			{
+				entities.create();
+			}
+		}
+			
+		ALWAYS_TIME_NODE(Create_Components);
+
+		for(auto&& e : entities)
+		{
+			*position_pool.create(e, 0.f) = 0.f;
+			*velocity_pool.create(e, 0.f) = 0.f;
+			*accel_pool.create(e, 0.f) = 9.8f;
 		}
 	}
 
@@ -499,26 +471,11 @@ BOOST_AUTO_TEST_CASE( library_entity )
     std::clog << "Positions: " << *position_pool.begin() << std::endl;
     std::clog << "Velocities: " << *velocity_pool.begin() << std::endl;
 
-	if(!kUseCreationQueue)
-	{
-		ALWAYS_TIME_NODE(Cleanup);
+	ALWAYS_TIME_NODE(Cleanup);
 
-		while(entities.size() > 0)
-		{
-			entities.destroy(entity::make_entity(0));
-		}
-	}
-	else
+	while(entities.size() > 0)
 	{
-		ALWAYS_TIME_NODE(Cleanup);
-		// Make sure entities are cleaed up in reverse, otherwise
-		// it takes a long time for sparce pool.
-		std::sort(
-			shuffled_entitys.begin(),
-			shuffled_entitys.end(), 
-			std::greater<entity::shared_entity>()
-		);
-		shuffled_entitys.clear();
+		entities.destroy(entity::make_entity(entities.size()-1));
 	}
 
 	Total_timer.stop();
