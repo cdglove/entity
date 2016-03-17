@@ -314,35 +314,44 @@ private:
 
 // Benchmark macros can't handle templates, so we'll use typdefs.
 typedef ComponentFixture<entity::component::saturated_pool<float>> SaturatedFixture;
-typedef ComponentFixture<entity::component::saturated_pool<float>> DenseFixture;
-typedef ComponentFixture<entity::component::saturated_pool<float>> SparseFixture;
+typedef ComponentFixture<entity::component::dense_pool<float>> DenseFixture;
+typedef ComponentFixture<entity::component::sparse_pool<float>> SparseFixture;
 
+// Add new pool types here.
 #define POOLS				\
 	POOL(SaturatedFixture)	\
 	POOL(DenseFixture)		\
 	POOL(SparseFixture)		\
 
-#define TESTS				\
-	TEST(IterateRaw)		\
-	TEST(IterateIndexed)	\
+// Add new tests here.
+#define TESTS(pool)							\
+	TEST(IterateRaw, pool)					\
+	TEST(IterateIndexed, pool)				\
+	TEST(IterateIndexedOptional, pool)		\
+	TEST(IterateGetHelper, pool)			\
+	TEST(IterateZip, pool)					\
+	TEST(IterateRange, pool)				\
+	TEST(IterateOptional, pool)				\
 
+// -----------------------------------------------------------------------------
+// Auto instantiate tests here.
 #ifdef _DEBUG
 #  define BM_REGISTER(Fixture, Test) BENCHMARK_REGISTER_F(Fixture, Test)->Arg(1024)
 #else
 #  define BM_REGISTER(Fixture, Test) BENCHMARK_REGISTER_F(Fixture, Test)->Arg(1024)->Arg(1024 * 2048)
 #endif
 
-BENCHMARK_DEFINE_F(SaturatedFixture, IterateRaw)(benchmark::State& st)
-{
-	IterateRaw(st);
-}
-BM_REGISTER(SaturatedFixture, IterateRaw);
+#define POOL(x) TESTS(x)
+#define TEST(t, p) \
+	BENCHMARK_DEFINE_F(p, t)(benchmark::State& st)	\
+	{												\
+		t(st);										\
+	}												\
+	BM_REGISTER(p, t);								\
 
-BENCHMARK_DEFINE_F(SaturatedFixture, IterateIndexed)(benchmark::State& st)
-{
-	IterateIndexed(st);
-}
-BM_REGISTER(SaturatedFixture, IterateIndexed);
+POOLS
 
+#undef TEST
+#undef POOL
 
 BENCHMARK_MAIN()
