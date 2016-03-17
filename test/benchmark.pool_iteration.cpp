@@ -154,6 +154,33 @@ public:
 		}
 	}
 
+	void IterateUnchecked(benchmark::State& st)
+	{
+		while (st.KeepRunning())
+		{
+			auto accel_begin = accel_pool.begin();
+			auto accel_end = accel_pool.end();
+			for(auto accel = accel_begin; accel != accel_end; ++accel)
+			{
+				*accel += 0.001f * kFrameTime;
+			}
+
+			auto velocity_begin = velocity_pool.begin();
+			auto velocity_end = velocity_pool.end();
+			for(auto accel = accel_begin, velocity = velocity_begin; velocity != velocity_end; ++velocity, ++accel)
+			{
+				*velocity += *accel * kFrameTime;
+			}
+
+			auto position_begin = position_pool.begin();
+			auto position_end = position_pool.end();
+			for(auto velocity = velocity_begin, position = position_begin; position != position_end; ++position, ++velocity)
+			{
+				*position += *velocity * kFrameTime;
+			}
+		}
+	}
+
 	void IterateGetHelper(benchmark::State& st)
 	{
 		while (st.KeepRunning())
@@ -275,9 +302,10 @@ typedef ComponentFixture<entity::component::sparse_pool<float>> SparseFixture;
 	POOL(SparseFixture)		\
 
 // Add new tests here.
-#define TESTS(pool)							\
+#define COMMON_TESTS(pool)					\
 	TEST(IterateRaw, pool)					\
 	TEST(IterateIndexed, pool)				\
+	TEST(IterateUnchecked, pool)			\
 	TEST(IterateGetHelper, pool)			\
 	TEST(IterateZip, pool)					\
 	TEST(IterateRange, pool)				\
@@ -291,7 +319,7 @@ typedef ComponentFixture<entity::component::sparse_pool<float>> SparseFixture;
 #  define BM_REGISTER(Fixture, Test) BENCHMARK_REGISTER_F(Fixture, Test)->Arg(1024)->Arg(1024 * 2048)
 #endif
 
-#define POOL(x) TESTS(x)
+#define POOL(p) COMMON_TESTS(p)
 #define TEST(t, p) \
 	BENCHMARK_DEFINE_F(p, t)(benchmark::State& st)	\
 	{												\
@@ -299,6 +327,7 @@ typedef ComponentFixture<entity::component::sparse_pool<float>> SparseFixture;
 	}												\
 	BM_REGISTER(p, t);								\
 
+// 
 POOLS
 
 #undef TEST
