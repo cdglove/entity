@@ -69,12 +69,12 @@ public:
 		return *value_;
 	}
 
-	BOOST_CONSTEXPR BOOST_FORCEINLINE bool operator!() const
+	BOOST_FORCEINLINE BOOST_CONSTEXPR bool operator!() const BOOST_NOEXCEPT
 	{
 		return false;
 	}
 
-	BOOST_CONSTEXPR BOOST_EXPLICIT_OPERATOR_BOOL();
+	BOOST_CONSTEXPR_EXPLICIT_OPERATOR_BOOL();
 
 private:
 

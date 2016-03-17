@@ -1,5 +1,5 @@
 // ****************************************************************************
-// test/benchmark_iteration.cpp
+// test/benchmark.pool_iteration.cpp
 //
 // benchmarks the varoious ways that we can interate over the pools.
 // 
@@ -73,6 +73,8 @@ class ComponentFixture : public benchmark::Fixture
 {
 public:
 
+	typedef ComponentPool pool_type;
+
 	ComponentFixture()
 		: accel_pool(entities)
 		, velocity_pool(entities)
@@ -102,25 +104,22 @@ public:
 		{
 			float* a = &*accel_pool.get(entity::make_entity(0));
 			//#pragma loop(no_vector)
-			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			for(std::size_t i = 0, s = entities.size(); i < s; ++i)
 			{
-				// Add a little to accel each frame.
 				a[i] += 0.001f * kFrameTime;
 			}
 
 			float* v = &*velocity_pool.get(entity::make_entity(0));
 			//#pragma loop(no_vector)
-			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			for(std::size_t i = 0, s = entities.size(); i < s; ++i)
 			{
-				// Compute new velocity.
 				v[i] += a[i] * kFrameTime;
 			}
 
 			float* p = &*position_pool.get(entity::make_entity(0));
 			//#pragma loop(no_vector)
-			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
+			for(std::size_t i = 0, s = entities.size(); i < s; ++i)
 			{
-				// Compute new position.
 				p[i] += v[i] * kFrameTime;
 			}
 		}
@@ -133,7 +132,6 @@ public:
 			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
 				auto accel = accel_pool.get(entity::make_entity(i));
-				// Add a little to accel each frame.
 				if(accel)
 					*accel += 0.001f * kFrameTime;
 			}
@@ -142,17 +140,14 @@ public:
 			{
 				auto accel = accel_pool.get(entity::make_entity(i));
 				auto velocity = velocity_pool.get(entity::make_entity(i));
-				// Compute new velocity.
 				if(accel && velocity)
 					*velocity += *accel * kFrameTime;
 			}
 
-			float* p = &*position_pool.get(entity::make_entity(0));
 			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
 				auto velocity = velocity_pool.get(entity::make_entity(i));
-				auto position = position_pool.get(entity::make_entity(i));
-				// Compute new position.
+				auto position = position_pool.get(entity::make_entity(i));	
 				if(velocity && position)
 					*position += *velocity * kFrameTime;
 			}
@@ -170,7 +165,6 @@ public:
 			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
 			{
 				auto accel = a_getter.get(entity::make_entity(i));
-				// Add a little to accel each frame.
 				if(accel)
 					*accel += 0.001f * kFrameTime;
 			}
@@ -179,7 +173,6 @@ public:
 			{
 				auto accel = a_getter.get(entity::make_entity(i));
 				auto velocity = v_getter.get(entity::make_entity(i));
-				// Compute new velocity.
 				if(accel && velocity)
 					*velocity += *accel * kFrameTime;
 			}
@@ -189,7 +182,6 @@ public:
 			{
 				auto velocity = v_getter.get(entity::make_entity(i));
 				auto position = p_getter.get(entity::make_entity(i));
-				// Compute new position.
 				if(velocity && position)
 					*position += *velocity * kFrameTime;
 			}
@@ -311,5 +303,3 @@ POOLS
 
 #undef TEST
 #undef POOL
-
-BENCHMARK_MAIN()

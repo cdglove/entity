@@ -47,7 +47,6 @@ create_test(test.compilation instantiate_pools.cpp "")
 create_test(test.entity_lifetimes entity_lifetimes.cpp "")
 create_test(test.iterator iteration.cpp "")
 create_test(test.signals signals.cpp "")
-create_test(test.pools entity_performance.cpp "TEST_MIXED_POOLS=1;TEST_SIZE=1024")
 
 if(ENTITY_ENABLE_PERFORMANCE_TESTS)
 
@@ -85,7 +84,15 @@ if(ENTITY_ENABLE_PERFORMANCE_TESTS)
 	
 	#create_test(benchmark.manual_struct non_entity_performance.cpp "EXTRA_PADDING=0")
 	#create_test(benchmark.manual_pools manual_entity_performance.cpp "")
-	create_test(benchmark.iteration benchmark.iteration.cpp "")
+	set(BENCHMARK_FILES benchmark.pool_iteration.cpp benchmark.base_iteration.cpp benchmark.main.cpp)
+	add_executable(benchmark.iteration ${BENCHMARK_FILES})
+	target_link_libraries(benchmark.iteration PUBLIC ${Boost_LIBRARIES} entity benchmark)
+	add_test(benchmark.iteration benchmark.iteration)
+
+	if(MSVC)
+		set_property(TARGET benchmark.iteration APPEND PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
+		add_definitions( "/wd4459" )
+	endif()
 endif()
 
 	
