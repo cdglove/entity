@@ -17,7 +17,10 @@
 // ----------------------------------------------------------------------------
 //
 namespace entity { namespace component { namespace detail {
-
+// ----------------------------------------------------------------------------
+//! \brief get_helper is a helper object that can be specialized for specific 
+//! types of component pools that need different logic to efficiently fetch
+//! using an entity.
 template<typename ComponentPool>
 class get_helper
 {

@@ -32,41 +32,41 @@ namespace entity
 	{
 	public:
 
-		entity_index_t index() const
+		entity_index_t index() const BOOST_NOEXCEPT
 		{
 			return idx_;
 		}
 
-		bool operator==(entity const& rhs) const
+		bool operator==(entity const& rhs) const BOOST_NOEXCEPT
 		{
 			return index() == rhs.index(); 
 		}
 
-		bool operator<(entity const& rhs) const
+		bool operator<(entity const& rhs) const BOOST_NOEXCEPT
 		{
 			return index() < rhs.index();
 		}
 
 	private:
 
-		friend entity make_entity(entity_index_t) BOOST_NOEXCEPT_OR_NOTHROW;
+		friend entity make_entity(entity_index_t) BOOST_NOEXCEPT;
 
 		// Only make_entity can construct entities.
 		// Can consider impicit conversion here, but
 		// perfer to be conservative at first.
-		explicit entity(entity_index_t idx)
+		explicit entity(entity_index_t idx) BOOST_NOEXCEPT
 			: idx_(idx)
 		{}
 
 		entity_index_t idx_;
 	};
 
-	std::size_t hash_value(entity const& e)
+	std::size_t hash_value(entity const& e) BOOST_NOEXCEPT
 	{
 		return e.index();
 	}
 
-	inline entity make_entity(entity_index_t idx) BOOST_NOEXCEPT_OR_NOTHROW
+	inline entity make_entity(entity_index_t idx) BOOST_NOEXCEPT
 	{
 		return entity(idx);
 	}
