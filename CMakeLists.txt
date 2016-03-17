@@ -86,8 +86,8 @@ endif()
 ###############################################################################
 add_library(entity INTERFACE)
 file(GLOB_RECURSE PROJECT_HEADERS include/*.hpp)
-target_sources(entity INTERFACE ${PROJECT_HEADERS})
-#target_include_directories(entity INTERFACE "include/")
+#target_sources(entity INTERFACE ${PROJECT_HEADERS})
+target_include_directories(entity INTERFACE "include/")
 target_include_directories(entity SYSTEM INTERFACE ${Boost_INCLUDE_DIRS})
 # cglover-todo: consider if this should be set be the consumer only or not.
 # currently, entity is completly header only in this config, but it might be
