@@ -18,11 +18,6 @@
 
 #include <boost/bind/bind.hpp>
 #include <boost/bind/placeholders.hpp>
-#include <boost/container/container_fwd.hpp>
-#include <boost/multi_index_container.hpp>
-#include <boost/multi_index/hashed_index.hpp>
-#include <boost/multi_index/ordered_index.hpp>
-#include <boost/multi_index/member.hpp>
 #include <boost/ref.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/signals2.hpp>
@@ -59,23 +54,8 @@ namespace entity { namespace component
 	template<typename T>
 	class sparse_pool
 	{
-		typedef support::mutable_pair<entity, T> indexed_node;
-		typedef boost::multi_index_container<
-		  indexed_node,
-		  boost::multi_index::indexed_by<
-		    // sort entity id
-		    boost::multi_index::ordered_unique<
-			  boost::multi_index::member<indexed_node, entity, &indexed_node::first>
-			>,	
-		    // fetch by entity id
-		    boost::multi_index::hashed_unique<
-			  boost::multi_index::member<indexed_node, entity, &indexed_node::first>
-			>    
-		  >
-		> components_t;
-
-		typedef typename components_t::template nth_index<0>::type ordered_index_t;
-		typedef typename components_t::template nth_index<1>::type hashed_index_t;
+		typedef std::vector<entity_index_t> index_table_t;
+		typedef std::vector<T> component_table_t;
 
 		template<typename ValueType>
 		struct iterator_impl
@@ -85,11 +65,6 @@ namespace entity { namespace component
 			  , boost::forward_traversal_tag
 		  	>
 		{
-			entity get_entity() const
-			{
-				return iterator_->first;
-			}
-
 			iterator_impl()
 			{}
 
@@ -98,10 +73,10 @@ namespace entity { namespace component
 			friend class boost::iterator_core_access;
 			friend class sparse_pool;
 			
-			typedef typename sparse_pool<T>::ordered_index_t::iterator parent_iterator;
+			typedef typename sparse_pool<T>::component_table_t::iterator parent_iterator;
 
-			explicit iterator_impl(parent_iterator convert_from)
-				: iterator_(std::move(convert_from))
+			explicit iterator_impl(parent_iterator table_iter)
+				: iterator_(std::move(table_iter))
 			{}
 
 			void increment()
@@ -116,7 +91,7 @@ namespace entity { namespace component
 
 			ValueType& dereference() const
 			{
-				return iterator_->second;
+				return *iterator_;
 			}
 
 			parent_iterator iterator_;
@@ -134,57 +109,41 @@ namespace entity { namespace component
 			optional_iterator_impl()
 			{}
 
-			entity get_entity() const
-			{
-				return iterator_->first;
-			}
-
-			void set_target(entity e) 
-			{
-				entity_index_ = e.index();
-				while(entity_index_ < last_entity_index_ && entity_index_ < iterator_->first.index())
-					++iterator_;
-			}
-
 		private:
 
 			friend class boost::iterator_core_access;
 			friend class sparse_pool;
 			
-			typedef typename sparse_pool<T>::ordered_index_t::iterator parent_iterator;
+			typedef typename sparse_pool<T>::index_table_t::iterator parent_iterator;
+			typedef typename sparse_pool<T>::component_table_t component_table_t;
 
 			optional_iterator_impl(
-				parent_iterator convert_from, 
-				entity_index_t first_entity,
-				entity_index_t last_entity)
-				: iterator_(std::move(convert_from))
-				, entity_index_(first_entity)
-				, last_entity_index_(last_entity)
+				parent_iterator table_iter, 
+				component_table_t& components)
+				: iterator_(std::move(table_iter))
+				, components_(&components)
 			{}
 
 			void increment()
 			{
-				++entity_index_;
-				while(entity_index_ < last_entity_index_ && entity_index_ < iterator_->first.index())
-					++iterator_;
+				++iterator_;
 			}
 
 			bool equal(optional_iterator_impl const& other) const
 			{
-				return entity_index_ == other.entity_index_;
+				return iterator_ == other.iterator_;
 			}
 
 			optional<ValueType> dereference() const
 			{
-				if(entity_index_ < last_entity_index_ && entity_index_ == iterator_->first.index())
-					return iterator_->second;
+				if(*iterator_ != sparse_pool<T>::no_component_flag())
+					return (*components_)[*iterator_];
 				else
 					return boost::none;
 			}
 
-			entity_index_t entity_index_;
-			entity_index_t last_entity_index_;
 			parent_iterator iterator_;
+			component_table_t* components_;
 		};
 
 	public:
@@ -208,32 +167,45 @@ namespace entity { namespace component
 			std::for_each(
 				owner_pool.begin(),
 				owner_pool.end(),
-				boost::bind(
-					create_func,
-					this,
-					::_1,
-					boost::ref(default_value)
-				)
+				[this](entity e)
+				{
+					handle_create_entity(e);
+				}
 			);
+
+			std::for_each(
+				owner_pool.begin(),
+				owner_pool.end(),
+				[&default_value, this](entity e)
+				{
+					create(e, default_value);
+				}
+			);
+
+			slots_.entity_create_handler = 
+				owner_pool.signals().on_entity_create.connect(
+					[this](entity e)
+					{
+						handle_create_entity(e);
+					}
+				)
+			;
 
 			slots_.entity_destroy_handler = 
 				owner_pool.signals().on_entity_destroy.connect(
-					boost::bind(
-						&sparse_pool::handle_destroy_entity,
-						this,
-						::_1
-					)
+					[this](entity e)
+					{
+						handle_destroy_entity(e);
+					}
 				)
 			;
 
 			slots_.entity_swap_handler = 
 				owner_pool.signals().on_entity_swap.connect(
-					boost::bind(
-						&sparse_pool::handle_swap_entity,
-						this,
-						::_1, 
-						::_2
-					)
+					[this](entity a, entity b)
+					{
+						handle_swap_entity(a, b);
+					}
 				)
 			;
 		}
@@ -246,6 +218,7 @@ namespace entity { namespace component
 					std::function<void(entity)>(
 						[this, constructor_args...](entity e)
 						{
+							handle_create_entity(e);
 							create(e, constructor_args...);
 						}
 					)
@@ -256,36 +229,36 @@ namespace entity { namespace component
 		template<typename... Args>
 		T* create(entity e, Args&&... args)
 		{
-			auto r = components_.emplace(e, std::forward<Args>(args)...);
-			return &(r.first->second);
+			table_[e.index()] = components_.size();
+			components_.emplace_back(std::forward<Args>(args)...);
+			reverse_table_.emplace_back(e.index());
+			return std::addressof(components_.back());
 		}
 	
 		void destroy(entity e)
 		{
-			components_.erase(e);
+			auto idx = get_index_for_entity(e);
+			table_[e.index()] = no_component_flag();
+			using std::swap;
+			swap(components_[idx], components_.back());
+			components_.pop_back();
+			reverse_table_[idx] = reverse_table_.back();
+			reverse_table_.pop_back();
 		}
 
 		optional<T> get(entity e)
 		{
-			hashed_index_t& idx = components_.template get<1>();
-			auto obj = idx.find(e);
-			if(obj != idx.end())
-			{
-				return obj->second;
-			}
-
+			auto idx = get_index_for_entity(e);
+			if(idx != no_component_flag())
+				return components_[idx];
 			return boost::none;
 		}
 
 		optional<const T> get(entity e) const
 		{
-			hashed_index_t const& idx = components_.template get<1>();
-			auto obj = idx.find(e);
-			if(obj != idx.end())
-			{
-				return obj->second;
-			}
-
+			auto idx = get_index_for_entity(e);
+			if(idx != no_component_flag())
+				return components_[idx];
 			return boost::none;
 		}
 
@@ -301,76 +274,32 @@ namespace entity { namespace component
 
 		const_iterator begin() const
 		{
-			return iterator(components_.begin());
+			return const_iterator(components_.begin());
 		}
 
 		const_iterator end() const
 		{
-			return iterator(components_.end());
+			return const_iterator(components_.end());
 		}
 
 		optional_iterator optional_begin()
 		{
-			if(components_.empty())
-			{
-				return optional_iterator(components_.begin(), 0, 0);
-			}
-			else
-			{
-				return optional_iterator(
-					components_.begin(),
-					0, 
-					components_.rbegin()->first.index() + 1
-				);
-			}
+			return optional_iterator(table_.begin(), components_);
 		}
 
 		optional_iterator optional_end()
 		{
-			if(components_.empty())
-			{
-				return optional_iterator(components_.end(), 0, 0);
-			}
-			else
-			{
-				return optional_iterator(
-					components_.end(),
-					components_.rbegin()->first.index() + 1,
-					components_.rbegin()->first.index() + 1
-				);
-			}
+			return optional_iterator(table_.end(), components_);
 		}
 
 		const_optional_iterator optional_begin() const
 		{
-			if(components_.empty())
-			{
-				return const_optional_iterator(components_.begin(), 0, 0);
-			}
-			else
-			{
-				return const_optional_iterator(
-					components_.begin(),
-					0, 
-					components_.rbegin()->first.index() + 1
-				);
-			}
+			return const_optional_iterator(table_.begin(), components_);
 		}
 
 		const_optional_iterator optional_end() const
 		{
-			if(components_.empty())
-			{
-				return const_optional_iterator(components_.end(), 0, 0);
-			}
-			else
-			{
-				return const_optional_iterator(
-					components_.end(),
-					components_.rbegin()->first.index() + 1,
-					components_.rbegin()->first.index() + 1
-				);
-			}
+			return const_optional_iterator(table_.end(), components_);
 		}
 
 		std::size_t size()
@@ -379,6 +308,17 @@ namespace entity { namespace component
 		}
 
 	private:
+
+		static entity_index_t no_component_flag()
+		{
+			return std::numeric_limits<entity_index_t>::max();
+		}
+
+		entity_index_t get_index_for_entity(entity e) const
+		{
+			return table_[e.index()];
+		}
+
 		
 		// No copying
 		sparse_pool(sparse_pool const&);
@@ -399,13 +339,23 @@ namespace entity { namespace component
 		template<typename Iter>
 		void create_range(Iter first, Iter last)
 		{
-			std::vector<indexed_node> entities;
-			std::transform(first, last, std::back_inserter(entities), [entities](std::pair<weak_entity, type>& h)
-			{
-				return support::make_mutable_pair(h.first.lock().get(), std::move(h.second));
-			});
+			auto const initial_count = components_.size();
 
-			components_.insert(entities.begin(), entities.end());
+			std::transform(first, last, std::back_inserter(components_), 
+				[](std::pair<weak_entity, type>& h)
+				{
+					return std::move(h.second);
+				}
+			);
+
+			auto current_index = initial_count;
+			for(auto i = first; i != last; ++i)
+			{
+				auto entity = i->first.lock();
+				auto entity_idx = entity.get().index();
+				reverse_table_[current_index] = entity_idx;
+				table_[entity_idx] = current_index++;
+			}
 		}
 
 		template<typename Iter>
@@ -420,75 +370,36 @@ namespace entity { namespace component
 
 		// --------------------------------------------------------------------
 		// Slot Handlers.
+		void handle_create_entity(entity e)
+		{
+			if(table_.size() <= e.index())
+				table_.resize(e.index()+1, no_component_flag());
+		}
+
 		void handle_destroy_entity(entity e)
 		{
-			destroy(e);
+			auto idx = get_index_for_entity(e);
+			if(idx != no_component_flag())
+			{
+				destroy(e);
+			}
 		}
 
 		void handle_swap_entity(entity a, entity b)
 		{
 			using std::swap;
-			auto c_a = components_.find(a);
-			auto c_b = components_.find(b);
-			auto end = components_.end();
 
-			if(c_a != end && c_b != end)
-			{
-				swap(c_a->second, c_b->second);
-			}
-			else if(c_a != end)
-			{
-				components_.emplace(b, std::move(c_a->second));
-				components_.erase(a);
-			}
-			else if(c_b != end)
-			{
-				components_.emplace(a, std::move(c_b->second));
-				components_.erase(b);
-			}
+			// Could also just swap the indices here.
+			auto idx_a = table_[a.index()];
+			auto idx_b = table_[b.index()];
+			swap(components_[idx_a], components_[idx_b]);
 		}
 
-		components_t components_;
+		index_table_t table_;
+		index_table_t reverse_table_;
+		std::vector<T> components_;
 		slot_list slots_;
 	};
-
-	// Sparse pool specializes the get helper with the assumption that we
-	// be fetching contiguous elements.
-	namespace detail 
-	{
-		template<typename ComponentPool>
-		class get_helper;
-
-		template<typename T>
-		class get_helper<sparse_pool<T>>
-		{
-		public:
-
-			typedef typename sparse_pool<T>::optional_type optional_type;
-
-			get_helper(sparse_pool<T>& pool)
-				: pool_(&pool)
-				, iter_(pool.begin())
-			{}
-
-			optional_type get(entity e) const
-			{
-				typename sparse_pool<T>::iterator end = pool_->end();
-				while(iter_ != end && iter_.get_entity() < e)
-					++iter_;
-
-				if(iter_.get_entity() == e)
-					return *iter_;
-				else
-					return boost::none;
-			}
-
-		private:
-
-			sparse_pool<T>* pool_;
-			mutable typename sparse_pool<T>::iterator iter_;
-		};
-	}
 } } // namespace entity { namespace component 
 
 #endif // ENTITY_COMPONENT_SPARSEPOOL_H_INCLUDED_
