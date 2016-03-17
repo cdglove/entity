@@ -117,7 +117,7 @@ namespace entity { namespace component
 
 			ValueType& dereference() const
 			{
-				return *parent_->get_component(get_entity().index());
+				return *parent_->get_component(entity_index_);
 			}
 
 			dense_pool* parent_;
@@ -135,16 +135,6 @@ namespace entity { namespace component
 		{
 			optional_iterator_impl()
 			{}
-
-			entity get_entity() const
-			{
-				return make_entity(entity_index_);
-			}
-
-			void set_target(entity e)
-			{
-				entity_index_ = e.index();
-			}
 
 		private:
 
@@ -176,7 +166,7 @@ namespace entity { namespace component
 				{
 					if(!(*available_iterator))
 					{
-						return *parent_->get_component(get_entity().index());
+						return *parent_->get_component(entity_index_);
 					}
 				}
 

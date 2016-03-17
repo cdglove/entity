@@ -159,47 +159,6 @@ public:
 		}
 	}
 
-	void IterateIndexedOptional(benchmark::State& st)
-	{
-		while (st.KeepRunning())
-		{
-			auto a_begin = accel_pool.optional_begin();
-			auto a_end = accel_pool.optional_end();
-			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
-			{
-				a_begin.set_target(entity::make_entity(i));
-				if(*a_begin)
-					**a_begin += (0.001f * kFrameTime);
-			}
-
-			a_begin = accel_pool.optional_begin();
-			auto v_begin = velocity_pool.optional_begin();
-			auto v_end = velocity_pool.optional_end();
-			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
-			{
-				a_begin.set_target(entity::make_entity(i));
-				v_begin.set_target(entity::make_entity(i));
-				if(*a_begin && *v_begin)
-				{
-					**v_begin += **a_begin * kFrameTime;
-				}
-			}
-
-			v_begin = velocity_pool.optional_begin();
-			auto p_begin = position_pool.optional_begin();
-			auto p_end = position_pool.optional_end();
-			for(entity::entity_index_t i = 0, s = entities.size(); i < s; ++i)
-			{
-				v_begin.set_target(entity::make_entity(i));
-				p_begin.set_target(entity::make_entity(i));
-				if(*v_begin && *p_begin)
-				{
-					**p_begin += **v_begin * kFrameTime;
-				}
-			}
-		}
-	}
-
 	void IterateGetHelper(benchmark::State& st)
 	{
 		while (st.KeepRunning())
@@ -327,7 +286,6 @@ typedef ComponentFixture<entity::component::sparse_pool<float>> SparseFixture;
 #define TESTS(pool)							\
 	TEST(IterateRaw, pool)					\
 	TEST(IterateIndexed, pool)				\
-	TEST(IterateIndexedOptional, pool)		\
 	TEST(IterateGetHelper, pool)			\
 	TEST(IterateZip, pool)					\
 	TEST(IterateRange, pool)				\

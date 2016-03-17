@@ -116,16 +116,6 @@ namespace entity { namespace component
 			optional_iterator_impl()
 			{}
 
-			entity get_entity() const
-			{
-				return make_entity(std::distance(begin_, iterator_));
-			}
-
-			void set_target(entity e)
-			{
-				iterator_ = begin_ + e.index();
-			}
-
 		private:
 
 			friend class boost::iterator_core_access;
