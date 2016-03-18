@@ -108,44 +108,49 @@ namespace entity { namespace component
 		typedef optional_iterator_impl<T const> const_optional_iterator;
 
 		// --------------------------------------------------------------------
-		//		
-		saturated_pool(entity_pool& owner_pool, T const& default_value = T())
+		//	
+		template<typename... Args>		
+		saturated_pool(entity_pool& owner_pool, Args... args)
 		{
-			components_.resize(owner_pool.size(), default_value);
+			std::for_each(
+				owner_pool.begin(),
+				owner_pool.end(),
+				[&args..., this](entity e)
+				{
+					create_impl(e, std::forward<Args>(args)...);
+				}
+			);
 
 			slots_.entity_destroy_handler = 
 				owner_pool.signals().on_entity_destroy.connect(
-					boost::bind(
-						&saturated_pool::handle_destroy_entity,
-						this,
-						::_1
+						[this](entity e)
+						{
+							handle_destroy_entity(e);
+						}
 					)
-				)
-			;
+				;
 
 			slots_.entity_swap_handler = 
 				owner_pool.signals().on_entity_swap.connect(
-					boost::bind(
-						&saturated_pool::handle_swap_entity,
-						this,
-						::_1, 
-						::_2
-					)
+					[this](entity a, entity b)
+					{
+						handle_swap_entity(a, b);
+					}
 				)
 			;
 
-			auto_create_components(owner_pool, default_value);
+			auto_create_components(owner_pool, std::forward<Args>(args)...);
 		}
 
 		template<typename... Args>
-		void auto_create_components(entity_pool& owner_pool, Args... constructor_args)
+		void auto_create_components(entity_pool& owner_pool, Args... args)
 		{
 			slots_.entity_create_handler = 
 				owner_pool.signals().on_entity_create.connect(
 					std::function<void(entity)>(
-						[this, constructor_args...](entity e) 
+						[this, args...](entity e) 
 						{
-                            create_impl(e, constructor_args...);
+                            create_impl(e, args...);
 						}
 					)
 				)

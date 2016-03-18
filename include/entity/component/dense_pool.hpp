@@ -190,68 +190,61 @@ namespace entity { namespace component
 			
 		// --------------------------------------------------------------------
 		//
-		dense_pool(entity_pool& owner_pool, T const& default_value = T())
+		template<typename... Args>	
+		dense_pool(entity_pool& owner_pool, Args const&... args)
 			: used_count_(0)
 		{
 			components_.resize(owner_pool.size());
 			available_.resize(owner_pool.size(), true);
-
-			auto create_func = &dense_pool::create<T const&>;
 			
 			// Create default values for existing entities.
 			std::for_each(
 				owner_pool.begin(),
 				owner_pool.end(),
-				boost::bind(
-					create_func,
-					this,
-					::_1,
-					boost::ref(default_value)
-				)
+				[&args..., this](entity e)
+				{
+					create(e, args...);
+				}
 			);
 
 			slots_.entity_create_handler = 
 				owner_pool.signals().on_entity_create.connect(
-					boost::bind(
-						&dense_pool::handle_create_entity,
-						this,
-						::_1
-					)
+					[this](entity e)
+					{
+						handle_create_entity(e);
+					}
 				)
 			;
 
 			slots_.entity_destroy_handler = 
 				owner_pool.signals().on_entity_destroy.connect(
-					boost::bind(
-						&dense_pool::handle_destroy_entity,
-						this,
-						::_1
-					)
+					[this](entity e)
+					{
+						handle_destroy_entity(e);
+					}
 				)
 			;
 
 			slots_.entity_swap_handler = 
 				owner_pool.signals().on_entity_swap.connect(
-					boost::bind(
-						&dense_pool::handle_swap_entity,
-						this,
-						::_1,
-						::_2
-					)
+					[this](entity a, entity b)
+					{
+						handle_swap_entity(a, b);
+					}
 				)
 			;
 		}
 
 		template<typename... Args>
-		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
+		void auto_create_components(entity_pool& owner_pool, Args... args)
 		{
 			slots_.entity_create_handler = 
 				owner_pool.signals().on_entity_create.connect(
 					std::function<void(entity)>(
-						[this, constructor_args...](entity e)
+						[this, args...](entity e)
 						{
 							create_entity_slot(e);
-							create(e, constructor_args...);
+							create(e, args...);
 						}
 					)
 				)

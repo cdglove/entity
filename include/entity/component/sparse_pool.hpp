@@ -159,10 +159,9 @@ namespace entity { namespace component
 		
 		// --------------------------------------------------------------------
 		//
-		sparse_pool(entity_pool& owner_pool, T const& default_value = T())
+		template<typename... Args>
+		sparse_pool(entity_pool& owner_pool, Args&&... args)
 		{
-			auto create_func = &sparse_pool::create<T const&>;
-	
 			// Create default values for existing entities.
 			std::for_each(
 				owner_pool.begin(),
@@ -176,9 +175,9 @@ namespace entity { namespace component
 			std::for_each(
 				owner_pool.begin(),
 				owner_pool.end(),
-				[&default_value, this](entity e)
+				[&args..., this](entity e)
 				{
-					create(e, default_value);
+					create(e, std::forward<Args>(args)...);
 				}
 			);
 
@@ -211,15 +210,15 @@ namespace entity { namespace component
 		}
 
 		template<typename... Args>
-		void auto_create_components(entity_pool& owner_pool, Args&&... constructor_args)
+		void auto_create_components(entity_pool& owner_pool, Args... args)
 		{
 			slots_.entity_create_handler = 
 				owner_pool.signals().on_entity_create.connect(
 					std::function<void(entity)>(
-						[this, constructor_args...](entity e)
+						[this, args...](entity e)
 						{
 							handle_create_entity(e);
-							create(e, constructor_args...);
+							create(e, args...);
 						}
 					)
 				)
