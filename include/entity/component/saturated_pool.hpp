@@ -52,55 +52,6 @@ namespace entity { namespace component
 	{
 	private:
 
-		template<typename ValueType>
-		struct iterator_impl
-			  : boost::iterator_facade<
-			    iterator_impl<ValueType>
-			  , ValueType&
-			  , boost::forward_traversal_tag
-		  	>
-		{
-			iterator_impl()
-			{}
-
-			entity get_entity() const
-			{
-				return make_entity(entity_index_);
-			}
-
-		private:
-
-			friend class boost::iterator_core_access;
-			friend class saturated_pool;
-			
-			typedef ValueType* parent_iterator;
-
-			iterator_impl(
-				saturated_pool* parent,
-				entity_index_t idx)
-				: parent_(parent)
-				, entity_index_(idx)
-			{}
-
-			void increment()
-			{
-				++entity_index_;
-			}
-
-			bool equal(iterator_impl const& other) const
-			{
-				return entity_index_ == other.entity_index_;
-			}
-
-			ValueType& dereference() const
-			{
-				return parent_->components_[entity_index_];
-			}
-
-			saturated_pool* parent_;
-			entity_index_t entity_index_;
-		};
-
 		// For saturated pools, the elements are never 'optional', so the name
 		// optional is incorrect.  However, we want the pools to have
 		// compatible interfaces so we retain the name.
@@ -108,9 +59,9 @@ namespace entity { namespace component
 		struct optional_iterator_impl
 			  : boost::iterator_facade<
 			    optional_iterator_impl<ValueType>
-			  , required<ValueType>
+			  , ValueType&
 			  , boost::forward_traversal_tag
-			  , required<ValueType>
+			  , ValueType&
 		  	>
 		{
 			optional_iterator_impl()
@@ -121,14 +72,11 @@ namespace entity { namespace component
 			friend class boost::iterator_core_access;
 			friend class saturated_pool;
 			
-			typedef typename std::vector<ValueType>::iterator parent_iterator;
+			typedef typename std::vector<T>::iterator parent_iterator;
 
-			optional_iterator_impl(
-				saturated_pool* parent,
-				entity_index_t idx)
+			optional_iterator_impl(parent_iterator iter)
 			{
-				begin_ = parent->components_.begin();
-				iterator_ = begin_ + idx;
+				iterator_ = iter;
 			}
 
 			void increment()
@@ -141,12 +89,18 @@ namespace entity { namespace component
 				return iterator_ == other.iterator_;
 			}
 
-			required<ValueType> dereference() const
+			ValueType& dereference() const
 			{
 				return *iterator_;
 			}
 
-			parent_iterator begin_;
+			BOOST_FORCEINLINE BOOST_CONSTEXPR bool operator!() const BOOST_NOEXCEPT
+			{
+				return false;
+			}
+
+			BOOST_CONSTEXPR_EXPLICIT_OPERATOR_BOOL();
+
 			parent_iterator iterator_;
 		};
 
@@ -156,8 +110,8 @@ namespace entity { namespace component
 		typedef T value_type;
 		typedef required<T> optional_type;
 		typedef required<T const> const_optional_type;
-		typedef iterator_impl<T> iterator;
-		typedef iterator_impl<T const> const_iterator;
+		typedef typename std::vector<T>::iterator iterator;
+		typedef typename std::vector<T>::const_iterator const_iterator;
 		typedef optional_iterator_impl<T> optional_iterator;
 		typedef optional_iterator_impl<T const> const_optional_iterator;
 
@@ -230,42 +184,42 @@ namespace entity { namespace component
 
 		iterator begin()
 		{
-			return iterator(this, 0);
+			return components_.begin();
 		}
 
 		iterator end()
 		{
-			return iterator(this, components_.size());
+			return components_.end();
 		}
 		
 		const_iterator begin() const
 		{
-			return const_iterator(this, 0);
+			return components_.cbegin();
 		}
 
 		const_iterator end() const
 		{
-			return const_iterator(this, components_.size());
+			return components_.cend();
 		}
 
 		optional_iterator optional_begin()
 		{
-			return optional_iterator(this, 0);
+			return optional_iterator(components_.begin());
 		}
 
 		optional_iterator optional_end()
 		{
-			return optional_iterator(this, components_.size());
+			return optional_iterator(components_.end());
 		}
 		
 		const_optional_iterator optional_begin() const
 		{
-			return const_optional_iterator(this, 0);
+			return const_optional_iterator(components_.cbegin());
 		}
 
 		const_optional_iterator optional_end() const
 		{
-			return const_optional_iterator(this, components_.size());
+			return const_optional_iterator(components_.cend());
 		}
 
 		std::size_t size()

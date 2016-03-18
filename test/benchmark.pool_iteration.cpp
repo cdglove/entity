@@ -181,6 +181,33 @@ public:
 		}
 	}
 
+	void IterateChecked(benchmark::State& st)
+	{
+		while (st.KeepRunning())
+		{
+			auto accel_begin = accel_pool.optional_begin();
+			auto accel_end = accel_pool.optional_end();
+			for(auto accel = accel_begin; accel != accel_end; ++accel)
+			{
+				*accel += 0.001f * kFrameTime;
+			}
+
+			auto velocity_begin = velocity_pool.optional_begin();
+			auto velocity_end = velocity_pool.optional_end();
+			for(auto accel = accel_begin, velocity = velocity_begin; velocity != velocity_end; ++velocity, ++accel)
+			{
+				*velocity += *accel * kFrameTime;
+			}
+
+			auto position_begin = position_pool.optional_begin();
+			auto position_end = position_pool.optional_end();
+			for(auto velocity = velocity_begin, position = position_begin; position != position_end; ++position, ++velocity)
+			{
+				*position += *velocity * kFrameTime;
+			}
+		}
+	}
+
 	void IterateGetHelper(benchmark::State& st)
 	{
 		while (st.KeepRunning())
@@ -217,7 +244,7 @@ public:
 
 	void IterateZip(benchmark::State& st)
 	{
-		while (st.KeepRunning())
+		/*while (st.KeepRunning())
 		{
 			std::for_each(
 				accel_pool.optional_begin(),
@@ -236,50 +263,50 @@ public:
 				entity::iterator::make_zip_iterator(entities.end(), velocity_pool, position_pool),
 				move()
 			);
-		}
+		}*/
 	}
 
 	void IterateRange(benchmark::State& st)
 	{
 		while (st.KeepRunning())
 		{
-			auto ar = entity::range::make_optional_range(accel_pool);
-			std::for_each(ar.begin(), ar.end(), jerk());
+			//auto ar = entity::range::make_optional_range(accel_pool);
+			//std::for_each(ar.begin(), ar.end(), jerk());
 
-			auto avr = entity::range::combine(entities, accel_pool, velocity_pool);
-			std::for_each(avr.begin(), avr.end(), accelerate());
+			//auto avr = entity::range::combine(entities, accel_pool, velocity_pool);
+			//std::for_each(avr.begin(), avr.end(), accelerate());
 
-			auto vpr = entity::range::combine(entities, velocity_pool, position_pool);
-			std::for_each(vpr.begin(), vpr.end(), move());
+			//auto vpr = entity::range::combine(entities, velocity_pool, position_pool);
+			//std::for_each(vpr.begin(), vpr.end(), move());
 		}
 	}
 
 	void IterateOptional(benchmark::State& st)
 	{
-		while (st.KeepRunning())
-		{
-			std::for_each(
-				accel_pool.optional_begin(),
-				accel_pool.optional_end(),
-				jerk()
-			);
+		//while (st.KeepRunning())
+		//{
+		//	std::for_each(
+		//		accel_pool.optional_begin(),
+		//		accel_pool.optional_end(),
+		//		jerk()
+		//	);
 
-			auto av_begin = boost::make_zip_iterator(boost::make_tuple(accel_pool.optional_begin(), velocity_pool.optional_begin()));
-			auto av_end = boost::make_zip_iterator(boost::make_tuple(accel_pool.optional_end(), velocity_pool.optional_end()));
-			std::for_each(
-				av_begin,
-				av_end,
-				accelerate()
-			);
+		//	auto av_begin = boost::make_zip_iterator(boost::make_tuple(accel_pool.optional_begin(), velocity_pool.optional_begin()));
+		//	auto av_end = boost::make_zip_iterator(boost::make_tuple(accel_pool.optional_end(), velocity_pool.optional_end()));
+		//	std::for_each(
+		//		av_begin,
+		//		av_end,
+		//		accelerate()
+		//	);
 
-			auto vp_begin = boost::make_zip_iterator(boost::make_tuple(velocity_pool.optional_begin(), position_pool.optional_begin()));
-			auto vp_end = boost::make_zip_iterator(boost::make_tuple(velocity_pool.optional_end(), position_pool.optional_end()));
-			std::for_each(
-				vp_begin,
-				vp_end,
-				move()
-			);
-		}
+		//	auto vp_begin = boost::make_zip_iterator(boost::make_tuple(velocity_pool.optional_begin(), position_pool.optional_begin()));
+		//	auto vp_end = boost::make_zip_iterator(boost::make_tuple(velocity_pool.optional_end(), position_pool.optional_end()));
+		//	std::for_each(
+		//		vp_begin,
+		//		vp_end,
+		//		move()
+		//	);
+		//}
 	}
 
 private:
@@ -298,14 +325,16 @@ typedef ComponentFixture<entity::component::sparse_pool<float>> SparseFixture;
 // Add new pool types here.
 #define POOLS				\
 	POOL(SaturatedFixture)	\
-	POOL(DenseFixture)		\
-	POOL(SparseFixture)		\
+
+	//POOL(DenseFixture)		\
+	//POOL(SparseFixture)		\
 
 // Add new tests here.
 #define COMMON_TESTS(pool)					\
 	TEST(IterateRaw, pool)					\
 	TEST(IterateIndexed, pool)				\
 	TEST(IterateUnchecked, pool)			\
+	TEST(IterateChecked, pool)				\
 	TEST(IterateGetHelper, pool)			\
 	TEST(IterateZip, pool)					\
 	TEST(IterateRange, pool)				\
