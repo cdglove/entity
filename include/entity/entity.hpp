@@ -52,8 +52,8 @@ namespace entity
 		friend entity make_entity(entity_index_t) BOOST_NOEXCEPT;
 
 		// Only make_entity can construct entities.
-		// Can consider impicit conversion here, but
-		// perfer to be conservative at first.
+		// Can consider implicit conversion here, but
+		// prefer to be conservative at first.
 		explicit entity(entity_index_t idx) BOOST_NOEXCEPT
 			: idx_(idx)
 		{}
