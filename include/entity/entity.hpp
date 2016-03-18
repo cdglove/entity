@@ -61,7 +61,7 @@ namespace entity
 		entity_index_t idx_;
 	};
 
-	std::size_t hash_value(entity const& e) BOOST_NOEXCEPT
+	inline std::size_t hash_value(entity const& e) BOOST_NOEXCEPT
 	{
 		return e.index();
 	}
