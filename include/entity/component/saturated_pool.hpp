@@ -59,9 +59,9 @@ namespace entity { namespace component
 		struct optional_iterator_impl
 			  : boost::iterator_facade<
 			    optional_iterator_impl<ValueType>
-			  , ValueType&
+			  , required<ValueType>
 			  , boost::forward_traversal_tag
-			  , ValueType&
+			  , required<ValueType>
 		  	>
 		{
 			optional_iterator_impl()
@@ -75,9 +75,8 @@ namespace entity { namespace component
 			typedef typename std::vector<T>::iterator parent_iterator;
 
 			optional_iterator_impl(parent_iterator iter)
-			{
-				iterator_ = iter;
-			}
+				: iterator_(iter)
+			{}
 
 			void increment()
 			{
@@ -89,17 +88,10 @@ namespace entity { namespace component
 				return iterator_ == other.iterator_;
 			}
 
-			ValueType& dereference() const
+			required<ValueType> dereference() const
 			{
 				return *iterator_;
 			}
-
-			BOOST_FORCEINLINE BOOST_CONSTEXPR bool operator!() const BOOST_NOEXCEPT
-			{
-				return false;
-			}
-
-			BOOST_CONSTEXPR_EXPLICIT_OPERATOR_BOOL();
 
 			parent_iterator iterator_;
 		};

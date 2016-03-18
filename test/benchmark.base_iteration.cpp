@@ -22,7 +22,6 @@ static const float kFrameTime = 0.016f;
 template<typename I, typename Fn>
 void for_each(I i, I e, Fn f)
 {
-	#pragma loop( no_vector )
 	for(; i != e; ++i)
 	{
 		f(*i);
