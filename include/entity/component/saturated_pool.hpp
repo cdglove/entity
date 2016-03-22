@@ -147,12 +147,10 @@ namespace entity { namespace component
 		{
 			slots_.entity_create_handler = 
 				owner_pool.signals().on_entity_create.connect(
-					std::function<void(entity)>(
-						[this, args...](entity e) 
-						{
-                            create_impl(e, args...);
-						}
-					)
+					[this, args...](entity e) 
+					{
+                        create_impl(e, args...);
+					}
 				)
 			;
 		}
